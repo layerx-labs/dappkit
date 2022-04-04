@@ -49,4 +49,5 @@ export interface Network_v2Methods {
   refuseBountyProposal(bountyId: number, proposalId: number): ContractSendMethod;
   closeBounty(id: number, proposalId: number): ContractSendMethod;
   isBountyInDraft(bountyId: number): Promise<boolean>;
+  isProposalDisputed(bountyId: number, proposalId: number): Promise<boolean>;
 }

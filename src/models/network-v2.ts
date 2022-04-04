@@ -122,7 +122,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async disputes(address: string, bountyId: string | number, proposalId: string | number) {
     const hash = this.web3.utils.keccak256(`${this.web3.utils.encodePacked(bountyId, proposalId)}`);
     
-    return +(await this.callTx(this.contract.methods.disputes(address, hash)));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.disputes(address, hash)));
   }
 
   async mergeCreatorFeeShare() {
@@ -134,7 +134,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async oraclesDistributed() {
-    return this.callTx(this.contract.methods.oraclesDistributed());
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.oraclesDistributed()));
   }
 
   async percentageNeededForDispute() {
@@ -170,6 +170,21 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const creationDate = (await this.getBounty(bountyId)).creationDate * Thousand;
 
     return new Date() < new Date(creationDate + await this.draftTime());
+  }
+
+  /**
+   * A proposal is disputed if his weight is greater than the percentage needed for dispute
+   * @param bountyId 
+   * @param proposalId 
+   * @returns boolean
+   */
+  async isProposalDisputed(bountyId: number, proposalId: number) {
+    const disputeWeight = 
+      fromSmartContractDecimals((await this.getBounty(bountyId)).proposals[proposalId].disputeWeight);
+    const oraclesDistributed = await this.oraclesDistributed();
+    const percentageNeededForDispute = await this.percentageNeededForDispute();
+
+    return disputeWeight >= (percentageNeededForDispute * oraclesDistributed / 100);
   }
 
   async changeCouncilAmount(newAmount: number) {
