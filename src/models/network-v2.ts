@@ -161,6 +161,17 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.callTx(this.contract.methods.getBounty(id));
   }
 
+  /**
+   * A bounty is in Draft when now is earlier than the creation date + draft time
+   * @param bountyId 
+   * @returns boolean
+   */
+  async isBountyInDraft(bountyId: number) {
+    const creationDate = (await this.getBounty(bountyId)).creationDate * Thousand;
+
+    return new Date() < new Date(creationDate + await this.draftTime());
+  }
+
   async changeCouncilAmount(newAmount: number) {
     newAmount = toSmartContractDecimals(newAmount, this.settlerToken.decimals);
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.councilAmount, newAmount));
