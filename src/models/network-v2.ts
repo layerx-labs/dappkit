@@ -173,7 +173,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   /**
-   * A proposal is disputed if his weight is greater than the percentage needed for dispute
+   * A proposal is disputed if its weight is greater than the percentage needed for dispute
    * @param bountyId 
    * @param proposalId 
    * @returns boolean
