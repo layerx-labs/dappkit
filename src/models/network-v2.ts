@@ -85,11 +85,18 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async canceledBounties() {
-    return this.callTx(this.contract.methods.canceledBounties());
+    return +(await this.callTx(this.contract.methods.canceledBounties()));
   }
 
   async closedBounties() {
-    return this.callTx(this.contract.methods.closedBounties());
+    return +(await this.callTx(this.contract.methods.closedBounties()));
+  }
+
+  /**
+   * @returns number of open bounties
+   */
+  async openBounties() {
+    return await this.bountiesIndex() - (await this.closedBounties() + await this.canceledBounties());
   }
 
   async councilAmount() {
