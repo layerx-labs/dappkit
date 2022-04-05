@@ -129,7 +129,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async disputes(address: string, bountyId: string | number, proposalId: string | number) {
     const hash = this.web3.utils.keccak256(`${this.web3.utils.encodePacked(bountyId, proposalId)}`);
     
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.disputes(address, hash)));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.disputes(address, hash)), 
+                                     this.settlerToken.decimals);
   }
 
   async mergeCreatorFeeShare() {
@@ -141,7 +142,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async oraclesDistributed() {
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.oraclesDistributed()));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.oraclesDistributed()), 
+                                     this.settlerToken.decimals);
   }
 
   async percentageNeededForDispute() {
@@ -187,7 +189,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async isProposalDisputed(bountyId: number, proposalId: number) {
     const disputeWeight = 
-      fromSmartContractDecimals((await this.getBounty(bountyId)).proposals[proposalId].disputeWeight);
+      fromSmartContractDecimals((await this.getBounty(bountyId)).proposals[proposalId].disputeWeight,
+                                this.settlerToken.decimals);
     const oraclesDistributed = await this.oraclesDistributed();
     const percentageNeededForDispute = await this.percentageNeededForDispute();
 
