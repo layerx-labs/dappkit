@@ -400,6 +400,8 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
         bounty.canceled = true;
 
+        canceledBounties = canceledBounties.add(1);
+
         //ERC20 rewardToken = ERC20(bounty.rewardToken);
         require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "C5");
     }
