@@ -473,12 +473,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
   async getDelegationsOf(address: string): Promise<Delegation[]> {
     const delegations = await this.callTx(this.contract.methods.getDelegationsFor(address));
-
-    return delegations.map((delegation, index) => ({
+    const mappedDelegations = delegations.map((delegation, index) => ({
       ...delegation,
       id: index,
       amount: fromSmartContractDecimals(+delegation.amount, this.settlerToken.decimals)
     }));
+    const higherThanZero = mappedDelegations.filter(delegation => delegation.amount > 0);
+
+    return higherThanZero;
   }
 
   async getBountyCanceledEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCanceledEvent>[]> {
