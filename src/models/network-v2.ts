@@ -161,7 +161,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async totalSettlerLocked() {
-    return fromSmartContractDecimals(+ await this.callTx(this.contract.methods.totalSettlerLocked()),
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalSettlerLocked()),
                                      this.settlerToken.decimals);
   }
 
