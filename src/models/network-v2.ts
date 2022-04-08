@@ -13,6 +13,7 @@ import {ERC20} from '@models/erc20';
 import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress, TenK, Thousand} from '@utils/constants';
+import { OraclesResume } from '@interfaces/oracles-resume';
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -250,6 +251,22 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   /**
+   * Get the resume of oracles locked, delegated by others and delegations
+   * @param address 
+   */
+  async getOraclesResume(address: string): Promise<OraclesResume> {
+    const oracles = await this.callTx(this.contract.methods.oracles(address));
+    const delegations = await this.getDelegationsOf(address);
+
+    return {
+      locked: fromSmartContractDecimals(+oracles.locked, this.settlerToken.decimals),
+      delegatedToOthers: fromSmartContractDecimals(+oracles.toOthers, this.settlerToken.decimals),
+      delegatedByOthers: fromSmartContractDecimals(+oracles.byOthers, this.settlerToken.decimals),
+      delegations
+    };
+  }
+
+  /**
    * Lock given amount into the oracle mapping
    */
   async lock(tokenAmount: number) {
@@ -453,8 +470,13 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.callTx(this.contract.methods.cidBountyId(cid));
   }
 
-  async getDelegationOf(address: string) {
-    return this.callTx(this.contract.methods.getDelegationsFor(address));
+  async getDelegationsOf(address: string) {
+    const delegations = await this.callTx(this.contract.methods.getDelegationsFor(address));
+
+    return delegations.map(delegation => ({
+      ...delegation,
+      amount: fromSmartContractDecimals(+delegation.amount, this.settlerToken.decimals)
+    }));
   }
 
   async getBountyCanceledEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCanceledEvent>[]> {
