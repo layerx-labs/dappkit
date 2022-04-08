@@ -14,6 +14,7 @@ import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress, TenK, Thousand} from '@utils/constants';
 import { OraclesResume } from '@interfaces/oracles-resume';
+import { Delegation } from '@interfaces/delegation';
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -470,11 +471,12 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.callTx(this.contract.methods.cidBountyId(cid));
   }
 
-  async getDelegationsOf(address: string) {
+  async getDelegationsOf(address: string): Promise<Delegation[]> {
     const delegations = await this.callTx(this.contract.methods.getDelegationsFor(address));
 
-    return delegations.map(delegation => ({
+    return delegations.map((delegation, index) => ({
       ...delegation,
+      id: index,
       amount: fromSmartContractDecimals(+delegation.amount, this.settlerToken.decimals)
     }));
   }
