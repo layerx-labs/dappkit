@@ -195,6 +195,10 @@ contract Network_v2 is Governed, ReentrancyGuard {
         return bountiesOfAddress[owner];
     }
 
+    function treasuryInfo() external view returns(address, uint256, uint256) {
+        return (treasury, closeFee, cancelFee);
+    }
+
     function lessThan20MoreThan1(uint256 value) internal {
         require(value <= 20 days, "T1");
         require(value >= 1 minutes, "T2");
@@ -630,8 +634,8 @@ contract Network_v2 is Governed, ReentrancyGuard {
         uint256 returnAmount = bounty.tokenAmount;
 
         if (treasury != address(0)) {
-            returnAmount = returnAmount.sub(bounty.tokenAmount.div(100).mul(cancelFee.div(10000)));
-            require(erc20.transfer(treasury, bounty.tokenAmount.div(100).mul(cancelFee.div(10000))), "C3");
+            returnAmount = returnAmount.sub(bounty.tokenAmount.div(100).mul(closeFee.div(10000)));
+            require(erc20.transfer(treasury, bounty.tokenAmount.div(100).mul(closeFee.div(10000))), "C3");
         }
 
         uint256 mergerFee = returnAmount.div(100).mul(mergeCreatorFeeShare.div(10000));

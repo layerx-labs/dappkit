@@ -34,6 +34,7 @@ export * from '@interfaces/loophole-pool-update';
 export * from '@interfaces/loophole-user-info';
 export * from '@interfaces/network-merge';
 export * from '@interfaces/network-issue';
+export * from '@interfaces/treasury-info';
 export * from '@interfaces/oracles-summary';
 export * from '@interfaces/oracles-resume';
 export * from '@interfaces/real-fevr-marketplace-distributions';

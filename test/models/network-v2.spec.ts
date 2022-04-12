@@ -288,10 +288,14 @@ describe(`NetworkV2`, () => {
         const AliceAmount = bountyAmount / 100 * 51;
         const BobAmount = bountyAmount / 100 * 49;
 
+        const distributedAmounts = await network.calculateDistributedAmounts(bountyTokenAmount, [51, 49]);
+
         expect(await network.openBounties()).to.be.eq(0);
         expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq(1000);
         expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(+Number(AliceAmount).toFixed(2));
         expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq(+Number(BobAmount + 10000).toFixed(2));
+        expect(+(distributedAmounts.proposals[0]).toFixed(2)).to.be.eq(AliceAmount);
+        expect(+(distributedAmounts.proposals[1]).toFixed(2)).to.be.eq(BobAmount);
       });
     });
   });

@@ -94,6 +94,31 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return +(await this.callTx(this.contract.methods.closedBounties()));
   }
 
+  async treasuryInfo() {
+    return this.callTx(this.contract.methods.treasuryInfo());
+  }
+
+  /**
+   * Calculate the values that is distributed when a bounty is closed
+   * @param bountyAmount bounty's value
+   * @param proposalPercents an array with the percentuals of a proposal
+   */
+  async calculateDistributedAmounts(bountyAmount: number, proposalPercents: number[]) {
+    const treasury = await this.treasuryInfo();
+
+    const treasuryAmount = treasury['0'] === nativeZeroAddress ? 0 :  ((bountyAmount / 100) * (treasury['1'] / TenK));
+    const mergerAmount = bountyAmount / 100 * await this.mergeCreatorFeeShare();
+    const proposerAmount = (bountyAmount - mergerAmount) / 100 * await this.proposerFeeShare();
+    const amount = bountyAmount - treasuryAmount - mergerAmount - proposerAmount;
+
+    return {
+      treasuryAmount,
+      mergerAmount,
+      proposerAmount,
+      proposals: proposalPercents.map(percent => (amount / 100 * percent))
+    };
+  }
+
   /**
    * @returns number of open bounties
    */
