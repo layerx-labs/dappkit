@@ -15,6 +15,7 @@ import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers
 import {nativeZeroAddress, TenK, Thousand} from '@utils/constants';
 import { OraclesResume } from '@interfaces/oracles-resume';
 import { Delegation } from '@interfaces/delegation';
+import { OraclesResumeParser } from '@utils/oracles-resume';
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -120,7 +121,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   /**
-   * @returns number of open bounties
+   * Returns the number of open bounties
    */
   async openBounties() {
     return await this.bountiesIndex() - (await this.closedBounties() + await this.canceledBounties());
@@ -282,15 +283,9 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param address 
    */
   async getOraclesResume(address: string): Promise<OraclesResume> {
-    const oracles = await this.callTx(this.contract.methods.oracles(address));
-    const delegations = await this.getDelegationsOf(address);
-
-    return {
-      locked: fromSmartContractDecimals(+oracles.locked, this.settlerToken.decimals),
-      delegatedToOthers: fromSmartContractDecimals(+oracles.toOthers, this.settlerToken.decimals),
-      delegatedByOthers: fromSmartContractDecimals(+oracles.byOthers, this.settlerToken.decimals),
-      delegations
-    };
+    return OraclesResumeParser( await this.callTx(this.contract.methods.oracles(address)), 
+                                await this.getDelegationsOf(address), 
+                                this.settlerToken.decimals );
   }
 
   /**
@@ -502,11 +497,10 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const mappedDelegations = delegations.map((delegation, index) => ({
       ...delegation,
       id: index,
-      amount: fromSmartContractDecimals(+delegation.amount, this.settlerToken.decimals)
+      amount: fromSmartContractDecimals(delegation.amount, this.settlerToken.decimals)
     }));
-    const higherThanZero = mappedDelegations.filter(delegation => delegation.amount > 0);
 
-    return higherThanZero;
+    return mappedDelegations.filter(delegation => delegation.amount > 0);
   }
 
   async getBountyCanceledEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCanceledEvent>[]> {

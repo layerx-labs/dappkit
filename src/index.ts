@@ -94,5 +94,11 @@ export * from '@utils/stake-subscription';
 export * from '@utils/transaction-handler';
 export * from '@utils/voter-info';
 export * from '@utils/voting-poll-winner';
+export * from '@utils/benefactor';
+export * from '@utils/bounty';
+export * from '@utils/oracles-resume';
+export * from '@utils/proposal-detail';
+export * from '@utils/proposal';
+export * from '@utils/pull-request';
 
 export * as Defaults from '@utils/constants';
