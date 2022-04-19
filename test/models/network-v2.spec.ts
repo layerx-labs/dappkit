@@ -144,6 +144,7 @@ describe(`NetworkV2`, () => {
         expect(events[0].returnValues.cid).to.be.eq('c1');
         expect((await network.getBountiesOfAddress(Admin.address)).length).to.be.eq(1);
         expect(await network.bountiesIndex()).to.be.eq(1);
+        expect(await network.openBounties()).to.be.eq(1);
 
         bountyId = events[0].returnValues.id;
       });
@@ -177,6 +178,7 @@ describe(`NetworkV2`, () => {
         const receipt = await network.cancelBounty(bountyId);
         const events = await network.getBountyCanceledEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
         expect(events.length).to.be.eq(1);
+        expect(await network.openBounties()).to.be.eq(0);
         expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(10000)
       })
     });
@@ -232,6 +234,8 @@ describe(`NetworkV2`, () => {
 
         bountyId = await network.cidBountyId('c3');
 
+        expect(await network.openBounties()).to.be.eq(1);
+
         web3Connection.switchToAccount(Alice.privateKey);
         await bountyTransactional.approve(network.contractAddress!, AMOUNT_1M);
         await hasTxBlockNumber(network.fundBounty(bountyId, 10000));
@@ -284,9 +288,14 @@ describe(`NetworkV2`, () => {
         const AliceAmount = bountyAmount / 100 * 51;
         const BobAmount = bountyAmount / 100 * 49;
 
+        const distributedAmounts = await network.calculateDistributedAmounts(bountyTokenAmount, [51, 49]);
+
+        expect(await network.openBounties()).to.be.eq(0);
         expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq(1000);
         expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(+Number(AliceAmount).toFixed(2));
         expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq(+Number(BobAmount + 10000).toFixed(2));
+        expect(+(distributedAmounts.proposals[0]).toFixed(2)).to.be.eq(AliceAmount);
+        expect(+(distributedAmounts.proposals[1]).toFixed(2)).to.be.eq(BobAmount);
       });
     });
   });

@@ -13,6 +13,9 @@ import {ERC20} from '@models/erc20';
 import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress, TenK, Thousand} from '@utils/constants';
+import { OraclesResume } from '@interfaces/oracles-resume';
+import { Delegation } from '@interfaces/delegation';
+import { OraclesResumeParser } from '@utils/oracles-resume';
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -85,11 +88,43 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async canceledBounties() {
-    return this.callTx(this.contract.methods.canceledBounties());
+    return +(await this.callTx(this.contract.methods.canceledBounties()));
   }
 
   async closedBounties() {
-    return this.callTx(this.contract.methods.closedBounties());
+    return +(await this.callTx(this.contract.methods.closedBounties()));
+  }
+
+  async treasuryInfo() {
+    return this.callTx(this.contract.methods.treasuryInfo());
+  }
+
+  /**
+   * Calculate the values that is distributed when a bounty is closed
+   * @param bountyAmount bounty's value
+   * @param proposalPercents an array with the percentuals of a proposal
+   */
+  async calculateDistributedAmounts(bountyAmount: number, proposalPercents: number[]) {
+    const treasury = await this.treasuryInfo();
+
+    const treasuryAmount = treasury['0'] === nativeZeroAddress ? 0 :  ((bountyAmount / 100) * (treasury['1'] / TenK));
+    const mergerAmount = bountyAmount / 100 * await this.mergeCreatorFeeShare();
+    const proposerAmount = (bountyAmount - mergerAmount) / 100 * await this.proposerFeeShare();
+    const amount = bountyAmount - treasuryAmount - mergerAmount - proposerAmount;
+
+    return {
+      treasuryAmount,
+      mergerAmount,
+      proposerAmount,
+      proposals: proposalPercents.map(percent => (amount / 100 * percent))
+    };
+  }
+
+  /**
+   * Returns the number of open bounties
+   */
+  async openBounties() {
+    return await this.bountiesIndex() - (await this.closedBounties() + await this.canceledBounties());
   }
 
   async councilAmount() {
@@ -122,7 +157,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async disputes(address: string, bountyId: string | number, proposalId: string | number) {
     const hash = this.web3.utils.keccak256(`${this.web3.utils.encodePacked(bountyId, proposalId)}`);
     
-    return +(await this.callTx(this.contract.methods.disputes(address, hash)));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.disputes(address, hash)), 
+                                     this.settlerToken.decimals);
   }
 
   async mergeCreatorFeeShare() {
@@ -134,7 +170,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async oraclesDistributed() {
-    return this.callTx(this.contract.methods.oraclesDistributed());
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.oraclesDistributed()), 
+                                     this.settlerToken.decimals);
   }
 
   async percentageNeededForDispute() {
@@ -150,7 +187,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async totalSettlerLocked() {
-    return this.callTx(this.contract.methods.totalSettlerLocked());
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalSettlerLocked()),
+                                     this.settlerToken.decimals);
   }
 
   async getBountiesOfAddress(_address: string) {
@@ -159,6 +197,33 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
   async getBounty(id: number) {
     return this.callTx(this.contract.methods.getBounty(id));
+  }
+
+  /**
+   * A bounty is in Draft when now is earlier than the creation date + draft time
+   * @param bountyId 
+   * @returns boolean
+   */
+  async isBountyInDraft(bountyId: number) {
+    const creationDate = (await this.getBounty(bountyId)).creationDate * Thousand;
+
+    return new Date() < new Date(creationDate + await this.draftTime());
+  }
+
+  /**
+   * A proposal is disputed if its weight is greater than the percentage needed for dispute
+   * @param bountyId 
+   * @param proposalId 
+   * @returns boolean
+   */
+  async isProposalDisputed(bountyId: number, proposalId: number) {
+    const disputeWeight = 
+      fromSmartContractDecimals((await this.getBounty(bountyId)).proposals[proposalId].disputeWeight,
+                                this.settlerToken.decimals);
+    const oraclesDistributed = await this.oraclesDistributed();
+    const percentageNeededForDispute = await this.percentageNeededForDispute();
+
+    return disputeWeight >= (percentageNeededForDispute * oraclesDistributed / 100);
   }
 
   async changeCouncilAmount(newAmount: number) {
@@ -211,6 +276,16 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async getOraclesOf(_address: string) {
     const oracles = await this.callTx(this.contract.methods.oracles(_address));
     return fromSmartContractDecimals(+oracles.locked + +oracles.byOthers, this.settlerToken.decimals);
+  }
+
+  /**
+   * Get the resume of oracles locked, delegated by others and delegations
+   * @param address 
+   */
+  async getOraclesResume(address: string): Promise<OraclesResume> {
+    return OraclesResumeParser( await this.callTx(this.contract.methods.oracles(address)), 
+                                await this.getDelegationsOf(address), 
+                                this.settlerToken.decimals );
   }
 
   /**
@@ -417,8 +492,15 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.callTx(this.contract.methods.cidBountyId(cid));
   }
 
-  async getDelegationOf(address: string) {
-    return this.callTx(this.contract.methods.getDelegationsFor(address));
+  async getDelegationsOf(address: string): Promise<Delegation[]> {
+    const delegations = await this.callTx(this.contract.methods.getDelegationsFor(address));
+    const mappedDelegations = delegations.map((delegation, index) => ({
+      ...delegation,
+      id: index,
+      amount: fromSmartContractDecimals(delegation.amount, this.settlerToken.decimals)
+    }));
+
+    return mappedDelegations.filter(delegation => delegation.amount > 0);
   }
 
   async getBountyCanceledEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCanceledEvent>[]> {

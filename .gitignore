@@ -13,3 +13,4 @@ keys.json
 migrations/
 example/
 .dev*
+.vscode
