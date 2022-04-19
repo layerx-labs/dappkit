@@ -1,5 +1,5 @@
 import {Network_v2} from '../../src/models/network-v2';
-import {ERC20, fromSmartContractDecimals, toSmartContractDecimals, Web3Connection} from '../../src';
+import {ERC20, toSmartContractDecimals, Web3Connection} from '../../src';
 import {
   defaultWeb3Connection,
   erc20Deployer,
@@ -152,7 +152,7 @@ describe(`NetworkV2`, () => {
       it(`Updates bounty amount`, async () => {
         await hasTxBlockNumber(network.updateBountyAmount(bountyId, 1001));
         expect((await network.getBounty(bountyId)).tokenAmount)
-          .to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
+          .to.be.eq(1001);
       });
 
       // it(`Supports bounty`, async () => {
@@ -281,7 +281,7 @@ describe(`NetworkV2`, () => {
 
         await hasTxBlockNumber(network.closeBounty(bountyId, 1), `Should have closed bounty`);
 
-        const bountyTokenAmount = fromSmartContractDecimals(bounty.tokenAmount, bountyTransactional.decimals);
+        const bountyTokenAmount = bounty.tokenAmount;
         const mergerAmount = bountyTokenAmount / 100 * await network.mergeCreatorFeeShare();
         const proposerAmount = (bountyTokenAmount - mergerAmount) / 100 * await network.proposerFeeShare();
         const bountyAmount = bountyTokenAmount - mergerAmount - proposerAmount;
