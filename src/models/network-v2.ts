@@ -206,7 +206,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @returns boolean
    */
   async isBountyInDraft(bountyId: number) {
-    const creationDate = (await this.getBounty(bountyId)).creationDate * Thousand;
+    const creationDate = (await this.getBounty(bountyId)).creationDate;
 
     return new Date() < new Date(creationDate + await this.draftTime());
   }
@@ -218,9 +218,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @returns boolean
    */
   async isProposalDisputed(bountyId: number, proposalId: number) {
-    const disputeWeight = 
-      fromSmartContractDecimals((await this.getBounty(bountyId)).proposals[proposalId].disputeWeight,
-                                this.settlerToken.decimals);
+    const disputeWeight = (await this.getBounty(bountyId)).proposals[proposalId].disputeWeight;
     const oraclesDistributed = await this.oraclesDistributed();
     const percentageNeededForDispute = await this.percentageNeededForDispute();
 
