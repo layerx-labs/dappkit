@@ -40,15 +40,15 @@ export class ERC1155Standard extends Model<ERC1155StandardMethods> implements De
   }
 
   async safeBatchTransferFrom(from: string, to: string, ids: number[], amounts: number[], data: string){
-    return this.callTx(this.contract.methods.safeBatchTransferFrom(from, to, ids, amounts, data)); 
+    return this.sendTx(this.contract.methods.safeBatchTransferFrom(from, to, ids, amounts, data)); 
   }
 
   async safeTransferFrom(from: string, to: string, id: number, amount: number, data: string){
-    return this.callTx(this.contract.methods.safeTransferFrom(from, to, id, amount, data)); 
+    return this.sendTx(this.contract.methods.safeTransferFrom(from, to, id, amount, data)); 
   }
 
   async setApprovalForAll(operator: string, approved: boolean){
-    return this.callTx(this.contract.methods.setApprovalForAll(operator, approved)); 
+    return this.sendTx(this.contract.methods.setApprovalForAll(operator, approved)); 
   }
 
   async supportsInterface(interfaceId: string){
@@ -56,7 +56,7 @@ export class ERC1155Standard extends Model<ERC1155StandardMethods> implements De
   }
 
   async transferOwnership(newOwner: string){
-    return this.callTx(this.contract.methods.transferOwnership(newOwner)); 
+    return this.sendTx(this.contract.methods.transferOwnership(newOwner)); 
   }
 
   async uri(v1: number){
@@ -64,15 +64,15 @@ export class ERC1155Standard extends Model<ERC1155StandardMethods> implements De
   }
 
   async setURI(uri: string){
-    return this.callTx(this.contract.methods.setURI(uri)); 
+    return this.sendTx(this.contract.methods.setURI(uri)); 
   }
 
   async mint(to: string, tokenId: number, amount: number, data: string){
-    return this.callTx(this.contract.methods.mint(to, tokenId, amount, data)); 
+    return this.sendTx(this.contract.methods.mint(to, tokenId, amount, data)); 
   }
 
   async mintBatch(to: string, tokenIds: number[], amounts: number[], data: string){
-    return this.callTx(this.contract.methods.mintBatch(to, tokenIds, amounts, data)); 
+    return this.sendTx(this.contract.methods.mintBatch(to, tokenIds, amounts, data)); 
   }
 
   async getApprovalForAllEvents(filter: PastEventOptions): Promise<XEvents<Events.ApprovalForAllEvent>[]> {
