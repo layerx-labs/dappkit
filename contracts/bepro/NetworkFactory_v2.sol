@@ -38,7 +38,7 @@ contract NetworkFactory_v2 is ReentrancyGuard  {
             if (networkOfAddress[msg.sender] != address(0)) {
                 Network_v2 network = Network_v2(networkOfAddress[msg.sender]);
                 require(network.totalSettlerLocked() == 0, "UL1");
-                require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex() - 1, "UL2");
+                require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
                 emit NetworkClosed(networkOfAddress[msg.sender]);
                 networkOfAddress[msg.sender] = address(0);
             }
