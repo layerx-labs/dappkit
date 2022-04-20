@@ -140,14 +140,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @returns number duration in milliseconds
    */
   async disputableTime() {
-    return (await this.callTx(this.contract.methods.disputableTime())) * Thousand;
+    return +(await this.callTx(this.contract.methods.disputableTime()));
   }
 
   /**
    * @returns number duration in milliseconds
    */
   async draftTime() {
-    return (await this.callTx(this.contract.methods.draftTime())) * Thousand;
+    return +(await this.callTx(this.contract.methods.draftTime()));
   }
 
   async bountiesIndex() {
