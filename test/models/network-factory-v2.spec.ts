@@ -4,7 +4,7 @@ import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {Errors} from '../../src/interfaces/error-enum';
 import { BountyToken } from '../../src/models/bounty-token';
-import {nativeZeroAddress} from '../../src/utils/constants';
+import {nativeZeroAddress, Thousand} from '../../src/utils/constants';
 
 describe(`NetworkFactoryV2`, () => {
 
@@ -134,7 +134,7 @@ describe(`NetworkFactoryV2`, () => {
 
       it(`Change draft time`, async () => {
         await hasTxBlockNumber(network.changeDraftTime(60), `Should have changed draft time`);
-        expect(await network.draftTime()).to.be.eq(60);
+        expect(await network.draftTime()).to.be.eq(60 * Thousand);
       });
 
       it(`Changes disputable time`, async () => {
