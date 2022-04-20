@@ -15,7 +15,8 @@ import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers
 import {nativeZeroAddress, TenK, Thousand} from '@utils/constants';
 import { OraclesResume } from '@interfaces/oracles-resume';
 import { Delegation } from '@interfaces/delegation';
-import { OraclesResumeParser } from '@utils/oracles-resume';
+import { oraclesResume } from '@utils/oracles-resume';
+import { bounty } from '@utils/bounty';
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -196,7 +197,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async getBounty(id: number) {
-    return this.callTx(this.contract.methods.getBounty(id));
+    return bounty(await this.callTx(this.contract.methods.getBounty(id)));
   }
 
   /**
@@ -205,7 +206,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @returns boolean
    */
   async isBountyInDraft(bountyId: number) {
-    const creationDate = (await this.getBounty(bountyId)).creationDate * Thousand;
+    const creationDate = (await this.getBounty(bountyId)).creationDate;
 
     return new Date() < new Date(creationDate + await this.draftTime());
   }
@@ -217,9 +218,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @returns boolean
    */
   async isProposalDisputed(bountyId: number, proposalId: number) {
-    const disputeWeight = 
-      fromSmartContractDecimals((await this.getBounty(bountyId)).proposals[proposalId].disputeWeight,
-                                this.settlerToken.decimals);
+    const disputeWeight = (await this.getBounty(bountyId)).proposals[proposalId].disputeWeight;
     const oraclesDistributed = await this.oraclesDistributed();
     const percentageNeededForDispute = await this.percentageNeededForDispute();
 
@@ -283,9 +282,9 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param address 
    */
   async getOraclesResume(address: string): Promise<OraclesResume> {
-    return OraclesResumeParser( await this.callTx(this.contract.methods.oracles(address)), 
-                                await this.getDelegationsOf(address), 
-                                this.settlerToken.decimals );
+    return oraclesResume( await this.callTx(this.contract.methods.oracles(address)), 
+                          await this.getDelegationsOf(address), 
+                          this.settlerToken.decimals );
   }
 
   /**

@@ -4,9 +4,9 @@ import { OraclesResume } from "@interfaces/oracles-resume";
 
 import { fromSmartContractDecimals } from "@utils/numbers";
 
-export function OraclesResumeParser(oracles: Oracle, 
-                                    delegations: Delegation[], 
-                                    settlerTokenDecimals = 18): OraclesResume {
+export function oraclesResume(oracles: Oracle, 
+                              delegations: Delegation[], 
+                              settlerTokenDecimals = 18): OraclesResume {
   return {
     locked: fromSmartContractDecimals(+oracles.locked, settlerTokenDecimals),
     delegatedToOthers: fromSmartContractDecimals(+oracles.toOthers, settlerTokenDecimals),
