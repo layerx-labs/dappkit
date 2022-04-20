@@ -39,7 +39,7 @@ export class NetworkFactoryV2 extends Model<NetworkFactoryV2Methods> implements 
   }
 
   async lockedTokensOfAddress(address: string) {
-    return this.callTx(this.contract.methods.lockedTokensOfAddress(address));
+    return +fromDecimals(await this.callTx(this.contract.methods.lockedTokensOfAddress(address)), this.erc20.decimals);
   }
 
   async networkOfAddress(address: string) {
