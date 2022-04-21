@@ -153,7 +153,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     event BountyPullRequestReadyForReview(uint256 indexed bountyId, uint256 pullRequestId);
     event BountyPullRequestCanceled(uint256 indexed bountyId, uint256 pullRequestId);
     event BountyProposalCreated(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
-    event BountyProposalDisputed(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
+    event BountyProposalDisputed(uint256 indexed bountyId, uint256 prId, uint256 proposalId, uint256 weight, bool overflow);
     event BountyProposalRefused(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
     // event Log(uint256 bountyId, uint256 mergerValue, uint256 proposerValue, uint256 distributionValue);
     // event LogTransfer(uint256 bountyId, address to, uint256 distributionValue);
@@ -601,7 +601,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         proposal.disputeWeight = proposal.disputeWeight.add(weight);
         disputes[msg.sender][b32] = weight;
 
-        emit BountyProposalDisputed(bountyId, proposal.prId, proposalId);
+        emit BountyProposalDisputed(bountyId, proposal.prId, proposalId, proposal.disputeWeight, proposal.disputeWeight >= oraclesDistributed.mul(percentageNeededForDispute).div(10000));
     }
 
     function refuseBountyProposal(uint256 bountyId, uint256 proposalId) external payable {
