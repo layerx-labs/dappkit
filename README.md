@@ -48,9 +48,9 @@ Please refer to the [`test/`](./test/models) folder to read further usage exampl
 
 ## Documentation 
 
-* [Guides](https://docs.bepro.network/sdk-documentation/start-building/how-to-guides)
-* [SDK Documentation](https://taikai.github.io/dappkit/)
-* [Use Cases](https://docs.bepro.network/sdk-documentation/use-cases)
+* [Guides](https://docs.dappkit.dev/sdk-documentation/start-building/how-to-guides)
+* [SDK Documentation](https://sdk.dappkit.dev/)
+* [Use Cases](https://docs.dappkit.dev/sdk-documentation/use-cases)
 
 ### How to Generate Documentation 
 
