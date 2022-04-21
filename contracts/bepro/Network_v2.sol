@@ -399,7 +399,6 @@ contract Network_v2 is Governed, ReentrancyGuard {
         Bounty storage bounty = bounties[id];
         require(bounty.funded == false, "F1");
         require(bounty.tokenAmount < bounty.fundingAmount, "F2");
-        require(bounty.tokenAmount < bounty.tokenAmount.add(fundingAmount), "F3");
 
         bounty.funding.push(Benefactor(msg.sender, fundingAmount, block.timestamp));
 
