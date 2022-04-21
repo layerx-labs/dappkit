@@ -148,7 +148,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     event BountyCreated(uint256 id, string cid, address indexed creator);
     event BountyCanceled(uint256 indexed id);
     event BountyFunded(uint256 indexed id, bool indexed funded);
-    event BountyDistributed(uint256 indexed id, uint256 proposalId);
+    event BountyClosed(uint256 indexed id, uint256 proposalId);
     event BountyPullRequestCreated(uint256 indexed bountyId, uint256 pullRequestId);
     event BountyPullRequestReadyForReview(uint256 indexed bountyId, uint256 pullRequestId);
     event BountyPullRequestCanceled(uint256 indexed bountyId, uint256 pullRequestId);
@@ -593,9 +593,6 @@ contract Network_v2 is Governed, ReentrancyGuard {
         uint256 proposerFee = returnAmount.sub(mergerFee).div(100).mul(proposerFeeShare.div(10000));
         uint256 proposalAmount = returnAmount.sub(mergerFee).sub(proposerFee);
 
-        /// event Log(uint256 bountyId, uint256 mergerValue, uint256 proposerValue, uint256 distributionValue);
-        /// event LogTransfer(uint256 bountyId, address to, uint256 distributionValue);
-
         // emit Log(id, mergerFee, proposerFee, proposalAmount);
 
         require(erc20.transfer(msg.sender, mergerFee), "CB4");
@@ -624,6 +621,6 @@ contract Network_v2 is Governed, ReentrancyGuard {
         bounty.closedDate = block.timestamp;
         closedBounties = closedBounties.add(1);
 
-        emit BountyDistributed(id, proposalId);
+        emit BountyClosed(id, proposalId);
     }
 }
