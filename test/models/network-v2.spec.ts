@@ -150,9 +150,12 @@ describe(`NetworkV2`, () => {
       });
 
       it(`Updates bounty amount`, async () => {
-        await hasTxBlockNumber(network.updateBountyAmount(bountyId, 1001));
-        expect((await network.getBounty(bountyId)).tokenAmount)
-          .to.be.eq(1001);
+        const receipt = await network.updateBountyAmount(bountyId, 1001);
+
+        const events = await network.getBountyAmountUpdatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
+
+        expect(events[0].returnValues.amount).to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
+        expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq(1001);
       });
 
       // it(`Supports bounty`, async () => {
