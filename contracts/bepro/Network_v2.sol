@@ -147,7 +147,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     event BountyCreated(uint256 id, string cid, address indexed creator);
     event BountyCanceled(uint256 indexed id);
-    event BountyFunded(uint256 indexed id, bool indexed funded);
+    event BountyFunded(uint256 indexed id, bool indexed funded, address benefactor, int256 amount);
     event BountyClosed(uint256 indexed id, uint256 proposalId);
     event BountyPullRequestCreated(uint256 indexed bountyId, uint256 pullRequestId);
     event BountyPullRequestReadyForReview(uint256 indexed bountyId, uint256 pullRequestId);
@@ -407,7 +407,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         bounty.funded = bounty.fundingAmount == bounty.tokenAmount;
 
         require(ERC20(bounty.transactional).transferFrom(msg.sender, address(this), fundingAmount), "F3");
-        emit BountyFunded(id, bounty.funded);
+        emit BountyFunded(id, bounty.funded, msg.sender, fundingAmount);
     }
 
     /// @dev enable users to retract their funding
@@ -428,7 +428,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         }
 
         bounty.funded = bounty.tokenAmount == bounty.fundingAmount;
-        emit BountyFunded(id, bounty.funded);
+        emit BountyFunded(id, bounty.funded, msg.sender, bounty.tokenAmount - bounty.fundingAmount);
     }
 
     /// @dev create pull request for bounty id
