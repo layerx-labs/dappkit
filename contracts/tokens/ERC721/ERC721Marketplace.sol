@@ -2,7 +2,7 @@ pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./utils/Ownable.sol";
+import "../../utils/Ownable.sol";
 
 contract ERC721Marketplace is Ownable {
 
@@ -29,10 +29,9 @@ contract ERC721Marketplace is Ownable {
         bool sold;
     }
 
-    constructor(ERC20 _erc20Address,
-    IERC721 _erc721Address) public {
-            erc20Address = _erc20Address;
-            erc721Address = _erc721Address;
+    constructor(address _erc20Address, address _erc721Address) Ownable() public {
+        erc20Address = ERC20(_erc20Address);
+        erc721Address = IERC721(_erc721Address);
     }
 
     event SaleCreated(uint256 indexed tokenId, uint256 price, address indexed creator);
@@ -83,7 +82,7 @@ contract ERC721Marketplace is Ownable {
                 // Transfer fee to fee address
                 require(feeAddress.send(
                         (feePercentage * sales[_tokenId].price) / 100
-                ), "Contract was not allowed to do the transfer");
+                    ), "Contract was not allowed to do the transfer");
             }
 
             //Transfer ERC20 to seller
@@ -97,7 +96,7 @@ contract ERC721Marketplace is Ownable {
                 require(erc20Address.transfer(
                         feeAddress,
                         (feePercentage * sales[_tokenId].price) / 100
-                ), "Contract was not allowed to do the transfer");
+                    ), "Contract was not allowed to do the transfer");
             }
 
             //Transfer ERC20 to seller

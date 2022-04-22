@@ -5,7 +5,7 @@ pragma solidity >=0.6.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./utils/Ownable.sol";
+import "../utils/Ownable.sol";
 
 contract StakingContract is Pausable, Ownable {
     using SafeMath for uint256;

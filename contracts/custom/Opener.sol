@@ -1,10 +1,4 @@
-// SPDX-License-Identifier: MIT
-
 pragma solidity >=0.6.0;
-
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./utils/Ownable.sol";
 
 contract Opener is  Ownable {
     using SafeMath for uint256;
@@ -35,13 +29,13 @@ contract Opener is  Ownable {
     uint256 public _openedPacks = 0;
 
     constructor(
-        ERC20 purchaseToken,
+        address purchaseToken,
         address baseFeeAddress,
         address feeAddress,
         address otherAddress,
         uint256 limitedAmount
     ) public {
-        _purchaseToken = purchaseToken;
+        _purchaseToken = ERC20(purchaseToken);
         _baseFeeAddress = baseFeeAddress;
         _feeAddress = feeAddress;
         _otherAddress = otherAddress;
@@ -137,80 +131,5 @@ contract Opener is  Ownable {
 
     function unlock() public onlyOwner {
         _closed = false;
-    }
-}
-
-// ERC721Standard made for a simple structure, owner generates himself the NFT he wants (direct minting)
-contract ERC721Standard is ERC721, Ownable {
-
-    constructor (string memory name, string memory symbol) public ERC721(name, symbol) { }
-
-    function exists(uint256 tokenId) public view returns (bool) {
-        return _exists(tokenId);
-    }
-
-    function setTokenURI(uint256 tokenId, string memory uri) public onlyOwner {
-        _setTokenURI(tokenId, uri);
-    }
-
-    function setBaseURI(string memory baseURI) public onlyOwner {
-        _setBaseURI(baseURI);
-    }
-
-    function mint(address to, uint256 tokenId) public onlyOwner {
-        _safeMint(to, tokenId);
-    }
-
-    function mint(address to, uint256 tokenId, bytes memory _data) public onlyOwner {
-        _safeMint(to, tokenId, _data);
-    }
-}
-
-// ERC721Collectibles made for a Cryptokitties/Polkamon like structure, where an hash is given by the owner based on a purchase of a package
-// Can be limited or unlimited
-contract ERC721Collectibles is Opener, ERC721 {
-
-    constructor (
-        string memory name, string memory symbol,
-        uint256 limitedAmount,
-        ERC20 _purchaseToken,
-        address baseFeeAddress,
-        address feeAddress,
-        address otherAddress) public ERC721(name, symbol)
-        Opener(_purchaseToken, baseFeeAddress, feeAddress, otherAddress, limitedAmount)
-    {
-    }
-
-    function exists(uint256 tokenId) public view returns (bool) {
-        return _exists(tokenId);
-    }
-
-    function setTokenURI(uint256 tokenId, string memory uri) public onlyOwner {
-        _setTokenURI(tokenId, uri);
-    }
-
-    function setBaseURI(string memory baseURI) public onlyOwner {
-        _setBaseURI(baseURI);
-    }
-
-    function mint(uint256 tokenIdToMint) public {
-        require(
-            tokenIdToMint <= _currentTokenId,
-            "Token Id not registered"
-        );
-
-        require(registeredIDs[msg.sender][tokenIdToMint], "Token was not registered or not the rightful owner");
-        require(!alreadyMinted[tokenIdToMint], "Already minted");
-
-        alreadyMinted[tokenIdToMint] = true;
-        _safeMint(msg.sender, tokenIdToMint);
-    }
-
-    function openPack(uint256 amount) public {
-        _openPack(amount);
-    }
-
-    function getRegisteredIDs(address _address) public view returns(uint256[] memory) {
-        return registeredIDsArray[_address];
     }
 }

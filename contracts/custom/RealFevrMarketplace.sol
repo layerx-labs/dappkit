@@ -2,7 +2,7 @@ pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../ERC721Marketplace.sol";
+import "../tokens/ERC721/ERC721Marketplace.sol";
 
 
 interface RealFevrOpener721 is IERC721 {
@@ -13,10 +13,9 @@ contract RealFevrMarketplace is ERC721Marketplace {
 
     RealFevrOpener721 public erc721Address;
 
-    constructor(ERC20 _erc20Address,
-        RealFevrOpener721 _erc721Address)
+    constructor(address _erc20Address, RealFevrOpener721 _erc721Address)
     public ERC721Marketplace(_erc20Address, _erc721Address) {
-        erc721Address = _erc721Address;
+        erc721Address = ERC20(_erc721Address);
     }
 
     function removeERC721FromSaleAdmin(uint256 _tokenId) public onlyOwner {
