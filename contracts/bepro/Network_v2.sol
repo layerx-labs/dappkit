@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "../math/SafePercentMath.sol";
 import "../utils/Governed.sol";
-import "./BountyToken.sol";
+import "../tokens/ERC721/BountyToken.sol";
 
 struct PullRequest {
     string originRepo;
