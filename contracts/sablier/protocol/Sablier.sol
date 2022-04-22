@@ -10,7 +10,7 @@ import "../../utils/Ownable.sol";
 
 import "./interfaces/IERC1620.sol";
 import "./Types.sol";
-import "../../IERC20View.sol";
+import "../../tokens/ERC20/IERC20View.sol";
 
 /**
  * @title Sablier's Money Streaming
