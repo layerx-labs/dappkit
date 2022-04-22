@@ -2,8 +2,8 @@ pragma solidity >=0.6.0;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../utils/Dispatcher.sol";
-import "../utils/Ownable.sol";
+import "../../utils/Dispatcher.sol";
+import "../../utils/Ownable.sol";
 
 enum BountyRoles { Proposer, Developer, Reviewer, Creator, Other }
 

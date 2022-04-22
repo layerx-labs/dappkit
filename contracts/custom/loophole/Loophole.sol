@@ -10,7 +10,7 @@ import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 
-import "../../IERC20Events.sol";
+import "../../tokens/ERC20/IERC20Events.sol";
 import "./ILoophole.sol";
 import "../../utils/Ownable.sol";
 import "../../uniswap/UniswapV3RouterBridge.sol";
