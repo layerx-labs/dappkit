@@ -1,6 +1,6 @@
 pragma solidity >=0.6.0;
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Capped.sol";
 import "./ERC20Standard.sol";
 import "../../utils/Ownable.sol";
 
