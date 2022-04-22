@@ -24,11 +24,11 @@ export class ERC1155Standard extends Model<ERC1155StandardMethods> implements De
   }
   
   async balanceOf(account: string, id: number){
-    return this.callTx(this.contract.methods.balanceOf(account, id)); 
+    return Number(await this.callTx(this.contract.methods.balanceOf(account, id))); 
   }
 
   async balanceOfBatch(accounts: string[], ids: number[]){
-    return this.callTx(this.contract.methods.balanceOfBatch(accounts, ids)); 
+    return (await this.callTx(this.contract.methods.balanceOfBatch(accounts, ids))).map(balance => Number(balance)); 
   }
 
   async isApprovedForAll(account: string, operator: string){
