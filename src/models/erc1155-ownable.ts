@@ -3,20 +3,20 @@ import { Web3Connection } from '@base/web3-connection';
 import { Web3ConnectionOptions } from '@interfaces/web3-connection-options';
 import { Deployable } from '@interfaces/deployable';
 import { XEvents } from '@events/x-events';
-import ERC1155StandardJson from '@abi/ERC1155Standard.json';
-import { ERC1155StandardMethods } from '@methods/erc1155-standard';
-import * as Events from '@events/erc1155-standard-events';
+import ERC1155OwnableJson from '@abi/ERC1155Ownable.json';
+import { ERC1155OwnableMethods } from '@methods/erc1155-ownable';
+import * as Events from '@events/erc1155-ownable-events';
 import { PastEventOptions } from 'web3-eth-contract';
 import { AbiItem } from 'web3-utils';
 
-export class ERC1155Standard extends Model<ERC1155StandardMethods> implements Deployable {
+export class ERC1155Ownable extends Model<ERC1155OwnableMethods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, ERC1155StandardJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, ERC1155OwnableJson.abi as AbiItem[], contractAddress);
   }
 
   async deployJsonAbi(uri: string) {
     const deployOptions = {
-        data: ERC1155StandardJson.bytecode,
+        data: ERC1155OwnableJson.bytecode,
         arguments: [uri]
     };
 
@@ -28,7 +28,8 @@ export class ERC1155Standard extends Model<ERC1155StandardMethods> implements De
   }
 
   async balanceOfBatch(accounts: string[], ids: number[]){
-    return (await this.callTx(this.contract.methods.balanceOfBatch(accounts, ids))).map(balance => Number(balance)); 
+    return (await this.callTx(this.contract.methods.balanceOfBatch(accounts, ids)))
+    .map((balance) => Number(balance)); 
   }
 
   async isApprovedForAll(account: string, operator: string){

@@ -1,7 +1,7 @@
 import { ContractSendMethod } from 'web3-eth-contract';
 import { ContractCallMethod } from '@methods/contract-call-method';
 
-export interface ERC1155StandardMethods {
+export interface ERC1155OwnableMethods {
   balanceOf(account: string, id: number): ContractCallMethod<number>;
   balanceOfBatch(
     accounts: string[],

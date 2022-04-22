@@ -1,10 +1,10 @@
-import { defaultWeb3Connection, getPrivateKeyFromFile } from '../utils/';
-import { ERC1155Standard, Web3Connection } from '../../src';
+import { defaultWeb3Connection, getPrivateKeyFromFile } from '../utils';
+import { ERC1155Ownable, Web3Connection } from '../../src';
 import { expect } from 'chai';
 import { Account } from 'web3-core';
 
-describe(`ERC1155 Standard`, () => {
-  let contract: ERC1155Standard;
+describe(`ERC1155 Ownable`, () => {
+  let contract: ERC1155Ownable;
   let web3Connection: Web3Connection;
   let contractAddress: string;
   let bob: Account;
@@ -19,7 +19,7 @@ describe(`ERC1155 Standard`, () => {
   });
 
   it(`Deploys the contract`, async () => {
-    const deployer = new ERC1155Standard(web3Connection);
+    const deployer = new ERC1155Ownable(web3Connection);
     deployer.loadAbi();
     const tx = await deployer.deployJsonAbi('https://my.token.uri');
     expect(tx.blockNumber).to.exist;
@@ -29,7 +29,7 @@ describe(`ERC1155 Standard`, () => {
   describe(`Methods`, () => {
     before(async () => {
       try {
-        contract = new ERC1155Standard(web3Connection, contractAddress!);
+        contract = new ERC1155Ownable(web3Connection, contractAddress!);
         await contract.loadContract();
       } catch (error) {
         console.log('Methods - before hook error :>> ', error);

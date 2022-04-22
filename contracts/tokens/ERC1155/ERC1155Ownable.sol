@@ -3,11 +3,9 @@
 pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "./utils/Ownable.sol";
+import "../../utils/Ownable.sol";
 
-
-// ERC1155Standard
-contract ERC1155Standard is ERC1155, Ownable {
+contract ERC1155Ownable is ERC1155, Ownable {
 
     constructor (string memory uri) public ERC1155(uri) { }
 
