@@ -155,6 +155,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     event BountyProposalCreated(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
     event BountyProposalDisputed(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
     event BountyProposalRefused(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
+    event BountyAmountUpdated(uint256 indexed id, uint256 amount);
     // event Log(uint256 bountyId, uint256 mergerValue, uint256 proposerValue, uint256 distributionValue);
     // event LogTransfer(uint256 bountyId, address to, uint256 distributionValue);
 
@@ -433,6 +434,8 @@ contract Network_v2 is Governed, ReentrancyGuard {
         }
 
         bounty.tokenAmount = newTokenAmount;
+
+        emit BountyAmountUpdated(id, newTokenAmount);
     }
 
     /// @dev enable users to fund a bounty

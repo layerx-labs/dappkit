@@ -9,3 +9,4 @@ export interface BountyPullRequestCanceledEvent { returnValues: {'bountyId': num
 export interface BountyPullRequestCreatedEvent { returnValues: {'bountyId': number;'pullRequestId': number;} }
 export interface BountyPullRequestReadyForReviewEvent { returnValues: {'bountyId': number;'pullRequestId': number;} }
 export interface GovernorTransferredEvent { returnValues: {'previousGovernor': string;'newGovernor': string;} }
+export interface BountyAmountUpdatedEvent { returnValues: {'id': number;'amount': number;} }
