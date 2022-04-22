@@ -9,6 +9,9 @@ import {ERC20} from '@models/erc20';
 import {fromDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {Errors} from '@interfaces/error-enum';
 import {MANAGE_FUNDS} from '@utils/constants';
+import {XEvents} from '@events/x-events';
+import {PastEventOptions} from 'web3-eth-contract';
+import * as Events from '@events/network-factory-v2-events';
 
 export class NetworkFactoryV2 extends Model<NetworkFactoryV2Methods> implements Deployable {
   private _erc20!: ERC20;
@@ -39,7 +42,7 @@ export class NetworkFactoryV2 extends Model<NetworkFactoryV2Methods> implements 
   }
 
   async lockedTokensOfAddress(address: string) {
-    return this.callTx(this.contract.methods.lockedTokensOfAddress(address));
+    return +fromDecimals(await this.callTx(this.contract.methods.lockedTokensOfAddress(address)), this.erc20.decimals);
   }
 
   async networkOfAddress(address: string) {
@@ -96,5 +99,13 @@ export class NetworkFactoryV2 extends Model<NetworkFactoryV2Methods> implements 
     }
 
     return this.deploy(deployOptions, this.web3Connection.Account);
+  }
+
+  async getNetworkCreatedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkCreatedEvent>[]> {
+    return this.contract.self.getPastEvents(`NetworkCreated`, filter);
+  }
+
+  async getNetworkClosedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkClosedEvent>[]> {
+    return this.contract.self.getPastEvents(`NetworkClosed`, filter);
   }
 }
