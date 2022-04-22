@@ -9,10 +9,11 @@ contract ERC721Collectible is Opener, ERC721 {
         string memory name_,
         string memory symbol_,
         uint256 amount_,
+        address baseFeeAddress_,
         address purchaseToken_,
         address feeAddress_,
         address otherAddress_
-    ) public ERC721Standard(name_, symbol_) Opener(purchaseToken_, feeAddress_, otherAddress_, amount_) {}
+    ) public ERC721(name_, symbol_) Opener(purchaseToken_, baseFeeAddress_, feeAddress_, otherAddress_, amount_) {}
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);

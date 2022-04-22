@@ -47,7 +47,7 @@ contract ERC20TokenLock is Pausable, Ownable {
         emit MinAmountToLockChanged(msg.sender, oldValue, newAmount);
     }
 
-    function lock(uint256 amount, uint256 endDate) {
+    function lock(uint256 amount, uint256 endDate) public {
         require(amount > 0 && amount >= minAmountToLock, "L1");
         require(endDate > block.timestamp, "L2");
         require(lockedTokensMap[msg.sender].amount == 0, "L3");
@@ -65,7 +65,7 @@ contract ERC20TokenLock is Pausable, Ownable {
         require(locked.endDate <= block.timestamp, "R2");
         require(erc20.transfer(msg.sender, locked.amount), "R3");
 
-        emit TokensReleased(msg.sender, locked.amount);
+        emit TokensReleased(msg.sender, locked.amount, block.timestamp);
 
         totalAmountStaked = totalAmountStaked.sub(locked.amount);
         locked.amount = 0;

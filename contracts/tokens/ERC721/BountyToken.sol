@@ -24,12 +24,12 @@ contract BountyToken is ERC721, Dispatcher, Ownable {
         string memory uri,
         uint256 bountyId,
         uint percentage,
-        BountyRoles memory role
+        BountyRoles role
     ) public payable onlyDispatcher {
         uint256 id = tokenIds.length;
         _safeMint(to, id);
         _setTokenURI(id, uri);
-        tokenIds.push(BountyConnector(bountyId, percentage));
+        tokenIds.push(BountyConnector(bountyId, percentage, role));
     }
 
     function getBountyToken(uint256 id) public view returns (BountyConnector memory bountyConnector) {

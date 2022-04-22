@@ -19,8 +19,4 @@ contract Dispatcher {
 
         dispatcher = newDispatcher;
     }
-
-    constructor(address dispatcher_) {
-        dispatcher = dispatcher_;
-    }
 }

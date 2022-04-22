@@ -1,6 +1,10 @@
 pragma solidity >=0.6.0;
 
-contract Opener is  Ownable {
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "../utils/Ownable.sol";
+
+contract Opener is Ownable {
     using SafeMath for uint256;
 
     ERC20 public _purchaseToken;

@@ -39,7 +39,7 @@ contract ERC20Distribution is Pausable, Ownable {
         require(erc20.transfer(address_, erc20.balanceOf(address(this))));
     }
 
-    function setTGEDate(uint256 time_) onlyOwner whenNotPaused {
+    function setTGEDate(uint256 time_) public onlyOwner whenNotPaused {
         TGEDate = time_;
     }
 
@@ -53,7 +53,7 @@ contract ERC20Distribution is Pausable, Ownable {
             for (uint256 z = 0; z < distribution.length; z++) {
                 DistributionStep storage step = distribution[z];
                 if (block.timestamp.sub(TGEDate) > step.unlockDay && step.currentAllocated > 0) {
-                    require(erc20.transfer(tokenOwners[i]), step.currentAllocated);
+                    require(erc20.transfer(tokenOwners[i], step.currentAllocated), "TTS4");
                     step.currentAllocated = step.currentAllocated.sub(step.currentAllocated);
                     step.amountSent = step.amountSent.add(step.currentAllocated);
                 }

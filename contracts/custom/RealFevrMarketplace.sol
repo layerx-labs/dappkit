@@ -13,9 +13,9 @@ contract RealFevrMarketplace is ERC721Marketplace {
 
     RealFevrOpener721 public erc721Address;
 
-    constructor(address _erc20Address, RealFevrOpener721 _erc721Address)
+    constructor(address _erc20Address, address _erc721Address)
     public ERC721Marketplace(_erc20Address, _erc721Address) {
-        erc721Address = ERC20(_erc721Address);
+        erc721Address = RealFevrOpener721(_erc721Address);
     }
 
     function removeERC721FromSaleAdmin(uint256 _tokenId) public onlyOwner {

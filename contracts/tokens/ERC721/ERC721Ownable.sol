@@ -4,7 +4,7 @@ import "../../utils/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract ERC721Ownable is Ownable, ERC721 {
-    constructor(string memory name_, string memory symbol_) Ownable() ERC721Standard(name_, symbol_) public {}
+    constructor(string memory name_, string memory symbol_) Ownable() ERC721(name_, symbol_) public {}
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);
