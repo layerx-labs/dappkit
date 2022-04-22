@@ -1,8 +1,8 @@
 pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import ".\ERC20Standard.sol";
-import "..\..\utils\Ownable.sol";
+import "./ERC20Standard.sol";
+import "../../utils/Ownable.sol";
 
 contract ERC20CappedOwnable is ERC20Standard, ERC20Capped, Ownable {
     constructor(
