@@ -113,8 +113,8 @@ describe(`NetworkFactoryV2`, () => {
       })
 
       it(`Asserts governor === accountAddress`, async () => {
-        await hasTxBlockNumber(network.sendTx(network.contract.methods.claimGovernor()))
-        expect(await network.callTx(network.contract.methods._governor())).to.be.eq(accountAddress);
+        await hasTxBlockNumber(network.claimGovernor())
+        expect(await network.governor()).to.be.eq(accountAddress);
       })
 
       it(`Locks tokens and throws because can't unlock`, async () => {
