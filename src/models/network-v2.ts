@@ -514,10 +514,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.contract.self.getPastEvents(`BountyCreated`, filter)
   }
 
-  async getBountyDistributedEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyDistributedEvent>[]> {
-    return this.contract.self.getPastEvents(`BountyDistributed`, filter)
-  }
-
   async getBountyProposalCreatedEvents(filter: PastEventOptions): XPromiseEvent<Events.BountyProposalCreatedEvent> {
     return this.contract.self.getPastEvents(`BountyProposalCreated`, filter)
   }
@@ -546,6 +542,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
   async getGovernorTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
     return this.contract.self.getPastEvents(`GovernorTransferred`, filter)
+  }
+
+  async getBountyFundedEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
+    return this.contract.self.getPastEvents(`BountyFunded`, filter)
+  }
+
+  async getBountyAmountUpdatedEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyAmountUpdatedEvent>[]> {
+    return this.contract.self.getPastEvents(`BountyAmountUpdated`, filter)
   }
 
 }

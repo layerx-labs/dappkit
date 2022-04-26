@@ -14,19 +14,12 @@
   "files": [
     "dist",
     "tooling",
-    "src",
-    "truffle-config.js",
-    "tsconfig.json",
-    "contracts"
+    "README.md"
   ],
-  "bin": {
-    "abi-parser": "tooling/abi-parser.js"
-  },
   "scripts": {
     "compile": "truffle compile",
     "prebuild": "npm run compile",
     "prepublishOnly": "npm run build",
-    "postinstall": "node tooling/post-install.js",
     "test": "mocha --bail --timeout 60000 --exit --require ts-node/register --require tsconfig-paths/register 'test/**/*.spec.{ts,tsx}' --pretty",
     "build": "tsc -p ./tsconfig.json",
     "postbuild": "tscpaths -p ./tsconfig.json -s ./ -o ./dist",
@@ -78,9 +71,10 @@
     "tscpaths": "^0.0.9",
     "typedoc": "^0.22.10",
     "typescript": "4.5.3",
-    "yargs": "^17.3.0"
+    "yargs": "^17.3.0",
+    "@taikai/dappkit-launchpad": "^0.0.2"
   },
-  "author": "Mosh Mage <moshmage@gmail.com> (http://moshmage.gitlab.io)",
+  "author": "Mosh Mage <moshmage@gmail.com> (https://moshmage.gitlab.io)",
   "contributors": [
     {"name": "Helder Vasconcelos", "email": "helder@taikai.network"},
     {"name": "Vitor Hugo", "email": "vhcsilvaa@gmail.com"}

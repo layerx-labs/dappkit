@@ -96,7 +96,7 @@ describe(`NetworkFactoryV2`, () => {
       const tx = await networkFactory.createNetwork(networkToken!, bountyToken!, '//');
       expect(await networkFactory.amountOfNetworks(), `Amount of networks`).to.eq(1);
 
-      const event = await networkFactory.contract.self.getPastEvents(`NetworkCreated`, {filter: {transactionHash: tx.transactionHash}});
+      const event = await networkFactory.getNetworkCreatedEvents({filter: {transactionHash: tx.transactionHash}});
       expect(event[0].returnValues['creator'], `Event opener`).to.be.eq(accountAddress);
     });
 
@@ -142,7 +142,9 @@ describe(`NetworkFactoryV2`, () => {
       })
 
       it(`Should unlock because issue was redeemed`, async () => {
-        await hasTxBlockNumber(networkFactory.unlock(), `should have unlocked`);
+        const tx = await networkFactory.unlock();
+        const event = await networkFactory.getNetworkClosedEvents({filter: {transactionHash: tx.transactionHash}});
+        expect(event[0].returnValues['network'], `Event opener`).to.be.eq(network.contractAddress!);
       });
 
       it(`Creates a new network because we have already unlocked`, async () => {
