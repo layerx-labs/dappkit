@@ -28,12 +28,8 @@ describe(`ERC1155 Standard`, () => {
 
   describe(`Methods`, () => {
     before(async () => {
-      try {
-        contract = new ERC1155Standard(web3Connection, contractAddress!);
-        await contract.loadContract();
-      } catch (error) {
-        console.log('Methods - before hook error :>> ', error);
-      }
+      contract = new ERC1155Standard(web3Connection, contractAddress!);
+      await contract.loadContract();
     });
 
     it(`Set a new URI for all tokens`, async () => {
