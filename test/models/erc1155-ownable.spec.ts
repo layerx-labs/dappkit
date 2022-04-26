@@ -67,7 +67,7 @@ describe(`ERC1155 Ownable`, () => {
       expect(expectedAmounts[2]).to.be.eq(amounts[2]);
     });
 
-    describe('A contract address different from owner calling these methods', () => {
+    describe('Account address different from owner', () => {
       before(async () => {
         contract.connection.switchToAccount(bob.privateKey);
       });
