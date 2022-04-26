@@ -35,4 +35,8 @@ contract BountyToken is ERC721, Governed {
         require(dispatcher_ != dispatcher, "SD0");
         dispatcher = dispatcher_;
     }
+
+    function transferFrom(address from, address to, uint256 tokenId) public override {}
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override {}
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public override {}
 }
