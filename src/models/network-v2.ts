@@ -100,14 +100,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.callTx(this.contract.methods.treasuryInfo());
   }
 
-  async claimGovernor() {
-    return this.sendTx(this.contract.methods.claimGovernor());
-  }
-
-  async governor() {
-    return this.callTx(this.contract.methods._governor());
-  }
-
   /**
    * Returns the number of open bounties
    */
