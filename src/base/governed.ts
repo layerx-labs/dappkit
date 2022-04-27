@@ -14,11 +14,11 @@ export class Governed extends UseModel<GovernedMethods> {
   }
 
   async proposeGovernor(proposedGovernor: string) {
-    return this.model.callTx(this.model.contract.methods.proposeGovernor(proposedGovernor));
+    return this.model.sendTx(this.model.contract.methods.proposeGovernor(proposedGovernor));
   }
 
   async claimGovernor() {
-    return this.model.callTx(this.model.contract.methods.claimGovernor());
+    return this.model.sendTx(this.model.contract.methods.claimGovernor());
   }
 
   async getGovernorTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
