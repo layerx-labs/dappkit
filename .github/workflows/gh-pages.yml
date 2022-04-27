@@ -17,7 +17,7 @@ jobs:
         run: npm install
         
       - name: Compile contracts
-        run: npm compile
+        run: npm run compile
 
       - name: Build documentation from source
         run: npm run docs
