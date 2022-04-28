@@ -1,8 +1,11 @@
-import { defaultWeb3Connection, getPrivateKeyFromFile } from '../utils';
+import {
+  defaultWeb3Connection,
+  getPrivateKeyFromFile,
+  shouldBeRejected,
+} from '../utils';
 import { ERC1155Ownable, Web3Connection } from '../../src';
 import { expect } from 'chai';
 import { Account } from 'web3-core';
-const truffleAssert = require('truffle-assertions');
 
 describe(`ERC1155 Ownable`, () => {
   let contract: ERC1155Ownable;
@@ -74,15 +77,12 @@ describe(`ERC1155 Ownable`, () => {
 
       it(`'setURI' reverts the transaction: OR => OwnerRequired`, async () => {
         const uriBeforeSetting = await contract.uri(0);
-        await truffleAssert.reverts(
-          contract.setURI('https://bob.domain/'),
-          'OR'
-        );
+        await shouldBeRejected(contract.setURI('https://bob.domain/'), 'OR');
         expect(uriBeforeSetting).to.have.string(await contract.uri(0));
       });
 
       it(`'mint' reverts the transaction: OR => OwnerRequired`, async () => {
-        await truffleAssert.reverts(
+        await shouldBeRejected(
           contract.mint(alice.address, 0, 100, '0x12345678'),
           'OR'
         );
@@ -90,7 +90,7 @@ describe(`ERC1155 Ownable`, () => {
       });
 
       it(`'mintBatch' reverts the transaction: OR => OwnerRequired`, async () => {
-        await truffleAssert.reverts(
+        await shouldBeRejected(
           contract.mintBatch(alice.address, [0, 1], [500, 600], '0x12345678'),
           'OR'
         );
