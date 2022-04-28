@@ -25,5 +25,7 @@ jobs:
       - name: Deploy documentation
         uses: peaceiris/actions-gh-pages@v3
         with:
+          token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           deploy_key: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
+          enable_jekyll: false
