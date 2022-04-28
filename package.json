@@ -76,8 +76,14 @@
   },
   "author": "Mosh Mage <moshmage@gmail.com> (https://moshmage.gitlab.io)",
   "contributors": [
-    {"name": "Helder Vasconcelos", "email": "helder@taikai.network"},
-    {"name": "Vitor Hugo", "email": "vhcsilvaa@gmail.com"}
+    {
+      "name": "Helder Vasconcelos",
+      "email": "helder@taikai.network"
+    },
+    {
+      "name": "Vitor Hugo",
+      "email": "vhcsilvaa@gmail.com"
+    }
   ],
   "license": "ISC",
   "publishConfig": {
