@@ -1,4 +1,4 @@
-# Using @taikai/dappkit with a custom ABI
+# Using @taikai/dappkit with a custom contract
 @taikai/dappkit exports [`Model`](https://sdk.dappkit.dev/classes/Model.html) class that needs an ABI structure as its constructor argument; It can be used to either extend and create a custom proxy by having transpiled the json or simply import the `Model` class and start using your compiled contract.
 
 ## Without transpiling
@@ -20,7 +20,7 @@ const tx = await AliceCustomModel.deploy({data: AliceCustomContract.bytecode, ar
 console.log('Contract deployed; Address: ', tx.contractAddress);
 ```
 
-### Using a custom contrat
+### Using a custom contract
 ```typescript
 import {Model} from '@taikai/dappkit';
 
