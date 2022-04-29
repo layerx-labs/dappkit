@@ -10,5 +10,5 @@ export interface NetworkFactoryV2Methods {
   lockedTokensOfAddress(address: string): ContractCallMethod<number>;
   networkOfAddress(address: string): ContractCallMethod<string>;
   manageFunds(lock: boolean, tokenAmount: number): ContractSendMethod;
-  createNetwork(networkToken: string, nftToken: string, nftUri: string): ContractSendMethod;
+  createNetwork(networkToken: string, nftToken: string, nftUri: string, treasuryAddress: string, cancelFee: number, closeFee: number): ContractSendMethod;
 }

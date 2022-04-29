@@ -50,11 +50,18 @@ contract NetworkFactory_v2 is ReentrancyGuard  {
         }
     }
 
-    function createNetwork(address networkToken, address nftToken, string memory nftUri) public {
+    function createNetwork(
+        address networkToken, 
+        address nftToken, 
+        string memory nftUri, 
+        address treasuryAddress,
+        uint256 cancelFee,
+        uint256 closeFee
+    ) public {
         require(networkOfAddress[msg.sender] == address(0), "CN1");
         require(lockedTokensOfAddress[msg.sender] >= creatorAmount, "CN2");
 
-        Network_v2 network = new Network_v2(networkToken, nftToken, nftUri, address(0), 0, 0);
+        Network_v2 network = new Network_v2(networkToken, nftToken, nftUri, treasuryAddress, cancelFee, closeFee);
         network.proposeGovernor(msg.sender);
         networksArray.push(address(network));
         networkOfAddress[msg.sender] = address(network);
