@@ -17,6 +17,9 @@ describe(`NetworkFactoryV2`, () => {
 
   const cap = toSmartContractDecimals(1000000);
 
+  const closeFee = 50000;
+  const cancelFee = 10000;
+
   before(async () => {
     web3Connection = await defaultWeb3Connection(true, true);
     accountAddress = web3Connection.Account.address;
@@ -66,7 +69,7 @@ describe(`NetworkFactoryV2`, () => {
     });
 
     it(`Throws because no locked amount`, async () => {
-      await shouldBeRejected(networkFactory.createNetwork(networkToken!, bountyToken!, '//'), `CN2`);
+      await shouldBeRejected(networkFactory.createNetwork(networkToken!, bountyToken!, '//', nativeZeroAddress, cancelFee, closeFee), `CN2`);
     });
 
     it(`Throws because trying to lock 0`, async () => {
@@ -93,7 +96,7 @@ describe(`NetworkFactoryV2`, () => {
     it(`Should lock and create a new network`, async () => {
       await networkFactory.approveNetworkToken(+fromDecimals(cap));
       await hasTxBlockNumber(networkFactory.lock(+fromDecimals(cap)));
-      const tx = await networkFactory.createNetwork(networkToken!, bountyToken!, '//');
+      const tx = await networkFactory.createNetwork(networkToken!, bountyToken!, '//', nativeZeroAddress, cancelFee, closeFee);
       expect(await networkFactory.amountOfNetworks(), `Amount of networks`).to.eq(1);
 
       const event = await networkFactory.getNetworkCreatedEvents({filter: {transactionHash: tx.transactionHash}});
@@ -101,7 +104,7 @@ describe(`NetworkFactoryV2`, () => {
     });
 
     it(`Throws because one network per user`, async () => {
-      await shouldBeRejected(networkFactory.createNetwork(networkToken!, bountyToken!, '//'), `CN1`);
+      await shouldBeRejected(networkFactory.createNetwork(networkToken!, bountyToken!, '//', nativeZeroAddress, cancelFee, closeFee), `CN1`);
     });
 
     describe(`With network`, () => {
@@ -151,7 +154,7 @@ describe(`NetworkFactoryV2`, () => {
         const creatorAmount = await networkFactory.creatorAmount();
         await networkFactory.approveNetworkToken(creatorAmount);
         await networkFactory.lock(creatorAmount);
-        await hasTxBlockNumber(networkFactory.createNetwork(networkToken!, bountyToken!, '//'), `Should have created network`)
+        await hasTxBlockNumber(networkFactory.createNetwork(networkToken!, bountyToken!, '//', nativeZeroAddress, cancelFee, closeFee), `Should have created network`)
       })
     })
   })

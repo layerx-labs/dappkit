@@ -62,8 +62,18 @@ export class NetworkFactoryV2 extends Model<NetworkFactoryV2Methods> implements 
                                                          toSmartContractDecimals(0, this.erc20.decimals)));
   }
 
-  async createNetwork(_networkToken: string, _nftToken: string, _nftUri: string) {
-    return this.sendTx(this.contract.methods.createNetwork(_networkToken, _nftToken, _nftUri));
+  async createNetwork(networkToken: string, 
+                      nftToken: string, 
+                      nftUri: string, 
+                      treasuryAddress: string,
+                      cancelFee: number, 
+                      closeFee: number) {
+    return this.sendTx(this.contract.methods.createNetwork(networkToken, 
+                                                           nftToken,
+                                                           nftUri,
+                                                           treasuryAddress,
+                                                           cancelFee,
+                                                           closeFee));
   }
 
   async isAbleToCreateNetwork(address: string) {
