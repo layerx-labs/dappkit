@@ -1,6 +1,8 @@
 # Using @taikai/dappkit with a custom contract
 @taikai/dappkit exports [`Model`](https://sdk.dappkit.dev/classes/Model.html) class that needs an ABI structure as its constructor argument; It can be used to either extend and create a custom proxy by having transpiled the json or simply import the `Model` class and start using your compiled contract.
 
+This can also be achieved by transpiling the custom contract and importing the newely created file, after optionally customizing the outputted code.
+
 ---
 
 1. [Deploy custom contract](#deploying-the-custom-contract)
