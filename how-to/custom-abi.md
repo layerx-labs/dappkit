@@ -7,8 +7,8 @@ This can also be achieved by transpiling the custom contract and importing the n
 
 1. [Deploy custom contract](#deploying-the-custom-contract)
 2. [Using a custom contract](#using-a-custom-contract)
-3. [Deploy transpiled custom contract](#transpiled-deploy)
-4. [Use the transpiled custom contract](#transpiled-use)
+3. [Deploy transpiled custom contract](./custom-project.md/#transpiled-deploy)
+4. [Use the transpiled custom contract](./custom-project.md/transpiled-use)
 
 ---
 ## Without transpiling
@@ -45,43 +45,4 @@ console.log(receipt);
 // Change a value on the contract
 const receipt2 = await AliceCustomModel.sendTx(AliceCustomModel.contract.methods.OtherCustomMethod('newValue'/*, 'otherArgument', ...etc */));
 console.log(receipt2);
-```
-
-## With transpiling
-Install [`@taikai/dappkit-launchpad`](https://github.com/taikai/dappkit-launchpad) globally
-```bash
-$ npm i -g @taikai/dappkit-launchpad
-```
-
-### Transpiling the contract 
-```bash
-$ dk-transpile -f "path/to/CustomContract.json" -j config.json
-```
-
-Depending on your configuration (and contract) this will output a extension of the [`Model`](https://sdk.dappkit.dev/classes/Model.html) class, with the methods loaded in, and with the name of the file matching the name of the contract.
-
-### Deploying the custom contract <a name="transpiled-deploy"></a>
-
-```typescript
-import {CustomContract} from './path/to/CustomContract';
-const customContract = new CustomContract({web3Host: 'http://localhost:1337', privateKey: '0xPrivateKey'});
-
-customContract.web3Connection.start();
-customContract.loadAbi();
-
-const tx = await customContract.deployJsonAbi('arg1', 'arg2'/*, arg3, arg4, ...etc*/);
-console.log('Deployed contract; Address: ', tx.contractAddress);
-```
-
-### Using the custom contract <a name="transpiled-use"></a>
-```typescript
-const customContract = new CustomContract({web3Host: 'http://localhost:1337', privateKey: '0xPrivateKey'});
-
-customContract.start();
-
-// Get a value on the contract
-const receipt = await customContract.CustomMethod('arg1'/*, 'otherArgument', ...etc */);
-
-// Change a value on the contract
-const receipt2 = await customContract.OtherCustomMethod('newValue'/*, 'otherArgument', ...etc */)
 ```
