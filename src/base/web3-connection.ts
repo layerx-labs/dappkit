@@ -1,6 +1,6 @@
 import {Errors} from '@interfaces/error-enum';
 import Web3 from 'web3';
-import {Account, HttpProvider, IpcProvider, WebsocketProvider} from 'web3-core';
+import {Account, provider as Provider, HttpProvider, IpcProvider, WebsocketProvider} from 'web3-core';
 import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Utils} from 'web3-utils';
@@ -68,23 +68,29 @@ export class Web3Connection {
     if (this.started && !restart)
       return;
 
-    const {web3Host = ``, web3ProviderOptions = undefined} = this.options;
+    const {web3Host = ``, web3ProviderOptions = undefined, web3CustomProvider = null} = this.options;
+    let provider: Provider = web3CustomProvider;
 
-    if (!web3Host)
+    if (!web3Host && !provider)
       throw new Error(Errors.MissingWeb3ProviderHost)
 
-    const web3Link = web3Host.toLowerCase();
-    let provider: HttpProvider|IpcProvider|WebsocketProvider;
+    if (!provider) {
+      const web3Link = web3Host.toLowerCase();
 
-    if (web3Link.includes(`http`))
-      provider = new Web3.providers.HttpProvider(web3Link, web3ProviderOptions as HttpProviderOptions);
-    else if (web3Link.includes(`ws`))
-      provider = new Web3.providers.WebsocketProvider(web3Link, web3ProviderOptions as WebsocketProviderOptions);
-    else {
-      if (!this.options.web3ProviderOptions)
-        throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
-      provider = new Web3.providers.IpcProvider(web3Link, web3ProviderOptions);
+      if (web3Link.includes(`http`))
+        provider = new Web3.providers.HttpProvider(web3Link, web3ProviderOptions as HttpProviderOptions);
+      else if (web3Link.includes(`ws`))
+        provider = new Web3.providers.WebsocketProvider(web3Link, web3ProviderOptions as WebsocketProviderOptions);
     }
+
+    if (!provider) {
+      if (!this.options.web3ProviderOptions)
+          throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
+        provider = new Web3.providers.IpcProvider(web3Link, web3ProviderOptions);
+    }
+  
+    if (!provider)
+      throw new Error(Errors.FailedToAssignAProvider);
 
     this.web3 = new Web3(provider);
     if (!this.options.skipWindowAssignment && typeof window !== 'undefined')
