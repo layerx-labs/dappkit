@@ -11,7 +11,7 @@ export class Web3Connection {
   protected account!: Account;
 
   constructor(readonly options: Web3ConnectionOptions) {
-    if (options.web3CustomProvider && options.web3CustomProvider?.connected) {
+    if (options.web3CustomProvider && typeof options.web3CustomProvider !== "string" && options.web3CustomProvider?.connected) {
       this.start();
       this.connect();
     }
