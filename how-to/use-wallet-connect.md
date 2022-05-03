@@ -20,13 +20,13 @@ await provider.enable();
 // Provide the custom provider to Web3Connection
 const web3Connection = new Web3Connection({web3CustomProvider: provider});
 
-// If `provider` was already connected when provided, then Web3Connection started itself and requested the accounts;
+// If `provider` was already connected when provided, then Web3Connection started itself;
 // Otherwise you'll need to do that by hand,
 
-await provider.enable(); // you only need to enable if you didn't enable before;
-
+/* you only need to enable and start if you didn't enable before */
+await provider.enable();
 web3Connection.start();
-await web3Connection.connect();
+/* you only need to enable and start if you didn't enable before */
 
 console.log('Connected address', await web3Connection.getAddress()) // Connected address: 0x1234...
 
