@@ -1,6 +1,6 @@
 import {Errors} from '@interfaces/error-enum';
 import Web3 from 'web3';
-import {Account, provider as Provider, HttpProvider, IpcProvider, WebsocketProvider} from 'web3-core';
+import {Account, provider as Provider} from 'web3-core';
 import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Utils} from 'web3-utils';
@@ -78,19 +78,19 @@ export class Web3Connection {
     if (!web3Host && !provider)
       throw new Error(Errors.MissingWeb3ProviderHost)
 
-    if (!provider) {
-      const web3Link = web3Host.toLowerCase();
+    const web3Link = web3Host?.toLowerCase();
 
+    if (!provider) {
       if (web3Link.includes(`http`))
-        provider = new Web3.providers.HttpProvider(web3Link, web3ProviderOptions as HttpProviderOptions);
+        provider = new Web3.providers.HttpProvider(web3Host.toLowerCase(), web3ProviderOptions as HttpProviderOptions);
       else if (web3Link.includes(`ws`))
-        provider = new Web3.providers.WebsocketProvider(web3Link, web3ProviderOptions as WebsocketProviderOptions);
+        provider = new Web3.providers.WebsocketProvider(web3Host.toLowerCase(), web3ProviderOptions as WebsocketProviderOptions);
     }
 
     if (!provider) {
       if (!this.options.web3ProviderOptions)
           throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
-        provider = new Web3.providers.IpcProvider(web3Link, web3ProviderOptions);
+        provider = new Web3.providers.IpcProvider(web3Host.toLowerCase(), web3ProviderOptions);
     }
   
     if (!provider)
