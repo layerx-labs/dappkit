@@ -13,7 +13,6 @@ export class Web3Connection {
   constructor(readonly options: Web3ConnectionOptions) {
     if (options.web3CustomProvider && typeof options.web3CustomProvider !== "string" && options.web3CustomProvider?.connected) {
       this.start();
-      this.connect();
     }
   }
 
