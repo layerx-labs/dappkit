@@ -10,7 +10,12 @@ export class Web3Connection {
   protected web3!: Web3;
   protected account!: Account;
 
-  constructor(readonly options: Web3ConnectionOptions) {}
+  constructor(readonly options: Web3ConnectionOptions) {
+    if (options.web3CustomProvider && options.web3CustomProvider?.connected) {
+      this.start();
+      this.connect();
+    }
+  }
 
   get started() { return !!this.web3; }
   get eth(): Eth { return this.web3?.eth; }
