@@ -24,8 +24,8 @@ const web3Connection = new Web3Connection({web3CustomProvider: provider});
 // Otherwise you'll need to do that by hand,
 
 /* you only need to enable and start if you didn't enable before */
-await provider.enable();
-web3Connection.start();
+// await provider.enable();
+// web3Connection.start();
 /* you only need to enable and start if you didn't enable before */
 
 console.log('Connected address', await web3Connection.getAddress()) // Connected address: 0x1234...
