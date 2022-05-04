@@ -3,7 +3,7 @@
 
 ## Dependencies
 ```shell
-$ npm install --save web3 @walletconnect/web3-provider
+$ npm install --save @taikai/dappkit @walletconnect/web3-provider
 ```
 
 ## Usage
