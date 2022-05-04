@@ -11,7 +11,8 @@ export class Web3Connection {
   protected account!: Account;
 
   constructor(readonly options: Web3ConnectionOptions) {
-    if (options.web3CustomProvider && typeof options.web3CustomProvider !== "string" && options.web3CustomProvider?.connected) {
+    const {web3CustomProvider: provider = null} = options;
+    if (provider && typeof provider !== "string" && provider?.connected) {
       this.start();
     }
   }
@@ -82,15 +83,15 @@ export class Web3Connection {
 
     if (!provider) {
       if (web3Link.includes(`http`))
-        provider = new Web3.providers.HttpProvider(web3Host.toLowerCase(), web3ProviderOptions as HttpProviderOptions);
+        provider = new Web3.providers.HttpProvider(web3Link, web3ProviderOptions as HttpProviderOptions);
       else if (web3Link.includes(`ws`))
-        provider = new Web3.providers.WebsocketProvider(web3Host.toLowerCase(), web3ProviderOptions as WebsocketProviderOptions);
+        provider = new Web3.providers.WebsocketProvider(web3Link, web3ProviderOptions as WebsocketProviderOptions);
     }
 
     if (!provider) {
       if (!this.options.web3ProviderOptions)
-          throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
-        provider = new Web3.providers.IpcProvider(web3Host.toLowerCase(), web3ProviderOptions);
+        throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
+      provider = new Web3.providers.IpcProvider(web3Link, web3ProviderOptions);
     }
   
     if (!provider)
