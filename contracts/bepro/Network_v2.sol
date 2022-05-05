@@ -224,6 +224,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
             mergeCreatorFeeShare = _value;
         } else if (_parameter == uint256(Params.oracleExchangeRate)) {
             require(_value >= 0, "EX0");
+            require(totalSettlerLocked == 0, "EX1");
             oracleExchangeRate = _value;
         }
     }
