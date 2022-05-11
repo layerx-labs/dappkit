@@ -207,7 +207,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     function changeNetworkParameter(uint256 _parameter, uint256 _value) public payable onlyGovernor {
         if (_parameter == uint256(Params.councilAmount)) {
-            require(_value >= 100000 * 10 ** settlerToken.decimals(), "C1");
+            require(_value >= 1 * 10 ** settlerToken.decimals(), "C1");
             require(_value <= 50000000 * 10 ** settlerToken.decimals(), "C2");
             councilAmount = _value;
         } else if (_parameter == uint256(Params.draftTime)) {
