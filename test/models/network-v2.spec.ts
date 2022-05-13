@@ -6,6 +6,7 @@ import {
   getPrivateKeyFromFile,
   hasTxBlockNumber,
   increaseTime, modelExtensionDeployer,
+  shouldBeRejected
 } from '../utils';
 import {expect} from 'chai';
 import {AMOUNT_1M} from '../utils/constants';
@@ -275,6 +276,10 @@ describe(`NetworkV2`, () => {
       it(`Creates a Proposal`, async () => {
         await hasTxBlockNumber(network.createBountyProposal(bountyId, prId, [Alice.address, Bob.address], [51, 49]));
         expect((await network.getBounty(bountyId)).proposals.length).to.be.eq(1);
+      });
+
+      it(`Should be unable to cancel a Pull Request because exists a Proposal`, async () => {
+        await shouldBeRejected(network.cancelPullRequest(bountyId, prId));
       });
 
       it(`Disputes a Proposal`, async () => {
