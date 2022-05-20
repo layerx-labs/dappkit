@@ -31,7 +31,7 @@ const tx =
   await erc20Deployer.deployJsonAbi(
     'Token Name', // the name of the token
     '$tokenSymbol', // the symbol of the token
-    1000000000000000000000000, // the total amount of the token (with 18 decimals; 1M = 1000000000000000000000000)
+    "1000000000000000000000000", // the total amount of the token (with 18 decimals; 1M = 1000000000000000000000000)
     await erc20Deployer.connection.getAddress() // the owner of the total amount of the tokens (your address)
   );
 
@@ -49,6 +49,7 @@ Please refer to the [`test/`](./test/models) folder to read further usage exampl
 ## Documentation 
 
 * [Guides](https://docs.dappkit.dev/sdk-documentation/start-building/how-to-guides)
+* [Advanced](./how-to/)
 * [SDK Documentation](https://sdk.dappkit.dev/)
 * [Use Cases](https://docs.dappkit.dev/sdk-documentation/use-cases)
 

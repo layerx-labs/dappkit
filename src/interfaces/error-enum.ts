@@ -3,7 +3,7 @@ export enum Errors {
   ProviderOptionsAreMandatoryIfIPC = `Provider options are mandatory if chosen provider is IPC`,
   NoEthereumObjectFoundOnWindow = `No ethereum object found on window`,
   WindowObjectNotFound = `Window object not found`,
-  MissingWeb3ProviderHost = `Missing options.web3Host parameter`,
+  MissingWeb3ProviderHost = `Missing options.web3Host parameter and options.web3CustomProvider; Either is required.`,
   MissingAbiInterfaceFromArguments = `Missing ABI Interface from arguments list or empty Abi`,
   AmountNeedsToBeHigherThanZero = `Amount needs to be higher than zero`,
   MissingContractAddress = `Missing contract address`,
@@ -22,4 +22,5 @@ export enum Errors {
   MissingEthUtilsAddressPleaseProvideOne = `Missing eth utils address, please provide one`,
   GasAndGasPriceMustBeProvidedIfNoAutoTxOptions = `Both gas and gasPrice must be provided if no auto txOptions`,
   MissingERC20UnderlyingToken = `Missing ERC20 underlying token address`,
+  FailedToAssignAProvider = `Failed to assign a provider. Doublecheck Web3ConnectionOptions.`
 }
