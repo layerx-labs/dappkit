@@ -1,4 +1,5 @@
 import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
+import {provider as Provider} from 'web3-core';
 
 export interface Web3ConnectionOptions {
   /**
@@ -16,6 +17,11 @@ export interface Web3ConnectionOptions {
    * @note you can provide a node server if you're using IPC
    */
   web3ProviderOptions?: HttpProviderOptions | WebsocketProviderOptions;
+  
+  /**
+   * Pass a custom provider instead
+   */
+  web3CustomProvider?: Provider;
 
   /**
    * Skip the assignment of `window.web3 = Web3`
