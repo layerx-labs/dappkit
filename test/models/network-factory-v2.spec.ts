@@ -131,7 +131,7 @@ describe(`NetworkFactoryV2`, () => {
         await network.settlerToken.approve(network.contractAddress!, 1000);
         await network.openBounty(1000, networkToken!, nativeZeroAddress, 0, 0, 'c1', 'Title', '//', 'master', 'ghuser');
         await shouldBeRejected(networkFactory.unlock(), `UL2`);
-        await network.updateBountyAmount(1, 0);
+        await network.updateBountyAmount(1, 10);
         await network.cancelBounty(1);
       });
 

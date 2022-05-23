@@ -378,7 +378,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
 
-        require(bounty.tokenAmount != newTokenAmount, "U1");
+        require(newTokenAmount > 0 && (bounty.tokenAmount != newTokenAmount) , "U1");
 
         if (newTokenAmount > bounty.tokenAmount) {
             uint256 giveAmount = newTokenAmount.sub(bounty.tokenAmount);
