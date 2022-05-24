@@ -1,0 +1,21 @@
+{
+  "paths": {
+    "base": "@base",
+    "interfaces": "@interfaces",
+    "abi": "@abi",
+    "methods": "@methods",
+    "events": "@events"
+  },
+  "output": {
+    "interfaceDir": "./src/interfaces/methods/",
+    "classDir": "./src/models/",
+    "eventsDir": "./src/interfaces/events/"
+  },
+  "overwrite": {
+    "interface": false,
+    "class": false,
+    "events": false
+  },
+  "asPackage": false,
+  "templatesDir": "/home/moshmage/dappkit/node_modules/@taikai/dappkit-launchpad/src/templates/"
+}
