@@ -24,6 +24,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     mapping(address => uint256) public lockedTokensOfAddress;
     mapping(address => address) public networkOfAddress;
+    mapping(address => bool) public closedNetworks;
 
     event NetworkCreated(address network, address indexed creator, uint256 id);
     event NetworkClosed(address indexed network);
@@ -49,6 +50,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
             INetwork_v2 network = INetwork_v2(networkOfAddress[msg.sender]);
             require(network.totalSettlerLocked() == 0, "UL1");
             require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
+            closedNetworks[networkOfAddress[msg.sender]] = true;
             networkOfAddress[msg.sender] = address(0);
             emit NetworkClosed(networkOfAddress[msg.sender]);
         }
@@ -63,7 +65,9 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     function registerNetwork(address networkAddress) external payable {
         INetwork_v2 network = INetwork_v2(networkAddress);
-        require(network._governor() == msg.sender, "R1");
+        require(networkOfAddress[msg.sender] == address(0), "R0")
+        require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1")
+        require(network._governor() == msg.sender, "R2");
         networksArray.push(network);
         networkOfAddress[msg.sender] = networkAddress;
         emit NetworkCreated(networkAddress, msg.sender, networksArray.length - 1);

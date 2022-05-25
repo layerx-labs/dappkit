@@ -18,6 +18,7 @@ export * from '@models/sablier';
 export * from '@models/staking-contract';
 export * from '@models/uniswap-v3-router-bridge';
 export * from '@models/votable';
+export * from '@models/network-registry';
 
 export * from '@base/model';
 export * from '@base/use-model';
