@@ -11,7 +11,6 @@ export * from '@models/network';
 export * from '@models/network-v2';
 export * from '@models/bounty-token';
 export * from '@models/network-factory';
-export * from '@models/network-factory-v2';
 export * from '@models/real-fevr-marketplace';
 export * from '@models/real-fevr-opener';
 export * from '@models/sablier';
