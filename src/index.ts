@@ -11,13 +11,13 @@ export * from '@models/network';
 export * from '@models/network-v2';
 export * from '@models/bounty-token';
 export * from '@models/network-factory';
-export * from '@models/network-factory-v2';
 export * from '@models/real-fevr-marketplace';
 export * from '@models/real-fevr-opener';
 export * from '@models/sablier';
 export * from '@models/staking-contract';
 export * from '@models/uniswap-v3-router-bridge';
 export * from '@models/votable';
+export * from '@models/network-registry';
 
 export * from '@base/model';
 export * from '@base/use-model';

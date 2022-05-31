@@ -1,0 +1,37 @@
+import {ContractSendMethod} from 'web3-eth-contract';
+import {ContractCallMethod} from '@methods/contract-call-method';
+
+export interface Network_RegistryMethods {
+
+
+    _governor(): ContractCallMethod<string>;
+
+  _proposedGovernor(): ContractCallMethod<string>;
+
+  claimGovernor(): ContractSendMethod
+
+  erc20(): ContractCallMethod<string>;
+
+  lockAmountForNetworkCreation(): ContractCallMethod<number>;
+
+  lockedTokensOfAddress(v1: string): ContractCallMethod<number>;
+
+  networkOfAddress(v1: string): ContractCallMethod<string>;
+
+  networksArray(v1: number): ContractCallMethod<string>;
+
+  proposeGovernor(proposedGovernor: string): ContractSendMethod
+
+  totalLockedAmount(): ContractCallMethod<number>;
+
+  amountOfNetworks(): ContractCallMethod<number>;
+
+  lock(_amount: number): ContractSendMethod
+
+  unlock(): ContractSendMethod
+
+  registerNetwork(networkAddress: string): ContractSendMethod
+
+  changeAmountForNetworkCreation(newAmount: number): ContractSendMethod
+
+}
