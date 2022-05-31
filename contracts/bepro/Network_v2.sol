@@ -400,6 +400,10 @@ contract Network_v2 is Governed, ReentrancyGuard {
         require(prId <= bounties[ofBounty].pullRequests.length - 1, "CPR1");
         require(bounties[ofBounty].pullRequests[prId].canceled == false, "CPR2");
         require(bounties[ofBounty].pullRequests[prId].creator == msg.sender, "CPR3");
+        
+        for (uint256 i = 0; i < bounties[ofBounty].proposals.length; i++) {
+            require(bounties[ofBounty].proposals[i].prId != prId, "CPR4");
+        }
 
         bounties[ofBounty].pullRequests[prId].canceled = true;
 
