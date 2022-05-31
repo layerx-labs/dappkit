@@ -10,7 +10,7 @@ import { Network_RegistryMethods } from '@methods/network-registry';
 import * as Events from '@events/network-registry'
 import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
-import { toSmartContractDecimals } from '@utils/numbers';
+import { fromSmartContractDecimals, toSmartContractDecimals } from '@utils/numbers';
 
 export class Network_Registry extends Model<Network_RegistryMethods> implements Deployable {
   private _token!: ERC20;
@@ -68,11 +68,13 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   }
 
   async lockAmountForNetworkCreation() { 
-    return this.callTx(this.contract.methods.lockAmountForNetworkCreation());
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.lockAmountForNetworkCreation()), 
+                                     this.token.decimals);
   }
 
   async lockedTokensOfAddress(v1: string) { 
-    return this.callTx(this.contract.methods.lockedTokensOfAddress(v1));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.lockedTokensOfAddress(v1)), 
+                                     this.token.decimals);
   }
 
   async networkOfAddress(v1: string) { 
@@ -88,7 +90,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   }
 
   async totalLockedAmount() { 
-    return this.callTx(this.contract.methods.totalLockedAmount());
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalLockedAmount()), 
+                                     this.token.decimals);
   }
 
   async amountOfNetworks() { 
