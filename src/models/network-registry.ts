@@ -1,5 +1,6 @@
 import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
+import { ERC20 } from '@models/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
 import {XEvents} from '@events/x-events';
@@ -9,10 +10,31 @@ import { Network_RegistryMethods } from '@methods/network-registry';
 import * as Events from '@events/network-registry'
 import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
+import { toSmartContractDecimals } from '@utils/numbers';
 
 export class Network_Registry extends Model<Network_RegistryMethods> implements Deployable {
+  private _token!: ERC20;
+
+  get token() { return this._token; }
+
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
     super(web3Connection, Network_RegistryJson.abi as AbiItem[], contractAddress);
+  }
+
+  async start() {
+    await super.start();
+    await this.loadContract();
+  }
+
+  async loadContract() {
+    if (!this.contract)
+      await super.loadContract();
+
+    const erc20Address = await this.erc20();
+
+    this._token = new ERC20(this.web3Connection, erc20Address);
+
+    await this._token.loadContract();
   }
 
   async deployJsonAbi(_erc20: string, _lockAmountForNetworkCreation: number) {
@@ -25,7 +47,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.deploy(deployOptions, this.web3Connection.Account);
   }
 
-    async _governor() { 
+  async _governor() { 
     return this.callTx(this.contract.methods._governor());
   }
 
@@ -70,7 +92,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   }
 
   async lock(_amount: number) { 
-    return this.sendTx(this.contract.methods.lock(_amount));
+    return this.sendTx(this.contract.methods.lock(toSmartContractDecimals(_amount, this.token.decimals)));
   }
 
   async unlock() { 
@@ -94,7 +116,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   async getNetworkCreatedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkCreatedEvent>[]> {
     return this.contract.self.getPastEvents('NetworkCreated', filter);
   }
-  async getUserLockedAmountChangedEvents(filter: PastEventOptions): Promise<XEvents<Events.UserLockedAmountChangedEvent>[]> {
+  async getUserLockedAmountChangedEvents(filter: PastEventOptions): 
+  Promise<XEvents<Events.UserLockedAmountChangedEvent>[]> {
     return this.contract.self.getPastEvents('UserLockedAmountChanged', filter);
   }
 }
