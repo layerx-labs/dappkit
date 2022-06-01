@@ -34,7 +34,7 @@ describe(`Network_Registry`, () => {
   it(`Deploys`, async () => {
     const registry = new Network_Registry(web3Connection);
     await registry.loadAbi();
-    const receipt = await registry.deployJsonAbi(erc20Address, 1000, nativeZeroAddress, 10000);
+    const receipt = await registry.deployJsonAbi(erc20Address, 1000, await web3Connection.getAddress(), 10000);
     expect(receipt.contractAddress, "Should have deployed");
     registryAddress = receipt.contractAddress;
   });
