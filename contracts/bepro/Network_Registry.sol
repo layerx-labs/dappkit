@@ -73,7 +73,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     function registerNetwork(address networkAddress) external payable {
         INetwork_v2 network = INetwork_v2(networkAddress);
-        uint256 memory fee = lockedTokensOfAddress[msg.sender].div(100).mul(lockFeePercentage.div(10000));
+        uint256 fee = lockedTokensOfAddress[msg.sender].div(100).mul(lockFeePercentage.div(10000));
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
         require(network._governor() == msg.sender, "R2");
