@@ -77,7 +77,11 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
         require(network._governor() == msg.sender, "R2");
-        require(erc20.transfer(treasury, fee), "R3");
+
+        if (treasury != address(0)) {
+            require(erc20.transfer(treasury, fee), "R3");
+        }
+
         networksArray.push(network);
         networkOfAddress[msg.sender] = networkAddress;
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
