@@ -3,7 +3,7 @@ import {Web3Connection} from '@base/web3-connection';
 import { ERC20 } from '@models/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import {XEvents} from '@events/x-events';
+import {XEvents, XPromiseEvent} from '@events/x-events';
 
 import Network_RegistryJson from '@abi/Network_Registry.json';
 import { Network_RegistryMethods } from '@methods/network-registry';
@@ -11,6 +11,7 @@ import * as Events from '@events/network-registry'
 import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
 import { fromSmartContractDecimals, toSmartContractDecimals } from '@utils/numbers';
+import {TenK} from "@utils/constants";
 
 export class Network_Registry extends Model<Network_RegistryMethods> implements Deployable {
   private _token!: ERC20;
@@ -94,6 +95,14 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
                                      this.token.decimals);
   }
 
+  async lockFeePercentage() {
+    return (await this.callTx(this.contract.methods.lockPercentageFee())) / TenK;
+  }
+
+  async treasury() {
+    return this.callTx(this.contract.methods.treasury());
+  }
+
   async amountOfNetworks() { 
     return this.callTx(this.contract.methods.amountOfNetworks());
   }
@@ -123,8 +132,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   async getNetworkCreatedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkCreatedEvent>[]> {
     return this.contract.self.getPastEvents('NetworkCreated', filter);
   }
-  async getUserLockedAmountChangedEvents(filter: PastEventOptions): 
-  Promise<XEvents<Events.UserLockedAmountChangedEvent>[]> {
+
+  async getUserLockedAmountChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.UserLockedAmountChangedEvent> {
     return this.contract.self.getPastEvents('UserLockedAmountChanged', filter);
   }
 }

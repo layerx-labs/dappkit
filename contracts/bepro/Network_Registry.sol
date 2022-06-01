@@ -9,9 +9,14 @@ import "./INetwork_v2.sol";
 import "../utils/Governed.sol";
 
 contract Network_Registry is ReentrancyGuardOptimized, Governed {
-    constructor(IERC20 _erc20, uint256 _lockAmountForNetworkCreation) ReentrancyGuardOptimized() Governed() {
+    constructor(IERC20 _erc20,
+                uint256 _lockAmountForNetworkCreation,
+                address _treasury,
+                uint256 _lockFeePercentage) ReentrancyGuardOptimized() Governed() {
         erc20 = IERC20(_erc20);
         lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
+        treasury = _treasury;
+        lockFeePercentage = _lockFeePercentage;
     }
 
     using SafeMath for uint256;
@@ -19,8 +24,11 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
 
-    uint256 public lockAmountForNetworkCreation = 1000000 * 10 ** 18;
+    uint256 public lockAmountForNetworkCreation = 1000000 * 10 ** 18; // 1M
     uint256 public totalLockedAmount = 0;
+    uint256 public lockFeePercentage = 10000; // 10%; parts per 10,000
+
+    address public treasury = address(0);
 
     mapping(address => uint256) public lockedTokensOfAddress;
     mapping(address => address) public networkOfAddress;
@@ -65,17 +73,25 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     function registerNetwork(address networkAddress) external payable {
         INetwork_v2 network = INetwork_v2(networkAddress);
+        uint256 memory fee = lockedTokensOfAddress[msg.sender].div(100).mul(lockFeePercentage.div(10000));
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
         require(network._governor() == msg.sender, "R2");
+        require(erc20.transfer(treasury, fee), "R3");
         networksArray.push(network);
         networkOfAddress[msg.sender] = networkAddress;
+        lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
         emit NetworkCreated(networkAddress, msg.sender, networksArray.length - 1);
     }
 
     function changeAmountForNetworkCreation(uint256 newAmount) external payable onlyGovernor {
         require(newAmount > 0, "C1");
         lockAmountForNetworkCreation = newAmount * 10 ** 18;
+    }
+
+    function changeLockPercentageFee(uint256 newAmount) external payable onlyGovernor {
+        require(newAmount.div(10000) <= 10, "CLF1");
+        lockFeePercentage = newAmount;
     }
 
 }

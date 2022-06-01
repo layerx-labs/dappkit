@@ -11,7 +11,9 @@ dappkit is a curated framework so that you can automate creation and unit testin
 
 ## Installation
 
-```npm install @taikai/dappkit@2.0.0-alpha.2```
+```bash
+$ npm install @taikai/dappkit
+```
 
 ## Usage
 
@@ -49,7 +51,7 @@ Please refer to the [`test/`](./test/models) folder to read further usage exampl
 ## Documentation 
 
 * [Guides](https://docs.dappkit.dev/sdk-documentation/start-building/how-to-guides)
-* [Advanced](./how-to/)
+* [Advanced](./how-to/readme.md)
 * [SDK Documentation](https://sdk.dappkit.dev/)
 * [Use Cases](https://docs.dappkit.dev/sdk-documentation/use-cases)
 
@@ -73,3 +75,4 @@ Please review [Contributor guidelines](https://github.com/taikai/dappkit/blob/ma
 ### Notes
 - [Docker support](./docker-readme.md)
 - [CoC](./CODE_OF_CONDUCT.md)
+- [Dependencies](./DEPENDENCIES.md)
