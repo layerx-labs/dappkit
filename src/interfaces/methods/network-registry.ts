@@ -24,7 +24,7 @@ export interface Network_RegistryMethods {
 
   totalLockedAmount(): ContractCallMethod<number>;
 
-  lockPercentageFee(): ContractCallMethod<number>;
+  lockFeePercentage(): ContractCallMethod<number>;
 
   treasury(): ContractCallMethod<string>;
 
