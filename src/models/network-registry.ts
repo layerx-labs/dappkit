@@ -99,7 +99,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   }
 
   async lockFeePercentage() {
-    return (await this.callTx(this.contract.methods.lockFeePercentage())) / TenK;
+    return +(await this.callTx(this.contract.methods.lockFeePercentage())) / TenK;
   }
 
   async treasury() {
