@@ -221,7 +221,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param _cancelFee new cancel fee value
    */
   async changeCancelFee(_cancelFee: number) {
-    console.log({_cancelFee})
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.cancelFee, _cancelFee));
   }
 
