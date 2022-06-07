@@ -3,7 +3,7 @@ import {Web3Connection} from '@base/web3-connection';
 import { ERC20 } from '@models/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import {XEvents} from '@events/x-events';
+import {XEvents, XPromiseEvent} from '@events/x-events';
 
 import Network_RegistryJson from '@abi/Network_Registry.json';
 import { Network_RegistryMethods } from '@methods/network-registry';
@@ -11,11 +11,15 @@ import * as Events from '@events/network-registry'
 import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
 import { fromSmartContractDecimals, toSmartContractDecimals } from '@utils/numbers';
+import {TenK} from "@utils/constants";
+import {Governed} from "@base/governed";
 
 export class Network_Registry extends Model<Network_RegistryMethods> implements Deployable {
   private _token!: ERC20;
+  private _governed!: Governed;
 
   get token() { return this._token; }
+  get governed() { return this._governed; }
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
     super(web3Connection, Network_RegistryJson.abi as AbiItem[], contractAddress);
@@ -33,37 +37,29 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     const erc20Address = await this.erc20();
 
     this._token = new ERC20(this.connection, erc20Address);
+    this._governed = new Governed(this);
 
     await this._token.loadContract();
   }
 
-  async deployJsonAbi(_erc20: string, _lockAmountForNetworkCreation: number) {
-    const token = new ERC20(this.connection, _erc20);
+  async deployJsonAbi(_erc20: string,
+                      _lockAmountForNetworkCreation: number,
+                      treasury: string,
+                      lockFeePercentage: number) {
 
+    const token = new ERC20(this.connection, _erc20);
     await token.loadContract();
 
     const deployOptions = {
       data: Network_RegistryJson.bytecode,
       arguments: [
-        _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals)
+        _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals), treasury, lockFeePercentage
       ]
     }
     return this.deploy(deployOptions, this.connection.Account);
   }
 
-  async _governor() { 
-    return this.callTx(this.contract.methods._governor());
-  }
-
-  async _proposedGovernor() { 
-    return this.callTx(this.contract.methods._proposedGovernor());
-  }
-
-  async claimGovernor() { 
-    return this.sendTx(this.contract.methods.claimGovernor());
-  }
-
-  async erc20() { 
+  async erc20() {
     return this.callTx(this.contract.methods.erc20());
   }
 
@@ -85,13 +81,17 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.callTx(this.contract.methods.networksArray(v1));
   }
 
-  async proposeGovernor(proposedGovernor: string) { 
-    return this.sendTx(this.contract.methods.proposeGovernor(proposedGovernor));
-  }
-
   async totalLockedAmount() { 
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalLockedAmount()), 
                                      this.token.decimals);
+  }
+
+  async lockFeePercentage() {
+    return +(await this.callTx(this.contract.methods.lockFeePercentage())) / TenK;
+  }
+
+  async treasury() {
+    return this.callTx(this.contract.methods.treasury());
   }
 
   async amountOfNetworks() { 
@@ -123,8 +123,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   async getNetworkCreatedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkCreatedEvent>[]> {
     return this.contract.self.getPastEvents('NetworkCreated', filter);
   }
-  async getUserLockedAmountChangedEvents(filter: PastEventOptions): 
-  Promise<XEvents<Events.UserLockedAmountChangedEvent>[]> {
+
+  async getUserLockedAmountChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.UserLockedAmountChangedEvent> {
     return this.contract.self.getPastEvents('UserLockedAmountChanged', filter);
   }
 }

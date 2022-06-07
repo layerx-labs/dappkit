@@ -4,11 +4,11 @@ import {ContractCallMethod} from '@methods/contract-call-method';
 export interface Network_RegistryMethods {
 
 
-    _governor(): ContractCallMethod<string>;
+  _governor(): ContractCallMethod<string>;
 
   _proposedGovernor(): ContractCallMethod<string>;
 
-  claimGovernor(): ContractSendMethod
+  claimGovernor(): ContractSendMethod;
 
   erc20(): ContractCallMethod<string>;
 
@@ -20,18 +20,24 @@ export interface Network_RegistryMethods {
 
   networksArray(v1: number): ContractCallMethod<string>;
 
-  proposeGovernor(proposedGovernor: string): ContractSendMethod
+  proposeGovernor(proposedGovernor: string): ContractSendMethod;
 
   totalLockedAmount(): ContractCallMethod<number>;
 
+  lockFeePercentage(): ContractCallMethod<number>;
+
+  treasury(): ContractCallMethod<string>;
+
+  changeLockPercentageFee(): ContractSendMethod;
+
   amountOfNetworks(): ContractCallMethod<number>;
 
-  lock(_amount: number): ContractSendMethod
+  lock(_amount: number): ContractSendMethod;
 
-  unlock(): ContractSendMethod
+  unlock(): ContractSendMethod;
 
-  registerNetwork(networkAddress: string): ContractSendMethod
+  registerNetwork(networkAddress: string): ContractSendMethod;
 
-  changeAmountForNetworkCreation(newAmount: number): ContractSendMethod
+  changeAmountForNetworkCreation(newAmount: number): ContractSendMethod;
 
 }

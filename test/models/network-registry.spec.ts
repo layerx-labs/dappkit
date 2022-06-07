@@ -34,7 +34,7 @@ describe(`Network_Registry`, () => {
   it(`Deploys`, async () => {
     const registry = new Network_Registry(web3Connection);
     await registry.loadAbi();
-    const receipt = await registry.deployJsonAbi(erc20Address, 1000);
+    const receipt = await registry.deployJsonAbi(erc20Address, 1000, await web3Connection.getAddress(), 10000);
     expect(receipt.contractAddress, "Should have deployed");
     registryAddress = receipt.contractAddress;
   });
@@ -85,6 +85,7 @@ describe(`Network_Registry`, () => {
         const receipt = await registry.registerNetwork(networkAddress);
         expect(receipt.transactionHash).to.exist;
         expect(await registry.getNetworkCreatedEvents({fromBlock: receipt.blockNumber})).to.have.lengthOf(1);
+        expect(await registry.lockedTokensOfAddress(await web3Connection.getAddress())).to.be.eq(10 - (10/100) * await registry.lockFeePercentage());
       });
 
       it(`Throws because one networks per user`, async () => {
