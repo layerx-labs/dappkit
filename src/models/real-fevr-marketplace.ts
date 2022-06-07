@@ -48,13 +48,13 @@ export class RealFevrMarketplace extends Model<RealFevrMarketplaceMethods> imple
 
     if (!this._isETHTransaction) {
       // Set Token Address Contract for easy access
-      this._erc20 = new ERC20(this.web3Connection, tokenAddress);
+      this._erc20 = new ERC20(this.connection, tokenAddress);
       await this._erc20.loadContract();
 
       this._decimals = this._erc20.decimals;
     }
 
-    this._opener = new RealFevrOpener(this.web3Connection, collectiblesAddress);
+    this._opener = new RealFevrOpener(this.connection, collectiblesAddress);
     await this._opener.loadContract();
   }
   /* eslint-enable complexity */
@@ -75,7 +75,7 @@ export class RealFevrMarketplace extends Model<RealFevrMarketplaceMethods> imple
       arguments: [tokenAddress, collectiblesAddress]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async putERC721OnSale(tokenId: number, price: number) {

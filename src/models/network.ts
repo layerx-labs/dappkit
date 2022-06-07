@@ -258,8 +258,8 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     const transactionAddress = await this.getTransactionTokenAddress();
     const settlerAddress = await this.getSettlerTokenAddress();
 
-    this._transactionToken = new ERC20(this.web3Connection, transactionAddress);
-    this._settlerToken = new ERC20(this.web3Connection, settlerAddress);
+    this._transactionToken = new ERC20(this.connection, transactionAddress);
+    this._settlerToken = new ERC20(this.connection, settlerAddress);
 
     await this._transactionToken.loadContract();
     await this._settlerToken.loadContract();
@@ -273,7 +273,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
       arguments: [settlerAddress, transactionalAddress, governanceAddress]
     }
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async getCloseIssueEvents(filter: PastEventOptions): Promise<XEvents<Events.CloseIssueEvent>[]> {

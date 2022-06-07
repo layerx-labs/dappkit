@@ -13,7 +13,7 @@ import {noop} from '@utils/noop';
 
 export class Model<Methods = any> {
   protected _contract!: Web3Contract<Methods>;
-  protected web3Connection!: Web3Connection;
+  private readonly web3Connection!: Web3Connection;
 
   /**
    * Returns the {@link Web3Contract} class representing this contract

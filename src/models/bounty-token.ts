@@ -20,7 +20,7 @@ export class BountyToken extends Model<BountyTokenMethods> implements Deployable
         arguments: [name_, symbol_]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async _governor() {

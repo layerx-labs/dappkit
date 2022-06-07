@@ -23,7 +23,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
       super.loadContract();
 
     const contractAddress = this._purchaseToken || await this.callTx(this.contract.methods._purchaseToken());
-    this._erc20 = new ERC20(this.web3Connection, contractAddress);
+    this._erc20 = new ERC20(this.connection, contractAddress);
     await this._erc20.loadContract();
   }
 
@@ -44,7 +44,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
         arguments: [name, symbol, limitedAmount, _purchaseToken, baseFeeAddress, feeAddress, otherAddress]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async MAX_PURCHASE() {

@@ -17,7 +17,7 @@ export class UniswapV3RouterBridge extends Model<UniswapV3RouterBridgeMethods> i
         arguments: [_swapRouter]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async swapRouter() {

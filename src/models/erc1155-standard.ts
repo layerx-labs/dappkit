@@ -20,7 +20,7 @@ export class ERC1155Standard extends Model<ERC1155StandardMethods> implements De
         arguments: [uri]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async balanceOf(account: string, id: number){

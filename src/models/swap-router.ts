@@ -23,7 +23,7 @@ export class SwapRouter extends Model<SwapRouterMethods> implements Deployable {
       arguments: []
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async uniswapV3SwapCallback(amount0Delta: number, amount1Delta: number, data: string) {

@@ -17,7 +17,7 @@ export class UniswapV3Factory extends Model<UniswapV3FactoryMethods> implements 
         arguments: []
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async owner() {

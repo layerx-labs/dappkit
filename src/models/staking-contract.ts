@@ -44,12 +44,12 @@ export class StakingContract extends Model<StakingContractMethods> implements De
 
     const tokenAddress = this.stakeTokenAddress || await this.callTx(this.contract.methods.erc20());
 
-    this._erc20 = new ERC20(this.web3Connection, tokenAddress);
+    this._erc20 = new ERC20(this.connection, tokenAddress);
     await this._erc20.loadContract();
 
     const collectiblesAddress = this.collectiblesAddress || await this.callTx(this.contract.methods.erc721());
     if (collectiblesAddress) {
-      this._erc721 = new ERC721Collectibles(this.web3Connection, collectiblesAddress, tokenAddress);
+      this._erc721 = new ERC721Collectibles(this.connection, collectiblesAddress, tokenAddress);
       await this._erc721.loadContract();
     }
   }
@@ -67,7 +67,7 @@ export class StakingContract extends Model<StakingContractMethods> implements De
         arguments: [stakeTokenAddress, collectiblesAddress]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async erc20Address() {

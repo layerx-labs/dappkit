@@ -46,8 +46,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
                       _lockAmountForNetworkCreation: number,
                       treasury: string,
                       lockFeePercentage: number) {
-    const token = new ERC20(this.web3Connection, _erc20);
 
+    const token = new ERC20(this.web3Connection, _erc20);
     await token.loadContract();
 
     const deployOptions = {
@@ -56,7 +56,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
         _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals), treasury, lockFeePercentage
       ]
     }
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async erc20() {
