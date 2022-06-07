@@ -16,6 +16,6 @@ const config = {
   }
 }
 
-Contracts.compile(config)
+Contracts.compileAndSave(config)
   .then(_ => console.log("Finished"))
   .catch(e => console.error(e));
