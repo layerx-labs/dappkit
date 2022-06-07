@@ -27,7 +27,7 @@ export interface Network_RegistryMethods {
   lockFeePercentage(): ContractCallMethod<number>;
 
   treasury(): ContractCallMethod<string>;
-
+changeLockPercentageFee(): ContractSendMethod;
   amountOfNetworks(): ContractCallMethod<number>;
 
   lock(_amount: number): ContractSendMethod
