@@ -24,6 +24,7 @@ describe(`NetworkV2`, () => {
   let Admin: Account;
   let Alice: Account;
   let Bob: Account;
+  let Treasury: Account;
 
   const cap = toSmartContractDecimals(AMOUNT_1M);
   const newCouncilAmount = 105000;
@@ -33,6 +34,7 @@ describe(`NetworkV2`, () => {
     Admin = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile());
     Alice = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1));
     Bob = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(2));
+    Treasury = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(3));
   })
 
   it(`Deploys needed Contracts`, async () => {
@@ -93,6 +95,11 @@ describe(`NetworkV2`, () => {
     it(`changeOracleExchangeRate()`, async () => {
       await hasTxBlockNumber(network.changeOracleExchangeRate(20000));
       expect(await network.oracleExchangeRate()).to.eq(2);
+    });
+
+    it(`UpdateTresuryAddress()`, async () => {
+      await hasTxBlockNumber(network.updateTresuryAddress(Treasury.address));
+      expect((await network.treasuryInfo())?.[0]).to.eq(Treasury.address)
     });
   });
 

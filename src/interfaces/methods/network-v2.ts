@@ -33,6 +33,7 @@ export interface Network_v2Methods {
   getDelegationsFor(_address: string): ContractCallMethod<Delegation[]>;
   getBountiesOfAddress(owner: string): ContractCallMethod<number[]>;
   changeNetworkParameter(_parameter: number, _value: number): ContractSendMethod;
+  updateTresuryAddress(_address: string): ContractSendMethod;
   manageOracles(lock: boolean, amount: number): ContractSendMethod;
   delegateOracles(amount: number, toAddress: string): ContractSendMethod;
   takeBackOracles(entryId: number): ContractSendMethod;

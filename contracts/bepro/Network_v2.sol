@@ -150,6 +150,11 @@ contract Network_v2 is Governed, ReentrancyGuard {
         }
     }
 
+    function updateTresuryAddress(address _address) public payable onlyGovernor{
+        require(_address != address(0), 'UTA1');
+        treasury = address(_address);
+    }
+
     function amountGT0(uint256 _amount) internal view {
         require(_amount > 0, "L0");
     }
