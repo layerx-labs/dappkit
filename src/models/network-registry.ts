@@ -36,7 +36,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
     const erc20Address = await this.erc20();
 
-    this._token = new ERC20(this.web3Connection, erc20Address);
+    this._token = new ERC20(this.connection, erc20Address);
     this._governed = new Governed(this);
 
     await this._token.loadContract();
@@ -47,7 +47,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
                       treasury: string,
                       lockFeePercentage: number) {
 
-    const token = new ERC20(this.web3Connection, _erc20);
+    const token = new ERC20(this.connection, _erc20);
     await token.loadContract();
 
     const deployOptions = {
