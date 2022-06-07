@@ -32,13 +32,13 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
     const erc20Address = await this.erc20();
 
-    this._token = new ERC20(this.web3Connection, erc20Address);
+    this._token = new ERC20(this.connection, erc20Address);
 
     await this._token.loadContract();
   }
 
   async deployJsonAbi(_erc20: string, _lockAmountForNetworkCreation: number) {
-    const token = new ERC20(this.web3Connection, _erc20);
+    const token = new ERC20(this.connection, _erc20);
 
     await token.loadContract();
 
@@ -48,7 +48,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
         _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals)
       ]
     }
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async _governor() { 

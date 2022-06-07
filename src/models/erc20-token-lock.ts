@@ -101,7 +101,7 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
     this._ownable = new Ownable(this);
     this._pausable = new Pausable(this);
 
-    this._erc20 = new ERC20(this.web3Connection, await this.getERC20TokenAddress());
+    this._erc20 = new ERC20(this.connection, await this.getERC20TokenAddress());
     await this._erc20.loadContract();
   }
 

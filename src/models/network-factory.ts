@@ -81,7 +81,7 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
     if (!this.contract)
       super.loadContract();
 
-    this._erc20 = new ERC20(this.web3Connection, await this.getSettlerTokenAddress());
+    this._erc20 = new ERC20(this.connection, await this.getSettlerTokenAddress());
     await this._erc20.loadContract();
   }
 
@@ -91,6 +91,6 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
       arguments: [erc20ContractAddress]
     }
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 }

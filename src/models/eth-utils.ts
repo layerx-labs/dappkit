@@ -19,7 +19,7 @@ export class ETHUtils extends Model<ETHUtilsMethods> implements Deployable {
         arguments: []
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async name(tokenAddress: string) {

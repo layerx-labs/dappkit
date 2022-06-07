@@ -35,7 +35,7 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
       throw new Error(Errors.MissingERC20AddressOnContractPleaseSetPurchaseToken);
 
     if (purchaseToken && purchaseToken !== nativeZeroAddress) {
-      this._erc20 = new ERC20(this.web3Connection, purchaseToken);
+      this._erc20 = new ERC20(this.connection, purchaseToken);
       await this._erc20.loadContract();
 
       this._decimals = this._erc20.decimals;
@@ -54,7 +54,7 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
         arguments: [name, symbol, _purchaseToken]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async getAmountOfPacksOpened() {

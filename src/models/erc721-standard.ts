@@ -34,6 +34,6 @@ export class Erc721Standard extends Model<ERC721StandardMethods> implements Depl
       arguments: [name, symbol]
     }
 
-    return this.deploy(options, this.web3Connection.Account);
+    return this.deploy(options, this.connection.Account);
   }
 }

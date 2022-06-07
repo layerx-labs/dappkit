@@ -26,7 +26,7 @@ export class Votable extends Model<VotableMethods> implements Deployable {
       super.loadContract();
 
     const contractAddress = this.erc20TokenAddress || await this.callTx(this.contract.methods.erc20());
-    this._erc20 = new ERC20(this.web3Connection, contractAddress);
+    this._erc20 = new ERC20(this.connection, contractAddress);
     await this._erc20.loadContract();
   }
 
@@ -41,7 +41,7 @@ export class Votable extends Model<VotableMethods> implements Deployable {
         arguments: [_token]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async pollCount() {

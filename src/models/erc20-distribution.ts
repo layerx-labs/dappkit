@@ -32,7 +32,7 @@ export class ERC20Distribution extends Model<ERC20DistributionMethods> implement
     this._ownable = new Ownable(this);
     this._pausable = new Pausable(this);
 
-    this._erc20 = new ERC20(this.web3Connection, await this.callTx(this.contract.methods.erc20()));
+    this._erc20 = new ERC20(this.connection, await this.callTx(this.contract.methods.erc20()));
     await this._erc20.loadContract();
   }
 
@@ -47,7 +47,7 @@ export class ERC20Distribution extends Model<ERC20DistributionMethods> implement
       arguments: []
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async TGEDate() {

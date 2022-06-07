@@ -38,7 +38,7 @@ export class CERC20 extends Model<CERC20Methods> implements Deployable {
     if (!this.underlyingAddress)
       throw new Error(Errors.MissingERC20UnderlyingToken);
 
-    this._erc20 = new ERC20(this.web3Connection, this.underlyingAddress);
+    this._erc20 = new ERC20(this.connection, this.underlyingAddress);
     await this._erc20.loadContract();
   }
 
@@ -48,7 +48,7 @@ export class CERC20 extends Model<CERC20Methods> implements Deployable {
         arguments: [underlying_, initialExchangeRate_, decimals_]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   /**

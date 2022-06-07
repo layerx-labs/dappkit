@@ -60,8 +60,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const nftAddress = await this.nftTokenAddress();
     const transactionalTokenAddress = await this.settlerTokenAddress();
 
-    this._nftToken = new BountyToken(this.web3Connection, nftAddress);
-    this._settlerToken = new ERC20(this.web3Connection, transactionalTokenAddress);
+    this._nftToken = new BountyToken(this.connection, nftAddress);
+    this._settlerToken = new ERC20(this.connection, transactionalTokenAddress);
 
     this._governed = new Governed(this);
 
@@ -81,7 +81,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
       arguments: [_settlerToken, _nftTokenAddress, _bountyNftUri, treasury, cancelFee, closeFee]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async bountyNftUri() {
@@ -325,12 +325,12 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     let _rewardAmount = 0;
     let _fundingAmount = 0;
 
-    const _transactional = new ERC20(this.web3Connection, transactional);
+    const _transactional = new ERC20(this.connection, transactional);
     await _transactional.loadContract();
     const _tokenAmount = toSmartContractDecimals(tokenAmount, _transactional.decimals);
 
     if (rewardAmount && rewardToken !== nativeZeroAddress) {
-      const rewardERC20 = new ERC20(this.web3Connection, rewardToken);
+      const rewardERC20 = new ERC20(this.connection, rewardToken);
       await rewardERC20.loadContract();
       _rewardAmount = toSmartContractDecimals(rewardAmount, rewardERC20.decimals);
       _fundingAmount = toSmartContractDecimals(fundingAmount, _transactional.decimals);

@@ -43,20 +43,20 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
     if (!this.ethUtilsAddress)
       throw new Error(Errors.MissingEthUtilsAddressPleaseProvideOne);
 
-    this._ethUtils = new ETHUtils(this.web3Connection, this.ethUtilsAddress);
+    this._ethUtils = new ETHUtils(this.connection, this.ethUtilsAddress);
     this._ownable = new Ownable(this);
 
     const lpTokenAddress = await this.lpToken() || this.lpTokenAddress;
     if (!lpTokenAddress)
       throw new Error(Errors.MissingLpTokenAddressPleaseDeployUsingOne);
 
-    this._erc20 = new ERC20(this.web3Connection, lpTokenAddress);
+    this._erc20 = new ERC20(this.connection, lpTokenAddress);
 
     const swapRouterAddress = await this.swapRouter() || this.swapRouterAddress;
     if (!swapRouterAddress)
       throw new Error(Errors.MissingSwapAddressPleaseDeployUsingOne);
 
-    this._swap = new UniswapV3RouterBridge(this.web3Connection, swapRouterAddress);
+    this._swap = new UniswapV3RouterBridge(this.connection, swapRouterAddress);
 
     await this._swap.loadContract();
     await this._erc20.loadContract();
@@ -76,7 +76,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
                       _exitPenalty: number,
                       _exitPenaltyLP: number) {
 
-    const erc20 = new ERC20(this.web3Connection, _lpToken);
+    const erc20 = new ERC20(this.connection, _lpToken);
     await erc20.loadContract();
     const lpTokensPerBlock = toSmartContractDecimals(_lpTokensPerBlock, erc20.decimals);
 
@@ -85,7 +85,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
       arguments: [_swapRouter, _lpToken, lpTokensPerBlock, _startBlock, _exitPenalty, _exitPenaltyLP]
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async LPtokensPerShareMultiplier() {

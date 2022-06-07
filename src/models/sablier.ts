@@ -21,7 +21,7 @@ export class Sablier extends Model<SablierMethods> implements Deployable {
         arguments: []
     };
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 
   async addPauser(account: string) {

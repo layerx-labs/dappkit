@@ -63,7 +63,7 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
   }
 
   async isApproved(spenderAddress = this.contractAddress!, amount: number): Promise<boolean> {
-    return await this.allowance(await this.web3Connection.getAddress(), spenderAddress) >= amount;
+    return await this.allowance(await this.connection.getAddress(), spenderAddress) >= amount;
   }
 
   async approve(address: string, amount: number): Promise<TransactionReceipt> {
@@ -81,6 +81,6 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
       arguments: [name, symbol, cap, distributionAddress]
     }
 
-    return this.deploy(deployOptions, this.web3Connection.Account);
+    return this.deploy(deployOptions, this.connection.Account);
   }
 }
