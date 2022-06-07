@@ -12,11 +12,14 @@ import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
 import { fromSmartContractDecimals, toSmartContractDecimals } from '@utils/numbers';
 import {TenK} from "@utils/constants";
+import {Governed} from "@base/governed";
 
 export class Network_Registry extends Model<Network_RegistryMethods> implements Deployable {
   private _token!: ERC20;
+  private _governed!: Governed;
 
   get token() { return this._token; }
+  get governed() { return this._governed; }
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
     super(web3Connection, Network_RegistryJson.abi as AbiItem[], contractAddress);
@@ -34,6 +37,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     const erc20Address = await this.erc20();
 
     this._token = new ERC20(this.web3Connection, erc20Address);
+    this._governed = new Governed(this);
 
     await this._token.loadContract();
   }
@@ -55,19 +59,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.deploy(deployOptions, this.web3Connection.Account);
   }
 
-  async _governor() { 
-    return this.callTx(this.contract.methods._governor());
-  }
-
-  async _proposedGovernor() { 
-    return this.callTx(this.contract.methods._proposedGovernor());
-  }
-
-  async claimGovernor() { 
-    return this.sendTx(this.contract.methods.claimGovernor());
-  }
-
-  async erc20() { 
+  async erc20() {
     return this.callTx(this.contract.methods.erc20());
   }
 
@@ -87,10 +79,6 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
   async networksArray(v1: number) { 
     return this.callTx(this.contract.methods.networksArray(v1));
-  }
-
-  async proposeGovernor(proposedGovernor: string) { 
-    return this.sendTx(this.contract.methods.proposeGovernor(proposedGovernor));
   }
 
   async totalLockedAmount() { 

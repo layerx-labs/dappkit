@@ -3,6 +3,13 @@ import {ContractCallMethod} from '@methods/contract-call-method';
 
 export interface Network_RegistryMethods {
 
+
+  _governor(): ContractCallMethod<string>;
+
+  _proposedGovernor(): ContractCallMethod<string>;
+
+  claimGovernor(): ContractSendMethod;
+
   erc20(): ContractCallMethod<string>;
 
   lockAmountForNetworkCreation(): ContractCallMethod<number>;
