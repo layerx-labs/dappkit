@@ -14,3 +14,5 @@ migrations/
 example/
 .dev*
 .vscode
+cache/
+artifacts/

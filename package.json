@@ -17,7 +17,7 @@
     "README.md"
   ],
   "scripts": {
-    "compile": "truffle compile",
+    "compile": "node tools/compile.mjs",
     "prebuild": "npm run compile",
     "prepublishOnly": "npm run build",
     "test": "mocha --bail --timeout 60000 --exit --require ts-node/register --require tsconfig-paths/register 'test/**/*.spec.{ts,tsx}' --pretty",
@@ -30,8 +30,6 @@
     "lint": "npm run eslint -- --quiet",
     "lint-fix": "npm run eslint -- --quiet --fix",
     "abi-parser": "node tooling/abi-parser.js",
-    "truffle": "truffle",
-    "contract-size": "truffle run contract-size",
     "tsc": "tsc",
     "tscpaths": "tscpaths",
     "dk-transpile": "dk-transpile"
@@ -47,7 +45,7 @@
   "devDependencies": {
     "@openzeppelin/contracts": "^3.4.2",
     "@taikai/dappkit-launchpad": "^0.0.7",
-    "@truffle/hdwallet-provider": "^2.0.0",
+    "@truffle/workflow-compile": "^4.0.20",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.0.0",
     "@types/yargs": "^17.0.7",
@@ -63,10 +61,6 @@
     "ganache-time-traveler": "^1.0.5",
     "mocha": "^9.1.3",
     "mocha-multi-reporters": "^1.5.1",
-    "truffle": "^5.4.26",
-    "truffle-assertions": "^0.8.2",
-    "truffle-contract-size": "^2.0.1",
-    "truffle-plugin-verify": "^0.5.8",
     "ts-node": "^10.4.0",
     "tsc-alias": "^1.5.0",
     "tsconfig-paths": "^3.12.0",

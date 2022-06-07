@@ -14,6 +14,6 @@ services:
       - "./contracts:/app/contracts"
       - "./tests:/app/tests"
       - "./migrations:/app/migrations"
-      - "./truffle-config.js:/app/truffle-config.js"
+      - "./hardhat.config.js:/app/hardhat.config.js"
       - "./index.js:/app/index.js"
       - "./README.md:/app/README.md"
