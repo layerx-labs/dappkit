@@ -86,7 +86,8 @@ interface INetwork_v2 {
         draftTime,
         oracleExchangeRate,
         mergeCreatorFeeShare,
-        percentageNeededForDispute
+        percentageNeededForDispute,
+        cancelFee
     }
 
     function totalSettlerLocked() external view returns (uint256);
