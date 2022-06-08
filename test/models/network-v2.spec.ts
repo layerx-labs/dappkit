@@ -75,6 +75,11 @@ describe(`NetworkV2`, () => {
       expect(await network.draftTime()).to.eq(61000);
     });
 
+    it(`changeCancelFee()`, async () => {
+      await hasTxBlockNumber(network.changeCancelFee(20000));
+      expect(+(await network.treasuryInfo())?.[2]).to.eq(20000)
+    });
+
     it(`changeDisputableTime()`, async () => {
       await hasTxBlockNumber(network.changeDisputableTime(61));
       expect(await network.disputableTime()).to.eq(61000);

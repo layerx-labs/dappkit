@@ -33,7 +33,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     draftTime: 2,
     oracleExchangeRate: 3,
     mergeCreatorFeeShare: 4,
-    percentageNeededForDispute: 5
+    percentageNeededForDispute: 5,
+    cancelFee: 6
   }
 
   get nftToken() { return this._nftToken; }
@@ -214,6 +215,13 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeDraftTime(_draftTime: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.draftTime, _draftTime));
+  }
+
+  /**
+   * @param _cancelFee new cancel fee value
+   */
+  async changeCancelFee(_cancelFee: number) {
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.cancelFee, _cancelFee));
   }
 
   /**

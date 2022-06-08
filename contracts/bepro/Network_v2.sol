@@ -147,6 +147,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
             require(_value >= 0, "EX0");
             require(totalSettlerLocked == 0, "EX1");
             oracleExchangeRate = _value;
+        } else if(_parameter == uint256(INetwork_v2.Params.cancelFee)){
+            require(_value >= 0, "CF1");
+            cancelFee = _value;
         }
     }
 
