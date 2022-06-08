@@ -17,6 +17,7 @@ import { OraclesResume } from '@interfaces/oracles-resume';
 import { Delegation } from '@interfaces/delegation';
 import { oraclesResume } from '@utils/oracles-resume';
 import { bounty } from '@utils/bounty';
+import { treasuryInfo } from '@utils/treasury-info';
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -98,7 +99,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async treasuryInfo() {
-    return this.callTx(this.contract.methods.treasuryInfo());
+    return treasuryInfo(await this.callTx(this.contract.methods.treasuryInfo()));
   }
 
   /**
@@ -221,7 +222,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param _cancelFee new cancel fee value
    */
   async changeCancelFee(_cancelFee: number) {
-    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.cancelFee, _cancelFee));
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.cancelFee, _cancelFee * TenK));
   }
 
   /**
@@ -235,24 +236,24 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param percentageNeededForDispute percentage is per 10,000; 3 = 0,0003
    */
   async changePercentageNeededForDispute(percentageNeededForDispute: number) {
-    return this.sendTx(this.contract.methods
-                           .changeNetworkParameter(this.Params.percentageNeededForDispute, percentageNeededForDispute));
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.percentageNeededForDispute, 
+                                                                    percentageNeededForDispute * TenK));
   }
 
   /**
    * @param mergeCreatorFeeShare percentage is per 10,000; 3 = 0,0003
    */
   async changeMergeCreatorFeeShare(mergeCreatorFeeShare: number) {
-    return this.sendTx(this.contract.methods
-                           .changeNetworkParameter(this.Params.mergeCreatorFeeShare, mergeCreatorFeeShare));
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.mergeCreatorFeeShare, 
+                                                                    mergeCreatorFeeShare * TenK));
   }
 
   /**
    * @param oracleExchangeRate percentage is per 10,000; 3 = 0,0003
    */
   async changeOracleExchangeRate(oracleExchangeRate: number) {
-    return this.sendTx(this.contract.methods
-                           .changeNetworkParameter(this.Params.oracleExchangeRate, oracleExchangeRate));
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.oracleExchangeRate, 
+                                                                    oracleExchangeRate * TenK));
   }
 
    /**

@@ -78,8 +78,9 @@ describe(`NetworkV2`, () => {
     });
 
     it(`changeCancelFee()`, async () => {
-      await hasTxBlockNumber(network.changeCancelFee(20000));
-      expect(+(await network.treasuryInfo())?.[2]).to.eq(20000)
+      await hasTxBlockNumber(network.changeCancelFee(2));
+      console.log(await network.treasuryInfo());
+      expect((await network.treasuryInfo()).cancelFee).to.eq(2)
     });
 
     it(`changeDisputableTime()`, async () => {
@@ -88,23 +89,23 @@ describe(`NetworkV2`, () => {
     });
 
     it(`changePercentageNeededForDispute()`, async () => {
-      await hasTxBlockNumber(network.changePercentageNeededForDispute(10000));
+      await hasTxBlockNumber(network.changePercentageNeededForDispute(1));
       expect(await network.percentageNeededForDispute()).to.eq(1);
     });
 
     it(`changeMergeCreatorFeeShare()`, async () => {
-      await hasTxBlockNumber(network.changeMergeCreatorFeeShare(10000));
+      await hasTxBlockNumber(network.changeMergeCreatorFeeShare(1));
       expect(await network.mergeCreatorFeeShare()).to.eq(1);
     });
 
     it(`changeOracleExchangeRate()`, async () => {
-      await hasTxBlockNumber(network.changeOracleExchangeRate(20000));
+      await hasTxBlockNumber(network.changeOracleExchangeRate(2));
       expect(await network.oracleExchangeRate()).to.eq(2);
     });
 
     it(`UpdateTresuryAddress()`, async () => {
       await hasTxBlockNumber(network.updateTresuryAddress(Treasury.address));
-      expect((await network.treasuryInfo())?.[0]).to.eq(Treasury.address)
+      expect((await network.treasuryInfo()).treasury).to.eq(Treasury.address)
     });
   });
 
