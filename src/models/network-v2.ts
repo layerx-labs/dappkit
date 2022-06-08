@@ -255,6 +255,13 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
                            .changeNetworkParameter(this.Params.oracleExchangeRate, oracleExchangeRate));
   }
 
+   /**
+   * update the tresury address
+   * @param _address 
+   */
+  async updateTresuryAddress(_address: string) {
+    return this.sendTx(this.contract.methods.updateTresuryAddress(_address));
+  }
 
   /**
    * get total amount of oracles of an address

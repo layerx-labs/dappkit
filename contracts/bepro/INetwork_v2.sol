@@ -103,6 +103,7 @@ interface INetwork_v2 {
     function treasuryInfo() external view returns(address, uint256, uint256);
 
     function changeNetworkParameter(uint256 _parameter, uint256 _value) external;
+    function updateTresuryAddress(address _address) external;
     function manageOracles(bool lock, uint256 amount) external;
     function delegateOracles(uint256 amount, address toAddress) external;
     function takeBackOracles(uint256 entryId) external;
