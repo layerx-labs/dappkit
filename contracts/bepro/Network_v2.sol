@@ -138,10 +138,10 @@ contract Network_v2 is Governed, ReentrancyGuard {
             lessThan20MoreThan1(_value);
             disputableTime = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.percentageNeededForDispute)) {
-            require(_value <= 10000, "D1");
+            require(_value >= 0, "D1");
             percentageNeededForDispute = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.mergeCreatorFeeShare)) {
-            require(_value.div(10000) <= 10, "M1");
+            require(_value >= 0 && _value.div(10000) <= 10, "M1");
             mergeCreatorFeeShare = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.oracleExchangeRate)) {
             require(_value >= 0, "EX0");
