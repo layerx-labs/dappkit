@@ -79,7 +79,6 @@ describe(`NetworkV2`, () => {
 
     it(`changeCancelFee()`, async () => {
       await hasTxBlockNumber(network.changeCancelFee(2));
-      console.log(await network.treasuryInfo());
       expect((await network.treasuryInfo()).cancelFee).to.eq(2)
     });
 
