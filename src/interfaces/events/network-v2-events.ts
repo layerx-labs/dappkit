@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 export interface BountyCanceledEvent { returnValues: {'id': number;} }
 export interface BountyClosedEvent { returnValues: {'id': number;} }
 export interface BountyCreatedEvent { returnValues: {'cid': string;'creator': string;'amount': number;} }
