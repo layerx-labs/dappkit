@@ -171,6 +171,12 @@ describe(`NetworkV2`, () => {
         expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq(1001);
       });
 
+      it(`Oracles Changed`, async () => {
+        const receipt = await network.lock(1000);
+        const events = await network.getOraclesChangedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
+        expect(events.length).to.be.eq(1);
+      });
+
       // it(`Supports bounty`, async () => {
       //   web3Connection.switchToAccount(Alice.privateKey);
       //   await hasTxBlockNumber(bountyTransactional.approve(network.contractAddress!, AMOUNT_1M));
