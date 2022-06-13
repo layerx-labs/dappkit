@@ -10,3 +10,4 @@ export interface BountyPullRequestReadyForReviewEvent { returnValues: {'bountyId
 export interface GovernorTransferredEvent { returnValues: {'previousGovernor': string;'newGovernor': string;} }
 export interface BountyFunded { returnValues: {'id': string;'funded': boolean;} }
 export interface BountyAmountUpdatedEvent { returnValues: {'id': number;'amount': number;} }
+export interface OraclesChangedEvent { returnValues: {'actor': string;'actionAmount': number; 'newLockedTotal': number} }
