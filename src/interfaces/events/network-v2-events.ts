@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export interface BountyCanceledEvent { returnValues: {'id': number;} }
 export interface BountyClosedEvent { returnValues: {'id': number;} }
 export interface BountyCreatedEvent { returnValues: {'cid': string;'creator': string;'amount': number;} }
@@ -10,3 +11,4 @@ export interface BountyPullRequestReadyForReviewEvent { returnValues: {'bountyId
 export interface GovernorTransferredEvent { returnValues: {'previousGovernor': string;'newGovernor': string;} }
 export interface BountyFunded { returnValues: {'id': string;'funded': boolean;} }
 export interface BountyAmountUpdatedEvent { returnValues: {'id': number;'amount': number;} }
+export interface OraclesChangedEvent { returnValues: {'actor': string;'actionAmount': number; 'newLockedTotal': number} }

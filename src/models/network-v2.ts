@@ -545,5 +545,9 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async getBountyAmountUpdatedEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyAmountUpdatedEvent>[]> {
     return this.contract.self.getPastEvents(`BountyAmountUpdated`, filter)
   }
+  
+  async getOraclesChangedEvents(filter: PastEventOptions): Promise<XEvents<Events.OraclesChangedEvent>[]> {
+    return this.contract.self.getPastEvents(`OraclesChanged`, filter)
+  }
 
 }
