@@ -279,19 +279,23 @@ describe(`NetworkV2`, () => {
         expect((await network.getBounty(bountyId)).pullRequests[prId].canceled).to.be.true;
       });
 
-      it(`Creates a PR and sets PR as ready`, async () => {
+      it(`Creates a PR`, async () => {
         const receipt = await network.createPullRequest(bountyId, '//', 'master',
                                                         'c4','//', 'feat-2', 1);
 
         const events = await network.getBountyPullRequestCreatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}})
         expect(events.length).to.be.eq(1);
         prId = events[0].returnValues.pullRequestId;
-
-        await hasTxBlockNumber(network.markPullRequestReadyForReview(bountyId, prId));
-        expect((await network.getBounty(bountyId)).pullRequests[prId].ready).to.be.true;
       });
 
-      it(`Creates a Proposal`, async () => {
+      it(`Should be unable to create a Proposal because PR is not ready`, async () => {
+        await shouldBeRejected(network.createBountyProposal(bountyId, prId, [Alice.address, Bob.address], [51, 49]));
+      });
+
+      it(`Set PR as Ready and Creates a Proposal`, async () => {
+        await hasTxBlockNumber(network.markPullRequestReadyForReview(bountyId, prId));
+        expect((await network.getBounty(bountyId)).pullRequests[prId].ready).to.be.true;
+
         await hasTxBlockNumber(network.createBountyProposal(bountyId, prId, [Alice.address, Bob.address], [51, 49]));
         expect((await network.getBounty(bountyId)).proposals.length).to.be.eq(1);
       });
