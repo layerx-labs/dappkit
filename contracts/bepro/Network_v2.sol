@@ -446,6 +446,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
         require(oracles[msg.sender].locked.add(oracles[msg.sender].byOthers) >= councilAmount, "OW0");
         require(prId <= bounties[id].pullRequests.length - 1, "CBP0");
+        require(bounties[id].pullRequests[prId].ready == true, "CBP1");
 
         INetwork_v2.Bounty storage bounty = bounties[id];
 
