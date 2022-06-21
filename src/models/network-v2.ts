@@ -18,6 +18,7 @@ import { Delegation } from '@interfaces/delegation';
 import { oraclesResume } from '@utils/oracles-resume';
 import { bounty } from '@utils/bounty';
 import { treasuryInfo } from '@utils/treasury-info';
+import {delegationEntry} from "@utils/delegation";
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -35,7 +36,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     oracleExchangeRate: 3,
     mergeCreatorFeeShare: 4,
     percentageNeededForDispute: 5,
-    cancelFee: 6
+    cancelFee: 6,
+    cancelableTime: 7
   }
 
   get nftToken() { return this._nftToken; }
@@ -256,8 +258,19 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
                                                                     oracleExchangeRate * TenK));
   }
 
+  /**
+   * @param value in seconds
+   */
+  async changeCancelableTime(value: number) {
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.cancelableTime, value));
+  }
+
+  async cancelableTime() {
+    return (await this.callTx(this.contract.methods.cancelableTime())) * Thousand;
+  }
+
    /**
-   * update the tresury address
+   * update the treasury address
    * @param _address 
    */
   async updateTresuryAddress(_address: string) {
@@ -326,6 +339,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param {string} title title for this bounty
    * @param {string} repoPath repository path for this bounty
    * @param {string} branch branch inside the provided repo path
+   * @param {string} githubUser
    */
   async openBounty(tokenAmount = 0,
                    transactional = nativeZeroAddress,
@@ -364,26 +378,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
                                                         githubUser));
   }
 
-  // /**
-  //  * user adds value to an existing bounty
-  //  * @param id bounty id
-  //  * @param tokenAmount amount to add as support
-  //  * @param decimals decimals of the transactional for this bounty
-  //  */
-  // async supportBounty(id: number, tokenAmount: number, decimals = 18) {
-  //   tokenAmount = toSmartContractDecimals(tokenAmount, decimals);
-  //   return this.sendTx(this.contract.methods.supportBounty(id, tokenAmount));
-  // }
-
-  // /**
-  //  * user removes its beneficiary entry
-  //  * @param bountyId
-  //  * @param entryId
-  //  */
-  // async retractSupportFromBounty(bountyId: number, entryId: number) {
-  //   return this.sendTx(this.contract.methods.retractSupportFromBounty(bountyId, entryId));
-  // }
-
   /**
    * cancel a bounty
    */
@@ -396,6 +390,15 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async cancelFundRequest(id: number) {
     return this.sendTx(this.contract.methods.cancelFundRequest(id));
+  }
+
+  /**
+   * cancels a bounty or a funding request if user is governor or owner
+   * and after cancelableTime has passed
+   * @param id bounty or funding request id
+   */
+  async hardCancel(id: number) {
+    return this.sendTx(this.contract.methods.hardCancel(id));
   }
 
   /**
@@ -487,14 +490,9 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async getDelegationsOf(address: string): Promise<Delegation[]> {
-    const delegations = await this.callTx(this.contract.methods.getDelegationsFor(address));
-    const mappedDelegations = delegations.map((delegation, index) => ({
-      ...delegation,
-      id: index,
-      amount: fromSmartContractDecimals(delegation.amount, this.settlerToken.decimals)
-    }));
-
-    return mappedDelegations.filter(delegation => delegation.amount > 0);
+    return (await this.callTx(this.contract.methods.getDelegationsFor(address)))
+      .map((d, i) => delegationEntry(d, i, this.settlerToken.decimals))
+      .filter(({amount}) => amount > 0);
   }
 
   async getBountyCanceledEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCanceledEvent>[]> {

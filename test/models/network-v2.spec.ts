@@ -10,7 +10,7 @@ import {
 } from '../utils';
 import {expect} from 'chai';
 import {AMOUNT_1M} from '../utils/constants';
-import {nativeZeroAddress} from '../../src/utils/constants';
+import {nativeZeroAddress, Thousand} from '../../src/utils/constants';
 import {Account} from 'web3-core';
 import {BountyToken} from '../../src/models/bounty-token';
 
@@ -106,6 +106,12 @@ describe(`NetworkV2`, () => {
       await hasTxBlockNumber(network.updateTresuryAddress(Treasury.address));
       expect((await network.treasuryInfo()).treasury).to.eq(Treasury.address)
     });
+
+    it(`changeCancelableTime()`, async () => {
+      await hasTxBlockNumber(network.changeCancelableTime(15638400)); // 181 days
+      expect(await network.cancelableTime()).to.eq(15638400 * Thousand);
+    });
+
   });
 
   describe(`Public`, () => {
@@ -177,24 +183,6 @@ describe(`NetworkV2`, () => {
         expect(events.length).to.be.eq(1);
       });
 
-      // it(`Supports bounty`, async () => {
-      //   web3Connection.switchToAccount(Alice.privateKey);
-      //   await hasTxBlockNumber(bountyTransactional.approve(network.contractAddress!, AMOUNT_1M));
-      //   await hasTxBlockNumber(network.supportBounty(bountyId, 1));
-      //
-      //   expect((await network.getBounty(bountyId)).tokenAmount)
-      //     .to.be.eq(toSmartContractDecimals(1002, bountyTransactional.decimals));
-      //
-      //   expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(10000 - 1);
-      // });
-      //
-      // it(`Retracts support from bounty`, async () => {
-      //   await hasTxBlockNumber(network.retractSupportFromBounty(bountyId, 0));
-      //
-      //   expect((await network.getBounty(bountyId)).tokenAmount)
-      //     .to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
-      // })
-
       it(`Cancels bounty`, async () => {
         web3Connection.switchToAccount(Admin.privateKey);
         const receipt = await network.cancelBounty(bountyId);
@@ -202,7 +190,39 @@ describe(`NetworkV2`, () => {
         expect(events.length).to.be.eq(1);
         expect(await network.openBounties()).to.be.eq(0);
         expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(10000)
+      });
+
+      describe(`Hard cancels a bounty`,() => {
+        async function prepare(cid: string) {
+          const receipt = await network.openBounty(1000, bountyTransactional.contractAddress!, nativeZeroAddress, 0, 0, cid, 'Title', '//', 'master', 'ghuser');
+          const [{returnValues: {id}}] = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber});
+          await increaseTime(15638402, web3Connection.Web3); // 182 days + 2 seconds
+          const prReceipt = await network.createPullRequest(id, '//', 'master', cid,'//', 'feat-1', 1);
+          const [{returnValues: {pullRequestId}}] = await network.getBountyPullRequestCreatedEvents({fromBlock: prReceipt.blockNumber});
+          await network.markPullRequestReadyForReview(id, pullRequestId);
+          const proposalReceipt = await network.createBountyProposal(id, pullRequestId, [nativeZeroAddress], [100]);
+          const [{returnValues: {proposalId}}] = await network.getBountyProposalCreatedEvents({fromBlock: proposalReceipt.blockNumber});
+          return {id, pullRequestId, proposalId};
+        }
+
+        it(`by refusal`, async () => {
+          const {id, proposalId} = await prepare('c5');
+          await network.refuseBountyProposal(id, proposalId);
+          await hasTxBlockNumber(network.hardCancel(id));
+          expect((await network.getBounty(id)).canceled).to.be.true;
+        });
+
+        it(`by dispute`, async () => {
+          const {id, proposalId} = await prepare('c6');
+          await network.lock(newCouncilAmount*3);
+          const {blockNumber: fromBlock} = await network.disputeBountyProposal(id, proposalId);
+          const [{returnValues: {'4': overflow}}] = await network.getBountyProposalDisputedEvents({fromBlock});
+          expect(overflow).to.be.true;
+          await hasTxBlockNumber(network.hardCancel(id));
+          expect((await network.getBounty(id)).canceled).to.be.true;
+        });
       })
+
     });
 
     describe(`Funding`, async () => {
