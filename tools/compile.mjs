@@ -17,5 +17,7 @@ const config = {
 }
 
 Contracts.compileAndSave(config)
-  .then(_ => console.log("Finished"))
-  .catch(e => console.error(e));
+  .catch(e => {
+    console.error(`Error`, e);
+    process.exit(1)
+  });

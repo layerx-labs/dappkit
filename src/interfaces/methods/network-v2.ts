@@ -1,8 +1,5 @@
 import {ContractSendMethod} from 'web3-eth-contract';
 import {ContractCallMethod} from '@methods/contract-call-method';
-import {Bounty} from '@interfaces/bounty';
-import { Oracle } from '@interfaces/oracle';
-import { Delegation } from '@interfaces/delegation';
 
 export interface Network_v2Methods {
   _governor(): ContractCallMethod<string>;
@@ -20,17 +17,17 @@ export interface Network_v2Methods {
   mergeCreatorFeeShare(): ContractCallMethod<number>;
   nftToken(): ContractCallMethod<string>;
   oracleExchangeRate(): ContractCallMethod<number>;
-  oracles(v1: string): ContractCallMethod<Oracle>;
+  oracles(v1: string): ContractCallMethod<{locked: number; toOthers: number; byOthers: number;}>;
   oraclesDistributed(): ContractCallMethod<number>;
   percentageNeededForDispute(): ContractCallMethod<number>;
   proposeGovernor(proposedGovernor: string): ContractSendMethod;
   proposerFeeShare(): ContractCallMethod<number>;
   settlerToken(): ContractCallMethod<string>;
   totalSettlerLocked(): ContractCallMethod<number>;
-  getBounty(id: number): ContractCallMethod<Bounty>;
+  getBounty(id: number): ContractCallMethod<{id: number; creationDate: number; tokenAmount: number; creator: string; transactional: string; rewardToken: string; rewardAmount: number; fundingAmount: number; closed: boolean; canceled: boolean; funded: boolean; title: string; repoPath: string; branch: string; cid: string; githubUser: string; closedDate: number; pullRequests: { originRepo: string; originCID: string; originBranch: string; userRepo: string; userBranch: string; ready: boolean; canceled: boolean; creator: string; cid: number; id: number; }[]; proposals: { id: number; creationDate: number; oracles: number; disputeWeight: number; prId: number; refusedByBountyOwner: boolean; creator: string; details: { recipient: string; percentage: number; }[] }[]; funding: { benefactor: string;amount: number;creationDate: number; }[];}>;
   disputes(address: string, bountyAndProposalIds: string): ContractCallMethod<number>;
   disputes(address: string, bountyId: string | number, proposalId: string | number): ContractCallMethod<number>;
-  getDelegationsFor(_address: string): ContractCallMethod<Delegation[]>;
+  getDelegationsFor(_address: string): ContractCallMethod<{id: number; from: string; to: string; amount: number;}[]>;
   getBountiesOfAddress(owner: string): ContractCallMethod<number[]>;
   changeNetworkParameter(_parameter: number, _value: number): ContractSendMethod;
   updateTresuryAddress(_address: string): ContractSendMethod;
@@ -50,4 +47,6 @@ export interface Network_v2Methods {
   disputeBountyProposal(bountyId: number, proposalId: number): ContractSendMethod;
   refuseBountyProposal(bountyId: number, proposalId: number): ContractSendMethod;
   closeBounty(id: number, proposalId: number): ContractSendMethod;
+  hardCancel(id: number): ContractSendMethod;
+  cancelableTime(): ContractCallMethod<number>;
 }

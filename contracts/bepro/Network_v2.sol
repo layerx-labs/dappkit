@@ -50,6 +50,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     uint256 public disputableTime = 3 days;
     uint256 public draftTime = 1 days;
+    uint256 public cancelableTime = 183 days;
 
     uint256 public councilAmount = 25000000*10**18; // 25M * 10 to the power of 18 (decimals)
 
@@ -150,6 +151,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
         } else if(_parameter == uint256(INetwork_v2.Params.cancelFee)){
             require(_value >= 0, "CF1");
             cancelFee = _value;
+        } else if (_parameter == uint256(INetwork_v2.Params.cancelableTime)) {
+            require(_value >= 180 days, "C3");
+            cancelableTime = _value;
         }
     }
 
@@ -250,13 +254,27 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyCreated(bounties[bountiesIndex].id, bounties[bountiesIndex].cid, msg.sender);
     }
 
-    /// @dev cancel a bounty
-    function cancelBounty(uint256 id) external payable {
-        // _bountyExists(id);
-        _isBountyOwner(id);
-        _isInDraft(id, true);
-        _isNotCanceled(id);
-        _isFundingRequest(id, false);
+    function _cancelFundingRequest(uint256 id) internal {
+        INetwork_v2.Bounty storage bounty = bounties[id];
+
+        for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
+            INetwork_v2.Benefactor storage x = bounty.funding[i];
+            if (x.amount > 0) {
+                require(ERC20(bounty.transactional).transfer(x.benefactor, x.amount), "C4");
+                x.amount = 0;
+            }
+        }
+
+        bounty.canceled = true;
+
+        canceledBounties = canceledBounties.add(1);
+
+        require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "C5");
+
+        emit BountyCanceled(id);
+    }
+
+    function _cancelBounty(uint256 id) internal {
         INetwork_v2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
 
@@ -275,29 +293,43 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyCanceled(id);
     }
 
+    function hardCancel(uint256 id) external payable {
+        require(bounties[id].creator != address(0), "HC1");
+        require(msg.sender == _governor || msg.sender == bounties[id].creator, "HC2");
+        require(bounties[id].creationDate.add(block.timestamp) >= cancelableTime, "HC3");
+
+        if (bounties[id].proposals.length > 0) {
+            for (uint256 i = 0; i <= bounties[id].proposals.length - 1; i++) {
+                INetwork_v2.Proposal memory proposal = bounties[id].proposals[i];
+                require((proposal.disputeWeight >= oraclesDistributed.mul(percentageNeededForDispute).div(10000)) || proposal.refusedByBountyOwner == true, "HC4");
+            }
+        }
+
+        if (bounties[id].fundingAmount == 0) {
+            _cancelBounty(id);
+        } else {
+            _cancelFundingRequest(id);
+        }
+    }
+
+    /// @dev cancel a bounty
+    function cancelBounty(uint256 id) external payable {
+        // _bountyExists(id);
+        _isBountyOwner(id);
+        _isInDraft(id, true);
+        _isNotCanceled(id);
+        _isFundingRequest(id, false);
+        _cancelBounty(id);
+    }
+
     /// @dev cancel funding
     function cancelFundRequest(uint256 id) external payable {
         _isBountyOwner(id);
         _isInDraft(id, true);
         _isNotCanceled(id);
         _isFundingRequest(id, true);
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        _cancelFundingRequest(id);
 
-        for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
-            INetwork_v2.Benefactor storage x = bounty.funding[i];
-            if (x.amount > 0) {
-                require(ERC20(bounty.transactional).transfer(x.benefactor, x.amount), "C4");
-                x.amount = 0;
-            }
-        }
-
-        bounty.canceled = true;
-
-        canceledBounties = canceledBounties.add(1);
-
-        require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "C5");
-
-        emit BountyCanceled(id);
     }
 
     /// @dev update the value of a bounty with a new amount
