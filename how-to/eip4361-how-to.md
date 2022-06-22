@@ -13,7 +13,7 @@ await connection.connect();
 
 const session = eip4361Params(
   "https://domain.com",
-  model.contractAddress,
+  "0xContractAddress",
   "Message statement",
   "uri",
   "1.0",
