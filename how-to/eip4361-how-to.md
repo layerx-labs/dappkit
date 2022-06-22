@@ -1,5 +1,5 @@
 ### EIP4361 - Sign in with Ethereum
-dappkit provides a easy way of signing a session message conforming with both EIP712 and EIP4361 via the `eip461()` function provided by every extension of [`model.ts`](../src/base/model.ts):
+`@taikai/dappkit` provides an easy way of signing a session message conforming with both EIP712 and EIP4361 via the `eip461()` function provided by every extension of [`model.ts`](../src/base/model.ts):
 
 ```typescript
 import {Model, eip4361Params} from "@taikai/dappkit";
@@ -25,27 +25,15 @@ const session = eip4361Params(
   "Contract Name"
 )
 
-const sig = await model.eip4361(session);
+/**
+ * Represents the hashed value of the session signed by the account
+ */
+const signature = await model.eip4361(session);
 
-```
+// match that session hashed message matches with the connected account
 
-### Recovering
-
-`eth-sig-util` and `ethereumjs-util` is still needed to be able to recover the signed data,
-```shell
-$ npm install --save eth-sig-util ethereumjs-util
-```
-
-```typescript
-import {recoverTypedSignature_v4} from 'eth-sig-util';
-import {toChecksumAddress} from 'ethereumjs-util';
-
-const data = JSON.stringify(session);
-const recovered = recoverTypedSignature_v4({data, sig});
-
-// match that the signature was done by the connected user
-const matches = toChecksumAddress(recovered) === toChecksumAddress(await model.getAddress())
-
+const signer = model.web3.eth.accounts.recover(JSON.stringify(session), signature);
+const signerIsConnectedAddress = signer === (await model.connection.getAddress());
 
 ```
 
