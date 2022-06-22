@@ -1,5 +1,6 @@
 ### EIP4361 - Sign in with Ethereum
-`@taikai/dappkit` provides an easy way of signing a session message conforming with both EIP712 and EIP4361 via the `eip461()` function provided by every extension of [`model.ts`](../src/base/model.ts):
+`@taikai/dappkit` provides an easy way of signing a session message conforming with both EIP712 and EIP4361 via the 
+`eip461()` function provided by the `Web3Connection` class;
 
 ```typescript
 import {Web3Connection, eip4361Params} from "@taikai/dappkit";
