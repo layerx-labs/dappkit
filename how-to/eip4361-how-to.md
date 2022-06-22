@@ -25,7 +25,7 @@ const session = eip4361Params(
   "Contract Name"
 )
 
-const sig = await model.eip4361();
+const sig = await model.eip4361(session);
 
 ```
 
