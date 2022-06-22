@@ -1,10 +1,13 @@
 import {Errors} from '@interfaces/error-enum';
 import Web3 from 'web3';
-import {Account, provider as Provider} from 'web3-core';
+import {Account, HttpProvider, provider as Provider, WebsocketProvider} from 'web3-core';
 import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Utils} from 'web3-utils';
 import {Eth} from 'web3-eth';
+import {TypedDataV4} from "@interfaces/typed-data-v4";
+import {EIP4361Message} from "@interfaces/eip4361-message";
+import {EIP4361, EIP712Domain} from "@utils/constants";
 
 export class Web3Connection {
   protected web3!: Web3;
@@ -105,4 +108,44 @@ export class Web3Connection {
       this.account = this.web3.eth.accounts.privateKeyToAccount(this.options.privateKey);
   }
   /* eslint-enable complexity */
+
+  /**
+   * Uses eth_signTypedData_v4
+   * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v4
+   * @protected
+   */
+  protected async sendTypedData(message: TypedDataV4, from: string) {
+    return new Promise((resolve, reject) => {
+      try {
+        (this.web3.currentProvider as (HttpProvider|WebsocketProvider)).send({
+          jsonrpc: `2.0`,
+          method: `eth_signTypedData_v4`,
+          params: [from, JSON.stringify(message)]
+        }, (error, value) => {
+          if (error)
+            reject(error);
+          else resolve(value?.result);
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  /**
+   * Produces a "sign message" event conforming with both EIP712 and EIP4361
+   */
+  protected async eip4361(eip4361Message: EIP4361Message) {
+    const {chainId, version, address: verifyingContract, contractName: name} = eip4361Message;
+
+    const message = {
+      domain: {chainId, name, verifyingContract, version},
+      message: eip4361Message,
+      primaryType: "EIP4361",
+      types: {EIP4361, EIP712Domain}
+    }
+
+    return this.sendTypedData(message, (await this.web3.eth.getAccounts())[0])
+  }
+
 }

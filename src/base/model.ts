@@ -2,7 +2,7 @@ import {Web3Connection} from './web3-connection';
 import {AbiItem} from 'web3-utils';
 import {Errors} from '@interfaces/error-enum';
 import Web3 from 'web3';
-import {Account, HttpProvider, WebsocketProvider,} from 'web3-core';
+import {Account} from 'web3-core';
 import {TransactionReceipt} from '@interfaces/web3-core';
 import {Web3Contract} from './web3-contract';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
@@ -10,10 +10,6 @@ import {ContractSendMethod, DeployOptions} from 'web3-eth-contract';
 import {ContractCallMethod} from '@methods/contract-call-method';
 import {transactionHandler} from '@utils/transaction-handler';
 import {noop} from '@utils/noop';
-import {EIP4361Message} from "@interfaces/eip4361-message";
-import {TypedDataV4} from "@interfaces/typed-data-v4";
-import {EIP4361, EIP712Domain} from "@utils/constants";
-
 
 export class Model<Methods = any> {
   protected _contract!: Web3Contract<Methods>;
@@ -144,47 +140,4 @@ export class Model<Methods = any> {
   protected async deploy(deployOptions: DeployOptions, account?: Account) {
     return this.contract.deploy(this.abi, deployOptions, account)
   }
-
-  /**
-   * Uses eth_signTypedData_v4
-   * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v4
-   * @protected
-   */
-  protected async sendTypedData(message: TypedDataV4, from: string) {
-    return new Promise((resolve, reject) => {
-      try {
-        (this.web3.currentProvider as (HttpProvider|WebsocketProvider)).send({
-          jsonrpc: `2.0`,
-          method: `eth_signTypedData_v4`,
-          params: [from, JSON.stringify(message)]
-        }, (error, value) => {
-          if (error)
-            reject(error);
-          else resolve(value?.result);
-        });
-      } catch (e) {
-        reject(e);
-      }
-    });
-  }
-
-  /**
-   * Produces a "sign message" event conforming with both EIP712 and EIP4361
-   */
-  protected async eip4361(eip4361Message: EIP4361Message) {
-    const {chainId, version, address, contractName: name} = eip4361Message;
-    const verifyingContract = this.contractAddress || address;
-
-    const message = {
-      domain: {chainId, name, verifyingContract, version},
-      message: eip4361Message,
-      primaryType: "EIP4361",
-      types: {EIP4361, EIP712Domain}
-    }
-
-    return this.sendTypedData(message, (await this.web3.eth.getAccounts())[0])
-  }
-
-
-
 }

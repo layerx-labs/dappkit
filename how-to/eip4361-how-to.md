@@ -2,13 +2,13 @@
 `@taikai/dappkit` provides an easy way of signing a session message conforming with both EIP712 and EIP4361 via the `eip461()` function provided by every extension of [`model.ts`](../src/base/model.ts):
 
 ```typescript
-import {Model, eip4361Params} from "@taikai/dappkit";
+import {Web3Connection, eip4361Params} from "@taikai/dappkit";
 import ContractJson from 'path/to/contract/abi.json';
 
-const model = new Model({web3Host: "https://localhost:1337"}, ContractJson.abi, "0xContractAddress");
+const connection = new Web3Connection({web3Host: "https://localhost:1337"});
 
-await model.start();
-await model.connect();
+await connection.start();
+await connection.connect();
 
 const session = eip4361Params(
   "https://domain.com",
@@ -28,12 +28,12 @@ const session = eip4361Params(
 /**
  * Represents the hashed value of the session signed by the account
  */
-const signature = await model.eip4361(session);
+const signature = await connection.eip4361(session);
 
 // match that session hashed message matches with the connected account
 
-const signer = model.web3.eth.accounts.recover(JSON.stringify(session), signature);
-const signerIsConnectedAddress = signer === (await model.connection.getAddress());
+const signer = connection.eth.accounts.recover(JSON.stringify(session), signature);
+const signerIsConnectedAddress = signer === (await connection.getAddress());
 
 ```
 

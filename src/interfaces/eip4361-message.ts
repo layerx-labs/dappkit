@@ -1,8 +1,5 @@
 export interface EIP4361Message {
   domain: string;
-  /**
-   * Model will use its own contract address if it has one, overwriting the provided value
-   */
   address: string;
   statement: string;
   uri: string;
