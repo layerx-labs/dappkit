@@ -114,7 +114,7 @@ export class Web3Connection {
    * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v4
    * @protected
    */
-  protected async sendTypedData(message: TypedDataV4, from: string) {
+  async sendTypedData(message: TypedDataV4, from: string) {
     return new Promise((resolve, reject) => {
       try {
         (this.web3.currentProvider as (HttpProvider|WebsocketProvider)).send({
@@ -135,7 +135,7 @@ export class Web3Connection {
   /**
    * Produces a "sign message" event conforming with both EIP712 and EIP4361
    */
-  protected async eip4361(eip4361Message: EIP4361Message) {
+  async eip4361(eip4361Message: EIP4361Message) {
     const {chainId, version, address: verifyingContract, contractName: name} = eip4361Message;
 
     const message = {
