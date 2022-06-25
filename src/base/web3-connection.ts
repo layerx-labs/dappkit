@@ -145,7 +145,7 @@ export class Web3Connection {
       types: {EIP4361, EIP712Domain}
     }
 
-    return this.sendTypedData(message, (await this.web3.eth.getAccounts())[0])
+    return this.sendTypedData(message, await this.getAddress());
   }
 
 }
