@@ -45,7 +45,7 @@
   "devDependencies": {
     "@openzeppelin/contracts": "^3.4.2",
     "@taikai/dappkit-launchpad": "^0.0.7",
-    "@truffle/dashboard-message-bus-client": "0.1.0-alpha.0",
+    "@truffle/dashboard-message-bus-client": "0.1.0",
     "@truffle/workflow-compile": "4.0.21",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.0.0",
