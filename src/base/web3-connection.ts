@@ -8,6 +8,7 @@ import {Eth} from 'web3-eth';
 import {TypedDataV4} from "@interfaces/typed-data-v4";
 import {EIP4361Message} from "@interfaces/eip4361-message";
 import {EIP4361, EIP712Domain} from "@utils/constants";
+import {jsonRpcParams} from "@utils/json-rpc-params";
 
 export class Web3Connection {
   protected web3!: Web3;
@@ -115,17 +116,16 @@ export class Web3Connection {
    * @protected
    */
   async sendTypedData(message: TypedDataV4, from: string) {
+    const data = JSON.stringify(message);
+    if (this.options.privateKey)
+      return this.eth.accounts.sign(data, this.options.privateKey)?.signature;
+
     return new Promise((resolve, reject) => {
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      const callback = (error: Error|null, value: any|null) => error ? reject(error) : resolve(value?.result);
       try {
-        (this.web3.currentProvider as (HttpProvider|WebsocketProvider)).send({
-          jsonrpc: `2.0`,
-          method: `eth_signTypedData_v4`,
-          params: [from, JSON.stringify(message)]
-        }, (error, value) => {
-          if (error)
-            reject(error);
-          else resolve(value?.result);
-        });
+        (this.web3.currentProvider as (HttpProvider|WebsocketProvider))
+          .send(jsonRpcParams(`eth_signTypedData_v4`, [from, data]), callback);
       } catch (e) {
         reject(e);
       }
