@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16.15.0]
+        environment: [staging]
     steps:
       - uses: actions/checkout@v1
       - name: Install Node.js ${{ matrix.node-version }}
@@ -22,7 +23,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: npm install
-        run: npm install --include dev
+        run: npm install
 
       - name: Lint solution
         run: npm run lint
