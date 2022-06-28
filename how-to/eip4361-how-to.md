@@ -31,11 +31,20 @@ const typedSessionDetails = eip4361Params(
  */
 const signature = await connection.eip4361(typedSessionDetails);
 
+```
+> `eth-sig-utils` will be needed to recover a signedTypeDataV4
+
+```shell
+$ npm i -s eth-sig-utils
+```
+ 
+```
+import {recoverTypedSignature_v4} from 'eth-sig-utils';
+
 // match that session hashed message matches with the connected account
 
-const signer = connection.eth.accounts.recover(JSON.stringify(session), signature);
+const signer = recoverTypedSignature_v4({data: JSON.stringify(session), sig: signature});
 const signerIsConnectedAddress = signer === (await connection.getAddress());
-
 ```
 
 ###### reference
