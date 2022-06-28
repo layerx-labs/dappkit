@@ -295,7 +295,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     function hardCancel(uint256 id) external payable {
         require(bounties[id].creator != address(0), "HC1");
-        require(msg.sender == _governor || msg.sender == bounties[id].creator, "HC2");
+        require(msg.sender == _governor, "HC2");
         require(bounties[id].creationDate.add(block.timestamp) >= cancelableTime, "HC3");
 
         if (bounties[id].proposals.length > 0) {
