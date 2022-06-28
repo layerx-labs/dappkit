@@ -92,5 +92,8 @@
   "directories": {
     "doc": "docs",
     "test": "test"
+  },
+  "overrides": {
+    "@truffle/events": "0.1.6"
   }
 }
