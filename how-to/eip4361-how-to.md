@@ -11,7 +11,7 @@ const connection = new Web3Connection({web3Host: "https://localhost:1337"});
 await connection.start();
 await connection.connect();
 
-const session = eip4361Params(
+const typedSessionDetails = eip4361Params(
   "https://domain.com",
   "0xContractAddress",
   "Message statement",
@@ -29,7 +29,7 @@ const session = eip4361Params(
 /**
  * Represents the hashed value of the session signed by the account
  */
-const signature = await connection.eip4361(session);
+const signature = await connection.eip4361(typedSessionDetails);
 
 // match that session hashed message matches with the connected account
 

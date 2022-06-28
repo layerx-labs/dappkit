@@ -57,7 +57,7 @@ export * from '@interfaces/pull-request';
 export * from '@interfaces/proposal';
 export * from '@interfaces/proposal-detail';
 export * from '@interfaces/benefactor';
-export * from '@interfaces/eip4361-message';
+export * from '@interfaces/eip4361';
 
 export * from '@events/x-events';
 export * from '@events/network-events';

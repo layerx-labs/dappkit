@@ -1,7 +1,8 @@
-import {EIP4361Message} from "@interfaces/eip4361-message";
+import {EIP4361, EIP712Domain} from "@utils/constants";
+import {EIP4361TypedData} from "@interfaces/eip4361";
 
 export function eip4361Params(domain: string,
-                              address: string,
+                              verifyingContract: string,
                               statement: string,
                               uri: string,
                               version: string,
@@ -12,21 +13,27 @@ export function eip4361Params(domain: string,
                               notBefore: string,
                               requestId: string,
                               resources: string[],
-                              contractName: string): EIP4361Message {
+                              contractName: string): EIP4361TypedData {
+
   return {
-    domain,
-    address,
-    statement,
-    uri,
-    version,
-    chainId,
-    nonce,
-    issuedAt,
-    expirationTime,
-    notBefore,
-    requestId,
-    resources,
-    contractName
+    domain: {chainId, name: contractName, verifyingContract, version},
+    message: {
+      domain,
+      address: verifyingContract,
+      statement,
+      uri,
+      version,
+      chainId,
+      nonce,
+      issuedAt,
+      expirationTime,
+      notBefore,
+      requestId,
+      resources,
+      contractName
+    },
+    primaryType: "EIP4361",
+    types: {EIP4361, EIP712Domain}
   }
 }
 

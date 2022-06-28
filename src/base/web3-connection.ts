@@ -6,8 +6,7 @@ import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Utils} from 'web3-utils';
 import {Eth} from 'web3-eth';
 import {TypedDataV4} from "@interfaces/typed-data-v4";
-import {EIP4361Message} from "@interfaces/eip4361-message";
-import {EIP4361, EIP712Domain} from "@utils/constants";
+import {EIP4361TypedData} from "@interfaces/eip4361";
 import {jsonRpcParams} from "@utils/json-rpc-params";
 
 export class Web3Connection {
@@ -135,17 +134,8 @@ export class Web3Connection {
   /**
    * Produces a "sign message" event conforming with both EIP712 and EIP4361
    */
-  async eip4361(eip4361Message: EIP4361Message) {
-    const {chainId, version, address: verifyingContract, contractName: name} = eip4361Message;
-
-    const message = {
-      domain: {chainId, name, verifyingContract, version},
-      message: eip4361Message,
-      primaryType: "EIP4361",
-      types: {EIP4361, EIP712Domain}
-    }
-
-    return this.sendTypedData(message, await this.getAddress());
+  async eip4361(eip4361Message: EIP4361TypedData) {
+    return this.sendTypedData(eip4361Message, await this.getAddress());
   }
 
 }
