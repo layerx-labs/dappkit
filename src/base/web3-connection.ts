@@ -1,13 +1,10 @@
 import {Errors} from '@interfaces/error-enum';
 import Web3 from 'web3';
-import {Account, HttpProvider, provider as Provider, WebsocketProvider} from 'web3-core';
+import {Account, provider as Provider} from 'web3-core';
 import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Utils} from 'web3-utils';
 import {Eth} from 'web3-eth';
-import {TypedDataV4} from "@interfaces/typed-data-v4";
-import {EIP4361TypedData} from "@interfaces/eip4361";
-import {jsonRpcParams} from "@utils/json-rpc-params";
 
 export class Web3Connection {
   protected web3!: Web3;
@@ -108,34 +105,5 @@ export class Web3Connection {
       this.account = this.web3.eth.accounts.privateKeyToAccount(this.options.privateKey);
   }
   /* eslint-enable complexity */
-
-  /**
-   * Uses eth_signTypedData_v4
-   * @link https://docs.metamask.io/guide/signing-data.html#sign-typed-data-v4
-   * @protected
-   */
-  async sendTypedData(message: TypedDataV4, from: string) {
-    const data = JSON.stringify(message);
-    if (this.options.privateKey)
-      return this.eth.accounts.sign(data, this.options.privateKey)?.signature;
-
-    return new Promise((resolve, reject) => {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      const callback = (error: Error|null, value: any|null) => error ? reject(error) : resolve(value?.result);
-      try {
-        (this.web3.currentProvider as (HttpProvider|WebsocketProvider))
-          .send(jsonRpcParams(`eth_signTypedData_v4`, [from, data]), callback);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  }
-
-  /**
-   * Produces a "sign message" event conforming with both EIP712 and EIP4361
-   */
-  async eip4361(eip4361Message: EIP4361TypedData) {
-    return this.sendTypedData(eip4361Message, await this.getAddress());
-  }
 
 }

@@ -106,5 +106,6 @@ export * from '@utils/proposal-detail';
 export * from '@utils/proposal';
 export * from '@utils/pull-request';
 export * from '@utils/eip4361';
+export * from '@utils/json-rpc-params';
 
 export * as Defaults from '@utils/constants';
