@@ -8,7 +8,7 @@ $ npm i -s eth-sig-util
 ```
 
 ```typescript
-import {Web3Connection, eip4361Params, jsonRpcParams} from "@taikai/dappkit";
+import {Web3Connection, eip4361Params, jsonRpcParams, TypedDataV4} from "@taikai/dappkit";
 
 // only needed for recover and/or signing with private key
 import {recoverTypedSignature_v4, signTypedData_v4} from 'eth-sig-util'; 
@@ -34,7 +34,7 @@ const typedSessionDetails = eip4361Params(
 )
 
 /**
- * 
+ * Send typed data to the current RPC provider
  */
 async function sendTypedData(message: TypedDataV4, from: string) {
   return new Promise((resolve, reject) => {

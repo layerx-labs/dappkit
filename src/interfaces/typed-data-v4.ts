@@ -14,6 +14,6 @@ export interface TypedDataV4 {
     [key: string]: string|number;
   },
   primaryType: string;
-  message: any;
+  message: Record<string, string>;
   types: TypesForTypedData;
 }
