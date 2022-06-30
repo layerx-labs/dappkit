@@ -2,7 +2,7 @@ import {Web3Connection} from './web3-connection';
 import {AbiItem} from 'web3-utils';
 import {Errors} from '@interfaces/error-enum';
 import Web3 from 'web3';
-import {Account,} from 'web3-core';
+import {Account} from 'web3-core';
 import {TransactionReceipt} from '@interfaces/web3-core';
 import {Web3Contract} from './web3-contract';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
