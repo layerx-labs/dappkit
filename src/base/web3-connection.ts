@@ -105,4 +105,5 @@ export class Web3Connection {
       this.account = this.web3.eth.accounts.privateKeyToAccount(this.options.privateKey);
   }
   /* eslint-enable complexity */
+
 }
