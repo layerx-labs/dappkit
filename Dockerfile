@@ -25,7 +25,7 @@ RUN mkdir -p $NVM_DIR;
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.38.0/install.sh | bash \
     && . $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
+    && nvm install $NODE_VERSION --latest-npm \
     && nvm alias default $NODE_VERSION \
     && nvm use default
 
