@@ -244,8 +244,15 @@ contract Network_v2 is Governed, ReentrancyGuard {
             bounties[bountiesIndex].fundingAmount = fundingAmount;
             bounties[bountiesIndex].tokenAmount = 0;
         } else {
-            bounties[bountiesIndex].tokenAmount = tokenAmount;
-            require(ERC20(transactional).transferFrom(msg.sender, address(this), tokenAmount), "O4");
+            require(fundingAmount > 0 && tokenAmount == 0 || fundingAmount == 0 && tokenAmount > 0);
+
+            if (fundingAmount > 0) {
+                bounties[bountiesIndex].fundingAmount = fundingAmount;
+                bounties[bountiesIndex].tokenAmount = 0;
+            } else {
+                bounties[bountiesIndex].tokenAmount = tokenAmount;
+                require(ERC20(transactional).transferFrom(msg.sender, address(this), tokenAmount), "O4");
+            }
         }
 
         cidBountyId[cid] = bounties[bountiesIndex].id;
