@@ -244,7 +244,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
             bounties[bountiesIndex].fundingAmount = fundingAmount;
             bounties[bountiesIndex].tokenAmount = 0;
         } else {
-            require(fundingAmount > 0 && tokenAmount == 0 || fundingAmount == 0 && tokenAmount > 0);
+            require(fundingAmount > 0 && tokenAmount == 0 || fundingAmount == 0 && tokenAmount > 0, "O5");
 
             if (fundingAmount > 0) {
                 bounties[bountiesIndex].fundingAmount = fundingAmount;
