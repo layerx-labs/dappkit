@@ -227,6 +227,18 @@ describe(`NetworkV2`, () => {
 
     describe(`Funding`, async () => {
       it(`Opens Request Funding`, async () => {
+        const fundingValue = 1000
+        const receipt = await network.openBounty(0, bountyTransactional.contractAddress!,
+                                                nativeZeroAddress, 0, fundingValue,
+                                                 'c7', 'Title 7', '//', 'master', 'ghuser');
+
+        const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
+        bountyId = events[0].returnValues.id;
+        console.log('getbounty', await network.getBounty(bountyId))
+        expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue)
+      });
+
+      it(`Opens Request Funding and Reward`, async () => {
         await hasTxBlockNumber(rewardToken.approve(network.contractAddress!, AMOUNT_1M), 'Should have approved rewardToken');
 
         const receipt = await network.openBounty(0, bountyTransactional.contractAddress!,
@@ -275,8 +287,7 @@ describe(`NetworkV2`, () => {
                                  'c3', 'Title 3', '//', 'master', 'ghuser');
 
         bountyId = await network.cidBountyId('c3');
-
-        expect(await network.openBounties()).to.be.eq(1);
+        expect(await network.openBounties()).to.be.eq(2);
 
         web3Connection.switchToAccount(Alice.privateKey);
         await bountyTransactional.approve(network.contractAddress!, AMOUNT_1M);
@@ -350,7 +361,7 @@ describe(`NetworkV2`, () => {
         const AliceAmount = bountyAmount / 100 * 51;
         const BobAmount = bountyAmount / 100 * 49;
 
-        expect(await network.openBounties()).to.be.eq(0);
+        expect(await network.openBounties()).to.be.eq(1);
         expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq(1000);
         expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(+Number(AliceAmount).toFixed(2));
         expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq(+Number(BobAmount + 10000).toFixed(2));
