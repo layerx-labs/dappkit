@@ -13,11 +13,11 @@
   },
   "files": [
     "dist",
-    "tooling",
     "README.md"
   ],
   "scripts": {
     "compile": "node tools/compile.mjs",
+    "postcompile": "node tools/contract-json-cleaner.mjs build/contracts/",
     "prebuild": "npm run compile",
     "prepublishOnly": "npm run build",
     "test": "mocha --bail --timeout 60000 --exit --require ts-node/register --require tsconfig-paths/register 'test/**/*.spec.{ts,tsx}' --pretty",
