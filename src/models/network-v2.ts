@@ -353,11 +353,10 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
                    githubUser: string) {
 
     let _rewardAmount = 0;
-    
     const _transactional = new ERC20(this.connection, transactional);
     await _transactional.loadContract();
-    let _tokenAmount = toSmartContractDecimals(tokenAmount, _transactional.decimals)
-    const _fundingAmount = fundingAmount > 0 ? toSmartContractDecimals(fundingAmount, _transactional.decimals): 0
+    let _tokenAmount = fundingAmount > 0 ? 0 : toSmartContractDecimals(tokenAmount, _transactional.decimals)
+    const _fundingAmount = toSmartContractDecimals(fundingAmount, _transactional.decimals)
 
     if (rewardAmount && rewardToken !== nativeZeroAddress) {
       const rewardERC20 = new ERC20(this.connection, rewardToken);
