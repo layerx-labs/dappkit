@@ -234,7 +234,6 @@ describe(`NetworkV2`, () => {
 
         const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
         bountyId = events[0].returnValues.id;
-        console.log('getbounty', await network.getBounty(bountyId))
         expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue)
       });
 
