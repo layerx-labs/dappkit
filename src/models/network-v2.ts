@@ -357,13 +357,16 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
     const _transactional = new ERC20(this.connection, transactional);
     await _transactional.loadContract();
-    const _tokenAmount = toSmartContractDecimals(tokenAmount, _transactional.decimals);
-
+    let _tokenAmount = toSmartContractDecimals(tokenAmount, _transactional.decimals);
+    
     if (rewardAmount && rewardToken !== nativeZeroAddress) {
       const rewardERC20 = new ERC20(this.connection, rewardToken);
       await rewardERC20.loadContract();
       _rewardAmount = toSmartContractDecimals(rewardAmount, rewardERC20.decimals);
       _fundingAmount = toSmartContractDecimals(fundingAmount, _transactional.decimals);
+    }else if(fundingAmount > 0){
+      _fundingAmount = toSmartContractDecimals(fundingAmount, _transactional.decimals);
+      _tokenAmount = 0;
     }
 
     return this.sendTx(this.contract.methods.openBounty(_tokenAmount,
