@@ -24,7 +24,7 @@ $ npx install --save-dev hardhat
 $ npx hardhat compile
 ```
 
-## Transpiling and using your custom contract
+## Transpiling and using your custom contract <a name="transpile"></a>
 ```bash
 $ dk-transpile -f "path/to/ContractName.json"
 ```

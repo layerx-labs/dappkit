@@ -29,10 +29,9 @@
     "eslint": "eslint --ignore-path .eslintignore --ext .ts ./src",
     "lint": "npm run eslint -- --quiet",
     "lint-fix": "npm run eslint -- --quiet --fix",
-    "abi-parser": "node tooling/abi-parser.js",
     "tsc": "tsc",
     "tscpaths": "tscpaths",
-    "dk-transpile": "dk-transpile"
+    "dk-transpile": "dk-transpile -j dk-config.json"
   },
   "dependencies": {
     "bignumber.js": "^9.0.2",

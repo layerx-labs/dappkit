@@ -8,7 +8,7 @@ This can also be achieved by transpiling the custom contract and importing the n
 1. [Deploy custom contract](#deploying-the-custom-contract)
 2. [Using a custom contract](#using-a-custom-contract)
 3. [Deploy transpiled custom contract](./custom-project.md/#transpiled-deploy)
-4. [Use the transpiled custom contract](./custom-project.md/transpiled-use)
+4. [Use the transpiled custom contract](./custom-project.md/#transpiled-use)
 
 ---
 ## Without transpiling
