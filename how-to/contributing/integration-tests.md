@@ -6,11 +6,6 @@ that the file has on its `src` counterpart.
 
 ### Available utilities
 
-| file         | description                       |
-|--------------|-----------------------------------|
-| constants.ts | holds constants used on the tests |
-| index.ts     | holds functions used on the tests |
-
 |fn|description| example                                                         |
 |---|---|-----------------------------------------------------------------|
 |defaultWeb3Connection|A helper function to start a web3connection from process.env files| [network-v2.spec.ts](../../test/models/network-v2.spec.ts#L22)  |
