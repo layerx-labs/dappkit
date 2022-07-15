@@ -41,3 +41,10 @@ contract and these can be imported from `@utils/numbers.ts`
 
 
 For constant values, there is the `@utils/constants.ts` file that's self-explanatory.
+
+## Exporting the new model and its utilities
+Hop on to `src/index.ts` and find the relevant section of imports and add a line with your export, remember to organize
+the exports _alphabetically_ (you can do this easily by sorting _your local files_ alphabetically as well and just
+mirror the folder structure).
+
+Don't forget to export your interfaces as well as your utilities and class model.
