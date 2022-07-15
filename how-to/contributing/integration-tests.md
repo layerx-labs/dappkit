@@ -4,7 +4,7 @@ This can be done by introducing a file under the correct pathing on `test` folde
 that the file has on its `src` counterpart.
 
 
-## Available utilities
+### Available utilities
 
 | file         | description                       |
 |--------------|-----------------------------------|
@@ -23,3 +23,47 @@ that the file has on its `src` counterpart.
 |shouldBeRejected|Helper to assert that the promise needs to be rejected| [network-v2.spec.ts](../../test/models/network-v2.spec.ts#L322) |
 |newWeb3Account|Create a new account and return it| [network-v2.spec.ts](../../test/models/network-v2.spec.ts#L137) |
 |getPrivateKeyFromFile|Returns the private key from the output provided by ganache| [network-v2.spec.ts](../../test/models/network-v2.spec.ts#L34)  |
+
+## Writing tests
+Written tests should follow this logic:
+```ts
+describe(`Your contract name`, () => {
+  before(() => {
+    /**
+     * use before hook to rever the chain
+     * as well as creating any accounts needed for this integration test
+     * `defaultWeb3Connection()` can (and should) be used here
+     */
+  });
+  
+  it(`Deploys dependencies of contract`, () => {
+    /**
+     * The first `it` should always deploy the needed contracts
+     * in order for this test to function properly.
+     * Since we aren't testing _the dependencies_ we can batch
+     * all the contracts needed in one it
+     * `modelExtensionDeployer()` can (and should) be used here
+     */
+  });
+  
+  it(`Deploys the integration contract`, () => {
+    /**
+     * Use this block to deploy the contract that will be tested
+     * don't forget to assign its contractAddress to a variable
+     */
+  })
+  
+  describe(`Governed`, () => {
+    /**
+     * Test functions that can only be accessed by Governors
+     */
+  });
+  
+  describe(`Public`, () => {
+    /**
+     * Test functions that can be accessed by anyone else
+     * more describes can be used to encapsulate flows
+     */
+  });
+})
+```
