@@ -31,11 +31,11 @@ provided by launchpad when we transpiled the contract.
 We provide some number utilities to try and standardize the way we handle numbers (and dates) from, and to, the smart 
 contract and these can be imported from `@utils/numbers.ts`
 
-| fn                          | description                                                                                                     | example                                                                 |
-|:----------------------------|:----------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------|
-| `toSmartContractDecimals(value: string&#124;number, decimals = 18)`   | convert a simple number into a big number representation, usually used to convert to ERC20 token correct number | [getTokenAmount()](../../src/models/erc20.ts#L42)                       |
-| `fromSmartContractDecimals(value: string&#124;number&#124;BigNumber, decimals = 18)` | convert a ERC20 token value into javascript number                                                              | [transferTokenAmount()](../../src/models/erc20.ts#L47)                  |
-| `toSmartContractDate(date: number&#124;Date)`       | converts a javascript date (ms) to a smart contract date (s)                                                    | [setInitialDistribution()](../../src/models/erc20-distribution.ts#L109) |
-| `fromSmartContractDate(date: number)`     | converts from a smart contract date (s) to javascript date (ms)                                                 | [stakingProduct()](../../src/utils/staking-product.ts#L25)              |
+| fn                          | description                                                                                                     | example                                                              |
+|:----------------------------|:----------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------|
+| `toSmartContractDecimals(value: string&#124;number, decimals = 18)`   | convert a simple number into a big number representation, usually used to convert to ERC20 token correct number | [erc20.ts](../../src/models/erc20.ts#L42)                            |
+| `fromSmartContractDecimals(value: string&#124;number&#124;BigNumber, decimals = 18)` | convert a ERC20 token value into javascript number                                                              | [erc20.ts](../../src/models/erc20.ts#L47)                            |
+| `toSmartContractDate(date: number&#124;Date)`       | converts a javascript date (ms) to a smart contract date (s)                                                    | [erc20-distribution.ts](../../src/models/erc20-distribution.ts#L109) |
+| `fromSmartContractDate(date: number)`     | converts from a smart contract date (s) to javascript date (ms)                                                 | [staking-product.ts](../../src/utils/staking-product.ts#L25)         |
 
 For constant values, there is the `@utils/constants.ts` file that's self-explanatory.
