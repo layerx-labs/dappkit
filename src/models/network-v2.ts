@@ -22,6 +22,7 @@ import {delegationEntry} from "@utils/delegation";
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     super(web3Connection, (Network_v2Json as any).abi as AbiItem[], contractAddress);
   }
 
@@ -36,7 +37,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     oracleExchangeRate: 3,
     mergeCreatorFeeShare: 4,
     percentageNeededForDispute: 5,
-    cancelFee: 6,
     cancelableTime: 7
   }
 
@@ -77,12 +77,11 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async deployJsonAbi(_settlerToken: string,
                       _nftTokenAddress: string,
                       _bountyNftUri: string,
-                      treasury = nativeZeroAddress,
-                      cancelFee = 0,
-                      closeFee = 0) {
+                      _registryAddress = nativeZeroAddress) {
     const deployOptions = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: (Network_v2Json as any).bytecode,
-      arguments: [_settlerToken, _nftTokenAddress, _bountyNftUri, treasury, cancelFee, closeFee]
+      arguments: [_settlerToken, _nftTokenAddress, _bountyNftUri, _registryAddress]
     };
 
     return this.deploy(deployOptions, this.connection.Account);
@@ -218,13 +217,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeDraftTime(_draftTime: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.draftTime, _draftTime));
-  }
-
-  /**
-   * @param _cancelFee new cancel fee value
-   */
-  async changeCancelFee(_cancelFee: number) {
-    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.cancelFee, _cancelFee * TenK));
   }
 
   /**

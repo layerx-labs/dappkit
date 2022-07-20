@@ -5,10 +5,16 @@ import {
   Network_Registry,
   toSmartContractDecimals
 } from '../../src';
-import {shouldBeRejected, defaultWeb3Connection, modelExtensionDeployer, erc20Deployer, hasTxBlockNumber} from '../utils/';
+import {
+  shouldBeRejected,
+  defaultWeb3Connection,
+  modelExtensionDeployer,
+  erc20Deployer,
+  hasTxBlockNumber
+} from '../utils/';
 import {describe, it} from 'mocha';
 import {expect} from 'chai';
-import { nativeZeroAddress } from '../../src/utils/constants';
+
 
 describe(`Network_Registry`, () => {
   let web3Connection: Web3Connection;
@@ -20,14 +26,6 @@ describe(`Network_Registry`, () => {
   before(async () => {
     web3Connection = await defaultWeb3Connection(true, true);
     const erc20 = await erc20Deployer('Name', '$symbol', toSmartContractDecimals(1000000), web3Connection);
-    const nftToken = await modelExtensionDeployer(web3Connection, BountyToken, ['Name', 'Symbol']);
-    const receipt =
-      await modelExtensionDeployer(
-        web3Connection,
-        Network_v2,
-        [erc20.contractAddress, nftToken.contractAddress, '//', nativeZeroAddress, 0, 0]);
-
-    networkAddress = receipt.contractAddress!;
     erc20Address = erc20.contractAddress!;
   });
 
@@ -43,6 +41,16 @@ describe(`Network_Registry`, () => {
     let registry: Network_Registry;
 
     before(async () => {
+
+      const nftToken = await modelExtensionDeployer(web3Connection, BountyToken, ['Name', 'Symbol']);
+      const receipt =
+        await modelExtensionDeployer(
+          web3Connection,
+          Network_v2,
+          [erc20Address, nftToken.contractAddress, '//', registryAddress]);
+
+      networkAddress = receipt.contractAddress!;
+
       registry = new Network_Registry(web3Connection, registryAddress);
       await registry.start();
     });

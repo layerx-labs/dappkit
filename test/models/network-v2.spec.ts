@@ -1,5 +1,4 @@
-import {Network_v2} from '../../src/models/network-v2';
-import {ERC20, toSmartContractDecimals, Web3Connection} from '../../src';
+import {ERC20, Network_v2, BountyToken, toSmartContractDecimals, Web3Connection} from '../../src';
 import {
   defaultWeb3Connection,
   erc20Deployer,
@@ -12,9 +11,9 @@ import {expect} from 'chai';
 import {AMOUNT_1M} from '../utils/constants';
 import {nativeZeroAddress, Thousand} from '../../src/utils/constants';
 import {Account} from 'web3-core';
-import {BountyToken} from '../../src/models/bounty-token';
 
-describe(`NetworkV2`, () => {
+
+describe.only(`NetworkV2`, () => {
   let network: Network_v2;
   let web3Connection: Web3Connection;
   let networkToken: ERC20;
@@ -24,7 +23,6 @@ describe(`NetworkV2`, () => {
   let Admin: Account;
   let Alice: Account;
   let Bob: Account;
-  let Treasury: Account;
 
   const cap = toSmartContractDecimals(AMOUNT_1M);
   const newCouncilAmount = 105000;
@@ -34,7 +32,6 @@ describe(`NetworkV2`, () => {
     Admin = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile());
     Alice = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1));
     Bob = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(2));
-    Treasury = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(3));
   })
 
   it(`Deploys needed Contracts`, async () => {
@@ -77,11 +74,6 @@ describe(`NetworkV2`, () => {
       expect(await network.draftTime()).to.eq(61000);
     });
 
-    it(`changeCancelFee()`, async () => {
-      await hasTxBlockNumber(network.changeCancelFee(2));
-      expect((await network.treasuryInfo()).cancelFee).to.eq(2)
-    });
-
     it(`changeDisputableTime()`, async () => {
       await hasTxBlockNumber(network.changeDisputableTime(61));
       expect(await network.disputableTime()).to.eq(61000);
@@ -100,11 +92,6 @@ describe(`NetworkV2`, () => {
     it(`changeOracleExchangeRate()`, async () => {
       await hasTxBlockNumber(network.changeOracleExchangeRate(2));
       expect(await network.oracleExchangeRate()).to.eq(2);
-    });
-
-    it(`UpdateTresuryAddress()`, async () => {
-      await hasTxBlockNumber(network.updateTresuryAddress(Treasury.address));
-      expect((await network.treasuryInfo()).treasury).to.eq(Treasury.address)
     });
 
     it(`changeCancelableTime()`, async () => {

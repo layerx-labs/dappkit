@@ -45,7 +45,9 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   async deployJsonAbi(_erc20: string,
                       _lockAmountForNetworkCreation: number,
                       treasury: string,
-                      lockFeePercentage: number) {
+                      lockFeePercentage: number,
+                      closeFee = 10000,
+                      cancelFee = 20000) {
 
     const token = new ERC20(this.connection, _erc20);
     await token.loadContract();
@@ -53,7 +55,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     const deployOptions = {
       data: Network_RegistryJson.bytecode,
       arguments: [
-        _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals), treasury, lockFeePercentage
+        _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals), treasury, lockFeePercentage,
+        closeFee, cancelFee
       ]
     }
     return this.deploy(deployOptions, this.connection.Account);
@@ -128,3 +131,5 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.contract.self.getPastEvents('UserLockedAmountChanged', filter);
   }
 }
+
+export class NetworkRegistry extends Network_Registry {}

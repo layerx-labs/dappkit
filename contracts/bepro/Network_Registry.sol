@@ -7,28 +7,40 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../utils/ReentrancyGuardOptimized.sol";
 import "./INetwork_v2.sol";
 import "../utils/Governed.sol";
+import "../math/SafePercentMath.sol";
 
 contract Network_Registry is ReentrancyGuardOptimized, Governed {
+
+
     constructor(IERC20 _erc20,
-                uint256 _lockAmountForNetworkCreation,
-                address _treasury,
-                uint256 _lockFeePercentage) ReentrancyGuardOptimized() Governed() {
+        uint256 _lockAmountForNetworkCreation,
+        address _treasury,
+        uint256 _lockFeePercentage,
+        uint256 _closeFee,
+        uint256 _cancelFee) ReentrancyGuardOptimized() Governed() {
         erc20 = IERC20(_erc20);
         lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
         treasury = _treasury;
         lockFeePercentage = _lockFeePercentage;
+        closeFee = _closeFee;
+        cancelFee = _cancelFee;
     }
 
     using SafeMath for uint256;
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
+    mapping(address => address) public allowedTransactionalTokens;
+    mapping(address => address) public allowedRewardTokens;
+
+    address public treasury = address(0);
+
+    uint256 public closeFee = 0;
+    uint256 public cancelFee = 0;
 
     uint256 public lockAmountForNetworkCreation = 1000000 * 10 ** 18; // 1M
     uint256 public totalLockedAmount = 0;
     uint256 public lockFeePercentage = 10000; // 1%; parts per 10,000
-
-    address public treasury = address(0);
 
     mapping(address => uint256) public lockedTokensOfAddress;
     mapping(address => address) public networkOfAddress;
@@ -37,6 +49,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     event NetworkCreated(address network, address indexed creator, uint256 id);
     event NetworkClosed(address indexed network);
     event UserLockedAmountChanged(address indexed user, uint256 indexed newAmount);
+    event ChangedFee(uint256 indexed closeFee, uint256 indexed cancelFee);
+    event ChangeAllowedTokens(address[] indexed tokens, string operation, string kind);
 
     function amountOfNetworks() external view returns (uint256) {
         return networksArray.length;
@@ -82,6 +96,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
             require(erc20.transfer(treasury, fee), "R3");
         }
 
+        require(network.registry() == address(this), "R4");
+
         networksArray.push(network);
         networkOfAddress[msg.sender] = networkAddress;
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
@@ -90,12 +106,46 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     function changeAmountForNetworkCreation(uint256 newAmount) external payable onlyGovernor {
         require(newAmount > 0, "C1");
-        lockAmountForNetworkCreation = newAmount * 10 ** 18;
+        lockAmountForNetworkCreation = newAmount;
     }
 
     function changeLockPercentageFee(uint256 newAmount) external payable onlyGovernor {
         require(newAmount.div(10000) <= 10, "CLF1");
         lockFeePercentage = newAmount;
+    }
+
+    function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) external payable onlyGovernor {
+        require(_cancelFee >= 0, "CGF1");
+        require(_closeFee >= 0, "CGF1");
+        closeFee = _closeFee;
+        cancelFee = _cancelFee;
+        emit ChangedFee(closeFee, cancelFee);
+    }
+
+    function changeAllowedTokens(address[] memory _erc20, bool transactional, bool add) external payable onlyGovernor {
+        mapping(address => address) storage pointer = transactional ? allowedTransactionalTokens : allowedRewardTokens;
+
+        uint256 len = _erc20.length;
+
+        for (uint256 z = 0; z < len; z++) {
+            if (add) {
+                require(pointer[_erc20[z]] == address(0), "CAT1");
+                pointer[_erc20[z]] = _erc20[z];
+            } else {
+                require(pointer[_erc20[z]] != address(0), "CAT2");
+                pointer[_erc20[z]] = address(0);
+            }
+        }
+
+        emit ChangeAllowedTokens(_erc20, add ? "add" : "remove", transactional ? "transactional" : "reward");
+    }
+
+    function getTransactional(address _token) public view returns (address) {
+        return allowedTransactionalTokens[_token];
+    }
+
+    function getRewards(address _token) public view returns (address) {
+        return allowedRewardTokens[_token];
     }
 
 }
