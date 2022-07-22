@@ -11,7 +11,6 @@ import "../math/SafePercentMath.sol";
 
 contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
-
     constructor(IERC20 _erc20,
         uint256 _lockAmountForNetworkCreation,
         address _treasury,
@@ -30,8 +29,16 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
+
+
+    struct AllowedToken {
+        address _address;
+        uint256 id;
+    }
+
     mapping(address => address) public allowedTransactionalTokens;
     mapping(address => address) public allowedRewardTokens;
+    mapping(uint256 => address[]) public allowedTokens;
 
     address public treasury = address(0);
 
@@ -68,12 +75,14 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     function unlock() external payable {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
+
         if (networkOfAddress[msg.sender] != address(0)) {
             INetwork_v2 network = INetwork_v2(networkOfAddress[msg.sender]);
-            require(network.totalSettlerLocked() == 0, "UL1");
+            require(network.totalNetworkToken() == 0, "UL1");
             require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
             closedNetworks[networkOfAddress[msg.sender]] = true;
             networkOfAddress[msg.sender] = address(0);
+
             emit NetworkClosed(networkOfAddress[msg.sender]);
         }
 
@@ -87,13 +96,14 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     function registerNetwork(address networkAddress) external payable {
         INetwork_v2 network = INetwork_v2(networkAddress);
-        uint256 fee = lockedTokensOfAddress[msg.sender].div(100).mul(lockFeePercentage.div(10000));
+        uint256 fee = lockAmountForNetworkCreation.div(100).mul(lockFeePercentage.div(10000));
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
         require(network._governor() == msg.sender, "R2");
 
         if (treasury != address(0)) {
             require(erc20.transfer(treasury, fee), "R3");
+            totalLockedAmount = totalLockedAmount.sub(fee);
         }
 
         require(network.registry() == address(this), "R4");
@@ -122,30 +132,40 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit ChangedFee(closeFee, cancelFee);
     }
 
-    function changeAllowedTokens(address[] memory _erc20, bool transactional, bool add) external payable onlyGovernor {
+    function addAllowedTokens(address[] memory _erc20, bool transactional) public payable {
         mapping(address => address) storage pointer = transactional ? allowedTransactionalTokens : allowedRewardTokens;
+        address[] storage array = transactional ? allowedTokens[0] : allowedTokens[1];
 
         uint256 len = _erc20.length;
 
         for (uint256 z = 0; z < len; z++) {
-            if (add) {
-                require(pointer[_erc20[z]] == address(0), "CAT1");
-                pointer[_erc20[z]] = _erc20[z];
-            } else {
-                require(pointer[_erc20[z]] != address(0), "CAT2");
-                pointer[_erc20[z]] = address(0);
-            }
+            require(pointer[_erc20[z]] == address(0), "AT1");
+            array.push(_erc20[z]);
+            pointer[_erc20[z]] = _erc20[z];
         }
 
-        emit ChangeAllowedTokens(_erc20, add ? "add" : "remove", transactional ? "transactional" : "reward");
+        emit ChangeAllowedTokens(_erc20, "add", transactional ? "transactional" : "reward");
     }
 
-    function getTransactional(address _token) public view returns (address) {
-        return allowedTransactionalTokens[_token];
+    function removeAllowedTokens(uint256[] memory _ids, bool transactional) public payable {
+        mapping(address => address) storage pointer = transactional ? allowedTransactionalTokens : allowedRewardTokens;
+        address[] storage array = transactional ? allowedTokens[0] : allowedTokens[1];
+        address[] memory _erc20 = new address[](_ids.length);
+        uint256 len = _ids.length;
+
+        for (uint256 z = 0; z < len; z++) {
+            address mapped = array[_ids[z]];
+            require(pointer[mapped] != address(0), "RT1");
+            _erc20[z] = mapped;
+            pointer[mapped] = address(0);
+            delete array[_ids[z]];
+        }
+
+        emit ChangeAllowedTokens(_erc20, "remove", transactional ? "transactional" : "reward");
     }
 
-    function getRewards(address _token) public view returns (address) {
-        return allowedRewardTokens[_token];
+    function getAllowedTokens() public view returns (address[] memory transactional, address[] memory reward) {
+        return (allowedTokens[0], allowedTokens[1]);
     }
 
 }

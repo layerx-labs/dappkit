@@ -92,7 +92,7 @@ interface INetwork_v2 {
         cancelableTime
     }
 
-    function totalSettlerLocked() external view returns (uint256);
+    function totalNetworkToken() external view returns (uint256);
 
     function closedBounties() external view returns (uint256);
     function canceledBounties() external view returns (uint256);

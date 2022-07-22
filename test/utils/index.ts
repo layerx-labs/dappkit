@@ -130,7 +130,8 @@ export async function revertChain(web3: Web3) {
  */
 export async function hasTxBlockNumber(promise: Promise<any>, message = `Should have blockNumber`) {
     const tx = await promise.catch(e => {
-      expect(e?.data?.reason || e?.data?.message || `Should not have been rejected`, message).to.be.empty;
+      // console.error(e);
+      expect(e?.data?.reason || e?.data?.message || e?.message || `Should not have been rejected`).to.be.empty;
     });
     expect(tx, message).property('blockNumber').to.exist;
 }

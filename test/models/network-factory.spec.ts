@@ -40,7 +40,6 @@ describe(`NetworkFactory`, () => {
       const receipt = await deployer.deployJsonAbi(settlerToken!);
       expect(receipt.contractAddress).to.not.be.empty;
       networkFactoryContractAddress = receipt.contractAddress;
-      console.log(networkFactoryContractAddress)
     });
   });
 

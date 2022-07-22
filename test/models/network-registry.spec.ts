@@ -76,6 +76,8 @@ describe(`Network_Registry`, () => {
     describe(`Green Path`, () => {
       it(`Changes amount needed for network creation`, async () => {
         await hasTxBlockNumber(registry.changeAmountForNetworkCreation(10));
+        const newLockAmount = await registry.lockAmountForNetworkCreation();
+        expect(newLockAmount).to.eq(10)
       });
 
       it(`Approves, Locks and Unlocks`, async () => {
