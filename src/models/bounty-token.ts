@@ -8,16 +8,17 @@ import * as Events from '@events/bounty-token-events';
 import {XEvents} from '@events/x-events';
 import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
+import {nativeZeroAddress} from "@utils/constants";
 
 export class BountyToken extends Model<BountyTokenMethods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
     super(web3Connection, BountyTokenJson.abi as AbiItem[], contractAddress);
   }
 
-  async deployJsonAbi(name_: string, symbol_: string) {
+  async deployJsonAbi(name_: string, symbol_: string, dispatcher_: string = nativeZeroAddress) {
     const deployOptions = {
         data: BountyTokenJson.bytecode,
-        arguments: [name_, symbol_]
+        arguments: [name_, symbol_, dispatcher_]
     };
 
     return this.deploy(deployOptions, this.connection.Account);
