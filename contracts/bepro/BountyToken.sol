@@ -14,7 +14,9 @@ contract BountyToken is ERC721, Governed {
 
     address public dispatcher = address(0);
 
-    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {}
+    constructor(string memory name_, string memory symbol_, address _dispatcher) ERC721(name_, symbol_) Governed() {
+        dispatcher = _dispatcher;
+    }
 
     BountyConnector[] tokenIds;
 
