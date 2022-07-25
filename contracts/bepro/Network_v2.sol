@@ -165,7 +165,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         return (address(0), 0, 0);
     }
 
-    function changeNetworkParameter(uint256 _parameter, uint256 _value) public payable onlyGovernor {
+    function changeNetworkParameter(uint256 _parameter, uint256 _value) public onlyGovernor {
         if (_parameter == uint256(INetwork_v2.Params.councilAmount)) {
             require(_value >= 1 * 10 ** networkToken.decimals(), "C1");
             require(_value <= 50000000 * 10 ** networkToken.decimals(), "C2");
@@ -194,7 +194,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         }
     }
 
-    function manageOracles(bool lock, uint256 amount) external payable {
+    function manageOracles(bool lock, uint256 amount) external {
         uint256 exchanged = 0;
         if (lock) {
             exchanged = amount.mul(oracleExchangeRate.div(10000));
@@ -215,7 +215,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit OraclesChanged(msg.sender, int256(lock ? amount : -amount), oracles[msg.sender].locked);
     }
 
-    function delegateOracles(uint256 amount, address toAddress) external payable {
+    function delegateOracles(uint256 amount, address toAddress) external {
         require(amount <= oracles[msg.sender].locked, "MD0");
         oracles[msg.sender].locked = oracles[msg.sender].locked.sub(amount);
         oracles[msg.sender].toOthers = oracles[msg.sender].toOthers.add(amount);
@@ -223,7 +223,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         delegations[msg.sender].push(INetwork_v2.Delegation(msg.sender, toAddress, amount));
     }
 
-    function takeBackOracles(uint256 entryId) external payable {
+    function takeBackOracles(uint256 entryId) external {
         require(delegations[msg.sender][entryId].amount > 0, "MD1");
         uint256 amount = delegations[msg.sender][entryId].amount;
         address delegated = delegations[msg.sender][entryId].to;
@@ -245,7 +245,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         string memory repoPath,
         string memory branch,
         string memory githubUser
-    ) external payable {
+    ) external {
         bountiesIndex = bountiesIndex.add(1);
 
         bounties[bountiesIndex].id = bountiesIndex;
@@ -298,7 +298,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyCreated(bounties[bountiesIndex].id, bounties[bountiesIndex].cid, msg.sender);
     }
 
-    function hardCancel(uint256 id) external payable {
+    function hardCancel(uint256 id) external {
         require(bounties[id].creator != address(0), "HC1");
         require(msg.sender == _governor, "HC2");
         require(bounties[id].creationDate.add(block.timestamp) >= cancelableTime, "HC3");
@@ -318,7 +318,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev cancel a bounty
-    function cancelBounty(uint256 id) external payable {
+    function cancelBounty(uint256 id) external {
         _isBountyOwner(id);
         _isInDraft(id, true);
         _isNotCanceled(id);
@@ -327,7 +327,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev cancel funding
-    function cancelFundRequest(uint256 id) external payable {
+    function cancelFundRequest(uint256 id) external {
         _isBountyOwner(id);
         _isInDraft(id, true);
         _isNotCanceled(id);
@@ -337,7 +337,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev update the value of a bounty with a new amount
-    function updateBountyAmount(uint256 id, uint256 newTokenAmount) external payable {
+    function updateBountyAmount(uint256 id, uint256 newTokenAmount) external {
         _isBountyOwner(id);
         _isInDraft(id, true);
         _isFundingRequest(id, false);
@@ -361,7 +361,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev enable users to fund a bounty
-    function fundBounty(uint256 id, uint256 fundingAmount) external payable {
+    function fundBounty(uint256 id, uint256 fundingAmount) external {
 
         _isFundingRequest(id, true);
         _isInDraft(id, true);
@@ -382,7 +382,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev enable users to retract their funding
-    function retractFunds(uint256 id, uint256[] calldata fundingIds) external payable {
+    function retractFunds(uint256 id, uint256[] calldata fundingIds) external {
         _isInDraft(id, true);
         _isFundingRequest(id, true);
         _isNotCanceled(id);
@@ -411,7 +411,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         string memory userRepo,
         string memory userBranch,
         uint256 cid
-    ) external payable {
+    ) external {
         _isOpen(forBountyId);
         _isNotCanceled(forBountyId);
         _isInDraft(forBountyId, false);
@@ -435,7 +435,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyPullRequestCreated(forBountyId, pullRequest.id);
     }
 
-    function cancelPullRequest(uint256 ofBounty, uint256 prId) public payable {
+    function cancelPullRequest(uint256 ofBounty, uint256 prId) public {
         _isOpen(ofBounty);
         _isInDraft(ofBounty, false);
         _isNotCanceled(ofBounty);
@@ -454,7 +454,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev mark a PR ready for review
-    function markPullRequestReadyForReview(uint256 bountyId, uint256 pullRequestId) public payable {
+    function markPullRequestReadyForReview(uint256 bountyId, uint256 pullRequestId) public {
         _isInDraft(bountyId, false);
         _isNotCanceled(bountyId);
         _isOpen(bountyId);
@@ -474,7 +474,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         uint256 prId,
         address[] calldata recipients,
         uint256[] calldata percentages
-    ) public payable {
+    ) public {
         _isInDraft(id, false);
         _isOpen(id);
         _isNotCanceled(id);
@@ -508,7 +508,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev dispute a proposal for a bounty
-    function disputeBountyProposal(uint256 bountyId, uint256 proposalId) external payable {
+    function disputeBountyProposal(uint256 bountyId, uint256 proposalId) external {
         _isInDraft(bountyId, false);
         _isOpen(bountyId);
         _isNotCanceled(bountyId);
@@ -530,7 +530,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyProposalDisputed(bountyId, proposal.prId, proposalId, proposal.disputeWeight, proposal.disputeWeight >= oraclesDistributed.mul(percentageNeededForDispute).div(10000));
     }
 
-    function refuseBountyProposal(uint256 bountyId, uint256 proposalId) external payable {
+    function refuseBountyProposal(uint256 bountyId, uint256 proposalId) external {
         _isInDraft(bountyId, false);
         _isNotCanceled(bountyId);
         _isOpen(bountyId);
@@ -543,7 +543,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev close bounty with the selected proposal id
-    function closeBounty(uint256 id, uint256 proposalId) external payable {
+    function closeBounty(uint256 id, uint256 proposalId) external {
         _isOpen(id);
         _isNotCanceled(id);
         _isInDraft(id, false);
