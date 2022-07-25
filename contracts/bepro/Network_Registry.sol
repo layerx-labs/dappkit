@@ -106,7 +106,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
             totalLockedAmount = totalLockedAmount.sub(fee);
         }
 
-        require(network.registry() == address(this), "R4");
+        require(address(network.registry()) == address(this), "R4");
 
         networksArray.push(network);
         networkOfAddress[msg.sender] = networkAddress;
