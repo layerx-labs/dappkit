@@ -34,12 +34,6 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     IERC20 public erc20;
     BountyToken public bountyToken;
 
-
-    struct AllowedToken {
-        address _address;
-        uint256 id;
-    }
-
     mapping(address => address) public allowedTransactionalTokens;
     mapping(address => address) public allowedRewardTokens;
     address[] public _allowedTransactionalTokens;
