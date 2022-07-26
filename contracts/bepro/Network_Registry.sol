@@ -8,6 +8,7 @@ import "../utils/ReentrancyGuardOptimized.sol";
 import "./INetwork_v2.sol";
 import "../utils/Governed.sol";
 import "../math/SafePercentMath.sol";
+import "./BountyToken.sol";
 
 contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
@@ -16,19 +17,22 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         address _treasury,
         uint256 _lockFeePercentage,
         uint256 _closeFee,
-        uint256 _cancelFee) ReentrancyGuardOptimized() Governed() {
+        uint256 _cancelFee,
+        address _bountyToken) ReentrancyGuardOptimized() Governed() {
         erc20 = IERC20(_erc20);
         lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
         treasury = _treasury;
         lockFeePercentage = _lockFeePercentage;
         closeFee = _closeFee;
         cancelFee = _cancelFee;
+        bountyToken = BountyToken(_bountyToken);
     }
 
     using SafeMath for uint256;
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
+    BountyToken public bountyToken;
 
 
     struct AllowedToken {
@@ -38,7 +42,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     mapping(address => address) public allowedTransactionalTokens;
     mapping(address => address) public allowedRewardTokens;
-    mapping(uint256 => address[]) public allowedTokens;
+    address[] public _allowedTransactionalTokens;
+    address[] public _allowedRewardTokens;
 
     address public treasury = address(0);
 
@@ -63,7 +68,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         return networksArray.length;
     }
 
-    function lock(uint256 _amount) external payable {
+    function lock(uint256 _amount) public {
         require(_amount > 0, "L0");
         require(erc20.transferFrom(msg.sender, address(this), _amount), "L1");
 
@@ -73,7 +78,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
     }
 
-    function unlock() external payable {
+    function unlock() public {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
 
         if (networkOfAddress[msg.sender] != address(0)) {
@@ -94,7 +99,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
     }
 
-    function registerNetwork(address networkAddress) external payable {
+    function registerNetwork(address networkAddress) public {
         INetwork_v2 network = INetwork_v2(networkAddress);
         uint256 fee = lockAmountForNetworkCreation.div(100).mul(lockFeePercentage.div(10000));
         require(networkOfAddress[msg.sender] == address(0), "R0");
@@ -114,17 +119,17 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit NetworkCreated(networkAddress, msg.sender, networksArray.length - 1);
     }
 
-    function changeAmountForNetworkCreation(uint256 newAmount) external payable onlyGovernor {
+    function changeAmountForNetworkCreation(uint256 newAmount) public onlyGovernor {
         require(newAmount > 0, "C1");
         lockAmountForNetworkCreation = newAmount;
     }
 
-    function changeLockPercentageFee(uint256 newAmount) external payable onlyGovernor {
+    function changeLockPercentageFee(uint256 newAmount) public onlyGovernor {
         require(newAmount.div(10000) <= 10, "CLF1");
         lockFeePercentage = newAmount;
     }
 
-    function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) external payable onlyGovernor {
+    function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) public onlyGovernor {
         require(_cancelFee >= 0, "CGF1");
         require(_closeFee >= 0, "CGF1");
         closeFee = _closeFee;
@@ -132,9 +137,9 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit ChangedFee(closeFee, cancelFee);
     }
 
-    function addAllowedTokens(address[] memory _erc20, bool transactional) public payable {
+    function addAllowedTokens(address[] calldata _erc20, bool transactional) public {
         mapping(address => address) storage pointer = transactional ? allowedTransactionalTokens : allowedRewardTokens;
-        address[] storage array = transactional ? allowedTokens[0] : allowedTokens[1];
+        address[] storage array = transactional ? _allowedTransactionalTokens : _allowedRewardTokens;
 
         uint256 len = _erc20.length;
 
@@ -147,9 +152,9 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit ChangeAllowedTokens(_erc20, "add", transactional ? "transactional" : "reward");
     }
 
-    function removeAllowedTokens(uint256[] memory _ids, bool transactional) public payable {
+    function removeAllowedTokens(uint256[] calldata _ids, bool transactional) public {
         mapping(address => address) storage pointer = transactional ? allowedTransactionalTokens : allowedRewardTokens;
-        address[] storage array = transactional ? allowedTokens[0] : allowedTokens[1];
+        address[] storage array = transactional ? _allowedTransactionalTokens : _allowedRewardTokens;
         address[] memory _erc20 = new address[](_ids.length);
         uint256 len = _ids.length;
 
@@ -165,7 +170,26 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     }
 
     function getAllowedTokens() public view returns (address[] memory transactional, address[] memory reward) {
-        return (allowedTokens[0], allowedTokens[1]);
+        return (_allowedTransactionalTokens, _allowedRewardTokens);
+    }
+
+    function _networkExistsAndOpen(address _address) internal view returns (bool) {
+        uint256 max = networksArray.length;
+        bool found = false;
+        uint256 z = 0;
+        for (z; (z < max) && (found == false); z++) {
+            found = address(networksArray[z]) == _address;
+        }
+
+        if (found == false)
+          return false;
+
+        return closedNetworks[address(networksArray[z-1])] == false;
+    }
+
+    function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) external {
+        require(_networkExistsAndOpen(award.originNetwork), "A0");
+        bountyToken.awardBounty(to, uri, award);
     }
 
 }

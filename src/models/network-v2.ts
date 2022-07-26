@@ -72,12 +72,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const transactionalTokenAddress = await this.networkTokenAddress();
     const registryAddress = await this.registryAddress();
 
-    this._nftToken = new BountyToken(this.connection, nftAddress);
     this._networkToken = new ERC20(this.connection, transactionalTokenAddress);
 
-    this._governed = new Governed(this);
+    if (nftAddress) {
+      this._nftToken = new BountyToken(this.connection, nftAddress);
+      await this._nftToken.loadContract();
+    }
 
-    await this._nftToken.loadContract();
+    this._governed = new Governed(this);
     await this._networkToken.loadContract();
 
     if (registryAddress !== nativeZeroAddress) {
@@ -87,13 +89,11 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async deployJsonAbi(_oracleTokenAddress: string,
-                      _nftTokenAddress: string,
-                      _bountyNftUri: string,
                       _registryAddress = nativeZeroAddress) {
     const deployOptions = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: (Network_v2Json as any).bytecode,
-      arguments: [_oracleTokenAddress, _nftTokenAddress, _bountyNftUri, _registryAddress]
+      arguments: [_oracleTokenAddress, _registryAddress]
     };
 
     return this.deploy(deployOptions, this.connection.Account);
@@ -487,8 +487,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   /**
    * close bounty with the selected proposal id
    */
-  async closeBounty(id: number, proposalId: number) {
-    return this.sendTx(this.contract.methods.closeBounty(id, proposalId));
+  async closeBounty(id: number, proposalId: number, ipfsUri = "") {
+    return this.sendTx(this.contract.methods.closeBounty(id, proposalId, ipfsUri));
   }
 
   async cidBountyId(cid: string) {

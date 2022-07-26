@@ -6,6 +6,13 @@ import "./Network_Registry.sol";
 
 interface INetwork_v2 {
 
+    struct BountyConnector {
+        address originNetwork;
+        uint256 bountyId;
+        uint percentage; // 0 - 100
+        string kind; // proposer, dev, closer, [reviewer?]
+    }
+
     struct PullRequest {
         string originRepo;
         string originCID;

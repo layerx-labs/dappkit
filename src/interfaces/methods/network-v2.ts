@@ -46,7 +46,7 @@ export interface Network_v2Methods {
   createBountyProposal(id: number, prId: number, recipients: string[], percentages: number[]): ContractSendMethod;
   disputeBountyProposal(bountyId: number, proposalId: number): ContractSendMethod;
   refuseBountyProposal(bountyId: number, proposalId: number): ContractSendMethod;
-  closeBounty(id: number, proposalId: number): ContractSendMethod;
+  closeBounty(id: number, proposalId: number, ipfsUri: string): ContractSendMethod;
   hardCancel(id: number): ContractSendMethod;
   cancelableTime(): ContractCallMethod<number>;
   registry(): ContractCallMethod<string>;

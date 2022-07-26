@@ -15,14 +15,10 @@ contract Network_v2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
     constructor(
-        address _settlerToken,
-        address _nftTokenAddress,
-        string memory _bountyNftUri,
+        address _networkToken,
         address _registry
     ) Governed() ReentrancyGuard() {
-        networkToken = ERC20(_settlerToken);
-        nftToken = BountyToken(_nftTokenAddress);
-        bountyNftUri = _bountyNftUri;
+        networkToken = ERC20(_networkToken);
         registry = Network_Registry(_registry);
     }
 
@@ -301,7 +297,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     function hardCancel(uint256 id) external {
         require(bounties[id].creator != address(0), "HC1");
         require(msg.sender == _governor, "HC2");
-        require(bounties[id].creationDate.add(block.timestamp) >= cancelableTime, "HC3");
+        require(block.timestamp.sub(bounties[id].creationDate) >= cancelableTime, "HCV3");
 
         if (bounties[id].proposals.length > 0) {
             for (uint256 i = 0; i <= bounties[id].proposals.length - 1; i++) {
@@ -543,7 +539,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     }
 
     /// @dev close bounty with the selected proposal id
-    function closeBounty(uint256 id, uint256 proposalId) external {
+    function closeBounty(uint256 id, uint256 proposalId, string memory ipfsUri) external {
         _isOpen(id);
         _isNotCanceled(id);
         _isInDraft(id, false);
@@ -576,8 +572,16 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
         for (uint256 i = 0; i <= proposal.details.length - 1; i++) {
             INetwork_v2.ProposalDetail memory detail = proposal.details[i];
+            INetwork_v2.BountyConnector memory award = INetwork_v2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
             require(erc20.transfer(detail.recipient, proposalAmount.div(100).mul(detail.percentage)), "CB5");
-            nftToken.awardBounty(detail.recipient, bountyNftUri, bounty.id, detail.percentage);
+
+            if (address(registry) != address(0)) {
+                registry.awardBounty(detail.recipient, ipfsUri, award);
+            } else {
+                if (address(nftToken) != address(0)) {
+                    nftToken.awardBounty(detail.recipient, ipfsUri, award);
+                }
+            }
         }
 
         if (bounties[id].rewardToken != address(0)) {

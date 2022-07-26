@@ -11,6 +11,7 @@ export interface Network_RegistryMethods {
   claimGovernor(): ContractSendMethod;
 
   erc20(): ContractCallMethod<string>;
+  bountyToken(): ContractCallMethod<string>;
 
   lockAmountForNetworkCreation(): ContractCallMethod<number>;
 

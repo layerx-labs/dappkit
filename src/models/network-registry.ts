@@ -11,16 +11,19 @@ import * as Events from '@events/network-registry'
 import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
 import { fromSmartContractDecimals, toSmartContractDecimals } from '@utils/numbers';
-import {TenK} from "@utils/constants";
+import {nativeZeroAddress, TenK} from "@utils/constants";
 import {Governed} from "@base/governed";
 import {allowedTokens as _allowedTokens} from "@utils/allowed-tokens";
+import {BountyToken} from "@models/bounty-token";
 
 export class Network_Registry extends Model<Network_RegistryMethods> implements Deployable {
   private _token!: ERC20;
   private _governed!: Governed;
+  private _bountyToken!: BountyToken;
 
   get token() { return this._token; }
   get governed() { return this._governed; }
+  get bountyToken() { return this._bountyToken; }
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
     super(web3Connection, Network_RegistryJson.abi as AbiItem[], contractAddress);
@@ -36,8 +39,10 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
       await super.loadContract();
 
     const erc20Address = await this.erc20();
+    const bountyTokenAddress = await this.bountyTokenAddress();
 
     this._token = new ERC20(this.connection, erc20Address);
+    this._bountyToken = new BountyToken(this.connection, bountyTokenAddress);
     this._governed = new Governed(this);
 
     await this._token.loadContract();
@@ -48,7 +53,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
                       treasury: string,
                       lockFeePercentage: number,
                       closeFee = 10000,
-                      cancelFee = 20000) {
+                      cancelFee = 20000,
+                      bountyToken = nativeZeroAddress) {
 
     const token = new ERC20(this.connection, _erc20);
     await token.loadContract();
@@ -57,7 +63,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
       data: Network_RegistryJson.bytecode,
       arguments: [
         _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals), treasury, lockFeePercentage,
-        closeFee, cancelFee
+        closeFee, cancelFee, bountyToken,
       ]
     }
     return this.deploy(deployOptions, this.connection.Account);
@@ -66,6 +72,11 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   async erc20() {
     return this.callTx(this.contract.methods.erc20());
   }
+
+  async bountyTokenAddress() {
+    return this.callTx(this.contract.methods.bountyToken());
+  }
+
 
   async lockAmountForNetworkCreation() { 
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.lockAmountForNetworkCreation()), 
