@@ -14,14 +14,6 @@ import "./Network_Registry.sol";
 contract Network_v2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
-    constructor(
-        address _networkToken,
-        address _registry
-    ) Governed() ReentrancyGuard() {
-        networkToken = ERC20(_networkToken);
-        registry = Network_Registry(_registry);
-    }
-
     ERC20 public networkToken;
     BountyToken public nftToken;
     Network_Registry public registry;
@@ -67,6 +59,11 @@ contract Network_v2 is Governed, ReentrancyGuard {
     event BountyAmountUpdated(uint256 indexed id, uint256 amount);
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
 
+    constructor(address _networkToken, address _registry) Governed() ReentrancyGuard() {
+        networkToken = ERC20(_networkToken);
+        registry = Network_Registry(_registry);
+    }
+
     function _isBountyOwner(uint256 id) internal view {
         require(bounties[id].creator == msg.sender, "OW1");
     }
@@ -77,6 +74,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     function _isInDraft(uint256 id, bool shouldBe) internal view {
         require(bounties[id].creator != address(0), "B0");
+        // account with funding case
         require((block.timestamp < bounties[id].creationDate.add(draftTime)) == shouldBe, "BDT1");
     }
 

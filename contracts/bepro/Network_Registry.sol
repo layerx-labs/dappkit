@@ -12,22 +12,6 @@ import "./BountyToken.sol";
 
 contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
-    constructor(IERC20 _erc20,
-        uint256 _lockAmountForNetworkCreation,
-        address _treasury,
-        uint256 _lockFeePercentage,
-        uint256 _closeFee,
-        uint256 _cancelFee,
-        address _bountyToken) ReentrancyGuardOptimized() Governed() {
-        erc20 = IERC20(_erc20);
-        lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
-        treasury = _treasury;
-        lockFeePercentage = _lockFeePercentage;
-        closeFee = _closeFee;
-        cancelFee = _cancelFee;
-        bountyToken = BountyToken(_bountyToken);
-    }
-
     using SafeMath for uint256;
 
     INetwork_v2[] public networksArray;
@@ -58,7 +42,23 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     event ChangedFee(uint256 indexed closeFee, uint256 indexed cancelFee);
     event ChangeAllowedTokens(address[] indexed tokens, string operation, string kind);
 
-    function amountOfNetworks() external view returns (uint256) {
+    constructor(IERC20 _erc20,
+        uint256 _lockAmountForNetworkCreation,
+        address _treasury,
+        uint256 _lockFeePercentage,
+        uint256 _closeFee,
+        uint256 _cancelFee,
+        address _bountyToken) ReentrancyGuardOptimized() Governed() {
+        erc20 = IERC20(_erc20);
+        lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
+        treasury = _treasury;
+        lockFeePercentage = _lockFeePercentage;
+        closeFee = _closeFee;
+        cancelFee = _cancelFee;
+        bountyToken = BountyToken(_bountyToken);
+    }
+
+    function amountOfNetworks() public view returns (uint256) {
         return networksArray.length;
     }
 
@@ -181,8 +181,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         return closedNetworks[address(networksArray[z-1])] == false;
     }
 
-    function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) external {
-        require(_networkExistsAndOpen(award.originNetwork), "A0");
+    function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) public {
+        require(_networkExistsAndOpen(msg.sender), "A0");
         bountyToken.awardBounty(to, uri, award);
     }
 
