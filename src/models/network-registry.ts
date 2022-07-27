@@ -150,10 +150,6 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return _allowedTokens(await this.callTx(this.contract.methods.getAllowedTokens()));
   }
 
-  async allowedTokens(x: number, y: number) {
-    return this.callTx(this.contract.methods.allowedTokens(x, y));
-  }
-
   async getGovernorTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
     return this.contract.self.getPastEvents('GovernorTransferred', filter);
   }

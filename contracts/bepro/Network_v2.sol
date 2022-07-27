@@ -188,6 +188,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
         }
     }
 
+    /*
+     * Lock or Unlock tokens into this smart contract by applying a exchange rate configured in {@oracleExchangeRate}
+     */
     function manageOracles(bool lock, uint256 amount) external {
         uint256 exchanged = 0;
         if (lock) {
@@ -209,6 +212,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit OraclesChanged(msg.sender, int256(lock ? amount : -amount), oracles[msg.sender].locked);
     }
 
+    /*
+     * allocate voting power from the mapper of one address to another
+     */
     function delegateOracles(uint256 amount, address toAddress) external {
         require(amount <= oracles[msg.sender].locked, "MD0");
         oracles[msg.sender].locked = oracles[msg.sender].locked.sub(amount);
@@ -217,6 +223,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
         delegations[msg.sender].push(INetwork_v2.Delegation(msg.sender, toAddress, amount));
     }
 
+    /*
+     * return voting power given to another address
+     */
     function takeBackOracles(uint256 entryId) external {
         require(delegations[msg.sender][entryId].amount > 0, "MD1");
         uint256 amount = delegations[msg.sender][entryId].amount;
@@ -227,7 +236,15 @@ contract Network_v2 is Governed, ReentrancyGuard {
         delegations[msg.sender][entryId].amount = 0;
     }
 
-    /// @dev create a bounty
+    /*
+     * Create a new bounty entry
+     * Transfer tokens (transactional or reward) to the smart contract
+     * If a registry exists, check that the tokens are allowed
+     * Assert rules,
+     *  A bounty can't have a funding amount
+     *  A funding request can't have tokenAmount
+     * emit event
+     */
     function openBounty(
         uint256 tokenAmount,
         address transactional,
@@ -257,9 +274,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
         if (address(registry) != address(0)) {
             if (registry.treasury() != address(0)) {
-                require(registry.allowedTransactionalTokens(transactional) != address(0), "O6");
+                require(registry.isAllowedToken(transactional, true) == true, "O6");
                 if (fundingAmount > 0 && address(0) != rewardToken) {
-                    require(registry.allowedRewardTokens(rewardToken) != address(0), "O7");
+                    require(registry.isAllowedToken(rewardToken, false) == true, "O7");
                 }
             }
         }
@@ -292,6 +309,12 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyCreated(bounties[bountiesIndex].id, bounties[bountiesIndex].cid, msg.sender);
     }
 
+    /*
+     * Allow a network owner to cancel a bounty entry if X time has passed
+     * Assert rules,
+     *   sender is governor
+     *   if bounty entry has proposals, require that all are disputed
+     */
     function hardCancel(uint256 id) external {
         require(bounties[id].creator != address(0), "HC1");
         require(msg.sender == _governor, "HC2");

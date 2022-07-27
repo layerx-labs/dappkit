@@ -3,6 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
 import "../utils/ReentrancyGuardOptimized.sol";
 import "./INetwork_v2.sol";
@@ -13,15 +14,14 @@ import "./BountyToken.sol";
 contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
     BountyToken public bountyToken;
 
-    mapping(address => address) public allowedTransactionalTokens;
-    mapping(address => address) public allowedRewardTokens;
-    address[] public _allowedTransactionalTokens;
-    address[] public _allowedRewardTokens;
+    EnumerableSet.AddressSet private _transactionalTokens;
+    EnumerableSet.AddressSet private _rewardTokens;
 
     address public treasury = address(0);
 
@@ -34,7 +34,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     mapping(address => uint256) public lockedTokensOfAddress;
     mapping(address => address) public networkOfAddress;
-    mapping(address => bool) public closedNetworks;
+    mapping(address => bool) public openNetworks;
 
     event NetworkCreated(address network, address indexed creator, uint256 id);
     event NetworkClosed(address indexed network);
@@ -58,6 +58,10 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         bountyToken = BountyToken(_bountyToken);
     }
 
+    function isAllowedToken(address tokenAddress, bool transactional) public view returns (bool) {
+        return (transactional ? _transactionalTokens : _rewardTokens).contains(tokenAddress);
+    }
+
     function amountOfNetworks() public view returns (uint256) {
         return networksArray.length;
     }
@@ -79,7 +83,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
             INetwork_v2 network = INetwork_v2(networkOfAddress[msg.sender]);
             require(network.totalNetworkToken() == 0, "UL1");
             require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
-            closedNetworks[networkOfAddress[msg.sender]] = true;
+
+            openNetworks[networkOfAddress[msg.sender]] = true;
             networkOfAddress[msg.sender] = address(0);
 
             emit NetworkClosed(networkOfAddress[msg.sender]);
@@ -96,6 +101,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     function registerNetwork(address networkAddress) public {
         INetwork_v2 network = INetwork_v2(networkAddress);
         uint256 fee = lockAmountForNetworkCreation.div(100).mul(lockFeePercentage.div(10000));
+
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
         require(network._governor() == msg.sender, "R2");
@@ -108,6 +114,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         require(address(network.registry()) == address(this), "R4");
 
         networksArray.push(network);
+        openNetworks[networksArray] = true;
         networkOfAddress[msg.sender] = networkAddress;
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
         emit NetworkCreated(networkAddress, msg.sender, networksArray.length - 1);
@@ -131,58 +138,42 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit ChangedFee(closeFee, cancelFee);
     }
 
-    function addAllowedTokens(address[] calldata _erc20, bool transactional) public {
-        mapping(address => address) storage pointer = transactional ? allowedTransactionalTokens : allowedRewardTokens;
-        address[] storage array = transactional ? _allowedTransactionalTokens : _allowedRewardTokens;
-
+    function addAllowedTokens(address[] calldata _erc20, bool transactional) external {
+        EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _erc20.length;
 
         for (uint256 z = 0; z < len; z++) {
-            require(pointer[_erc20[z]] == address(0), "AT1");
-            array.push(_erc20[z]);
-            pointer[_erc20[z]] = _erc20[z];
+            require(pointer.add(_erc20[z]) == true, "AT1");
         }
-
-        emit ChangeAllowedTokens(_erc20, "add", transactional ? "transactional" : "reward");
     }
 
-    function removeAllowedTokens(uint256[] calldata _ids, bool transactional) public {
-        mapping(address => address) storage pointer = transactional ? allowedTransactionalTokens : allowedRewardTokens;
-        address[] storage array = transactional ? _allowedTransactionalTokens : _allowedRewardTokens;
-        address[] memory _erc20 = new address[](_ids.length);
+    function removeAllowedTokens(uint256[] calldata _ids, bool transactional) external {
+        EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _ids.length;
-
         for (uint256 z = 0; z < len; z++) {
-            address mapped = array[_ids[z]];
-            require(pointer[mapped] != address(0), "RT1");
-            _erc20[z] = mapped;
-            pointer[mapped] = address(0);
-            delete array[_ids[z]];
+            require(pointer.remove(pointer.at(_ids[z])) == true, "RT1");
         }
-
-        emit ChangeAllowedTokens(_erc20, "remove", transactional ? "transactional" : "reward");
     }
 
     function getAllowedTokens() public view returns (address[] memory transactional, address[] memory reward) {
-        return (_allowedTransactionalTokens, _allowedRewardTokens);
-    }
+        uint256 tLen = _transactionalTokens.length();
+        uint256 rLen = _rewardTokens.length();
+        address[] memory transactional = new address[](tLen);
+        address[] memory reward = new address[](rLen);
 
-    function _networkExistsAndOpen(address _address) internal view returns (bool) {
-        uint256 max = networksArray.length;
-        bool found = false;
-        uint256 z = 0;
-        for (z; (z < max) && (found == false); z++) {
-            found = address(networksArray[z]) == _address;
+        for (uint256 z = 0; z < tLen; z++) {
+            transactional[z] = _transactionalTokens.at(z);
         }
 
-        if (found == false)
-          return false;
+        for (uint256 z = 0; z < rLen; z++) {
+            reward[z] = _rewardTokens.at(z);
+        }
 
-        return closedNetworks[address(networksArray[z-1])] == false;
+        return (transactional, reward);
     }
 
     function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) public {
-        require(_networkExistsAndOpen(msg.sender), "A0");
+        require(openNetworks[msg.sender] == true, "A0");
         bountyToken.awardBounty(to, uri, award);
     }
 
