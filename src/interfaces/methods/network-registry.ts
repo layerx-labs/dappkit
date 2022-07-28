@@ -42,7 +42,7 @@ export interface Network_RegistryMethods {
   changeAmountForNetworkCreation(newAmount: number): ContractSendMethod;
   changeGlobalFees(closeFee: number, cancelFee: number): ContractSendMethod;
   addAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;
-  removeAllowedTokens(tokens: number[], isTransactional: boolean): ContractSendMethod;
+  removeAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;
 
   getAllowedTokens(): ContractCallMethod<{ transactional: string[], reward: string[] }>;
   allowedTokens(x: number, y: number): ContractCallMethod<string>;

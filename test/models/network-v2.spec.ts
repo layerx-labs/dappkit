@@ -383,17 +383,12 @@ describe(`NetworkV2`, () => {
         })
 
         it(`Asserts allowed tokens removal`, async () => {
-          await hasTxBlockNumber(network.registry.removeAllowedTokens([0], false));
-          await hasTxBlockNumber(network.registry.removeAllowedTokens([0], true));
+          await hasTxBlockNumber(network.registry.removeAllowedTokens([networkToken.contractAddress!], false));
+          await hasTxBlockNumber(network.registry.removeAllowedTokens([networkToken.contractAddress!], true));
           const {transactional, reward} = await network.registry.getAllowedTokens();
 
-          // Assert to length 0 because we parse the nativeZero addresses from the returned arrays
           expect(transactional.length).to.eq(0);
           expect(reward.length).to.eq(0);
-
-          // // Assert base key/item matches a nativeZero address
-          // const tokens = await Promise.all([network.registry.allowedTokens(0,0), network.registry.allowedTokens(1,0)])
-          // expect(tokens.every(k => k === nativeZeroAddress)).to.be.true;
 
         });
 

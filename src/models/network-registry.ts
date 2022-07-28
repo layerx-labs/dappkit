@@ -142,8 +142,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.sendTx(this.contract.methods.addAllowedTokens(addresses, isTransactional));
   }
 
-  async removeAllowedTokens(addressIds: number[], isTransactional: boolean) {
-    return this.sendTx(this.contract.methods.removeAllowedTokens(addressIds, isTransactional));
+  async removeAllowedTokens(addresses: string[], isTransactional: boolean) {
+    return this.sendTx(this.contract.methods.removeAllowedTokens(addresses, isTransactional));
   }
 
   async getAllowedTokens() {
