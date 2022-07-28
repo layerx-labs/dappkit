@@ -143,9 +143,9 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) public onlyGovernor {
         require(_cancelFee >= 0, "CGF1");
         require(_closeFee >= 0, "CGF1");
-        closeFee = _closeFee;
-        cancelFee = _cancelFee;
-        emit ChangedFee(closeFee, cancelFee);
+        closeFeePercentage = _closeFee;
+        cancelFeePercentage = _cancelFee;
+        emit ChangedFee(closeFeePercentage, cancelFeePercentage);
     }
 
     function addAllowedTokens(address[] calldata _erc20, bool transactional) external {
