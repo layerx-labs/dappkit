@@ -25,18 +25,17 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     address public treasury = address(0);
 
-    uint256 public closeFee = 0;
-    uint256 public cancelFee = 0;
-
     uint256 public lockAmountForNetworkCreation = 1000000 * 10 ** 18; // 1M
     uint256 public totalLockedAmount = 0;
     uint256 public lockFeePercentage = 10000; // 1%; parts per 10,000
+    uint256 public closeFeePercentage = 0;
+    uint256 public cancelFeePercentage = 0;
 
     mapping(address => uint256) public lockedTokensOfAddress;
     mapping(address => address) public networkOfAddress;
     mapping(address => bool) public openNetworks;
 
-    event NetworkCreated(address network, address indexed creator, uint256 id);
+    event NetworkRegistered(address network, address indexed creator, uint256 id);
     event NetworkClosed(address indexed network);
     event UserLockedAmountChanged(address indexed user, uint256 indexed newAmount);
     event ChangedFee(uint256 indexed closeFee, uint256 indexed cancelFee);
@@ -46,15 +45,15 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         uint256 _lockAmountForNetworkCreation,
         address _treasury,
         uint256 _lockFeePercentage,
-        uint256 _closeFee,
-        uint256 _cancelFee,
+        uint256 _closeFeePercentage,
+        uint256 _cancelFeePercentage,
         address _bountyToken) ReentrancyGuardOptimized() Governed() {
         erc20 = IERC20(_erc20);
         lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
         treasury = _treasury;
         lockFeePercentage = _lockFeePercentage;
-        closeFee = _closeFee;
-        cancelFee = _cancelFee;
+        closeFeePercentage = _closeFeePercentage;
+        cancelFeePercentage = _cancelFeePercentage;
         bountyToken = BountyToken(_bountyToken);
     }
 
@@ -80,7 +79,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     }
 
     /*
-     * Unlock all tokens
+     * Unlock all tokens and close the network if one exists and can be closed, otherwise don't allow unlocking
      */
     function unlock() public {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
@@ -104,6 +103,11 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
     }
 
+    /*
+     * Register a new network on the contract, if a treasury exists then subtract and transfer the amount
+     * of {@lockFeePercentage} to the treasury and update both the totalLockedAmount as the amount of locked
+     * tokens of the sender
+     */
     function registerNetwork(address networkAddress) public {
         INetwork_v2 network = INetwork_v2(networkAddress);
         uint256 fee = lockAmountForNetworkCreation.div(100).mul(lockFeePercentage.div(10000));
@@ -123,7 +127,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         openNetworks[networkAddress] = true;
         networkOfAddress[msg.sender] = networkAddress;
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
-        emit NetworkCreated(networkAddress, msg.sender, networksArray.length - 1);
+        emit NetworkRegistered(networkAddress, msg.sender, networksArray.length - 1);
     }
 
     function changeAmountForNetworkCreation(uint256 newAmount) public onlyGovernor {

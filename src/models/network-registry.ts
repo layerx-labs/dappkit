@@ -156,8 +156,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   async getNetworkClosedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkClosedEvent>[]> {
     return this.contract.self.getPastEvents('NetworkClosed', filter);
   }
-  async getNetworkCreatedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkCreatedEvent>[]> {
-    return this.contract.self.getPastEvents('NetworkCreated', filter);
+  async getNetworkRegisteredEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkRegisteredEvent>[]> {
+    return this.contract.self.getPastEvents('NetworkRegistered', filter);
   }
 
   async getUserLockedAmountChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.UserLockedAmountChangedEvent> {

@@ -128,7 +128,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         uint256 returnAmount = bounty.tokenAmount;
         if (address(registry) != address(0)) {
             if (registry.treasury() != address(0)) {
-                uint256 treasuryFee = bounty.tokenAmount.div(100).mul(registry.cancelFee().div(10000));
+                uint256 treasuryFee = bounty.tokenAmount.div(100).mul(registry.cancelFeePercentage().div(10000));
                 returnAmount = returnAmount.sub(treasuryFee);
                 require(erc20.transfer(registry.treasury(), treasuryFee), "C3");
             }
@@ -155,7 +155,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     function treasuryInfo() external view returns(address, uint256, uint256) {
         if (address(registry) != address(0))
-            return (registry.treasury(), registry.closeFee(), registry.cancelFee());
+            return (registry.treasury(), registry.closeFeePercentage(), registry.cancelFeePercentage());
         return (address(0), 0, 0);
     }
 
@@ -673,7 +673,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
         if (address(registry) != address(0)) {
             if (registry.treasury() != address(0)) {
-                uint256 treasuryAmount = bounty.tokenAmount.div(100).mul(registry.closeFee().div(10000));
+                uint256 treasuryAmount = bounty.tokenAmount.div(100).mul(registry.closeFeePercentage().div(10000));
                 returnAmount = returnAmount.sub(treasuryAmount);
                 require(erc20.transfer(registry.treasury(), treasuryAmount), "C3");
             }
