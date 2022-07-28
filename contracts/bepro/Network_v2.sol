@@ -692,7 +692,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
             require(erc20.transfer(detail.recipient, proposalAmount.div(100).mul(detail.percentage)), "CB5");
 
             if (address(registry) != address(0)) {
-                registry.awardBounty(detail.recipient, ipfsUri, award);
+                if (address(registry.bountyToken()) != address(0)) {
+                    registry.awardBounty(detail.recipient, ipfsUri, award);
+                }
             } else {
                 if (address(nftToken) != address(0)) {
                     nftToken.awardBounty(detail.recipient, ipfsUri, award);

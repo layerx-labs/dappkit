@@ -182,6 +182,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) public {
         require(openNetworks[msg.sender] == true, "A0");
+        require(address(bountyToken) != address(0), "A1");
         bountyToken.awardBounty(to, uri, award);
     }
 

@@ -1,6 +1,5 @@
 import {
   Network_v2,
-  BountyToken,
   Web3Connection,
   Network_Registry,
   toSmartContractDecimals
@@ -41,13 +40,11 @@ describe(`Network_Registry`, () => {
     let registry: Network_Registry;
 
     before(async () => {
-
-      const nftToken = await modelExtensionDeployer(web3Connection, BountyToken, ['Name', 'Symbol']);
       const receipt =
         await modelExtensionDeployer(
           web3Connection,
           Network_v2,
-          [erc20Address, nftToken.contractAddress, '//', registryAddress]);
+          [erc20Address, registryAddress]);
 
       networkAddress = receipt.contractAddress!;
 
