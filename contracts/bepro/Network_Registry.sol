@@ -140,9 +140,13 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         lockFeePercentage = newAmount;
     }
 
+    /*
+     * Change global fees related to registered networks
+     * 1% = 10,000
+     */
     function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) public onlyGovernor {
-        require(_cancelFee >= 0, "CGF1");
-        require(_closeFee >= 0, "CGF1");
+        require(_cancelFee >= 0 && _cancelFee <= 1000000, "CGF1");
+        require(_closeFee >= 0 && _closeFee <= 1000000, "CGF1");
         closeFeePercentage = _closeFee;
         cancelFeePercentage = _cancelFee;
         emit ChangedFee(closeFeePercentage, cancelFeePercentage);
