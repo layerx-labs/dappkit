@@ -334,7 +334,14 @@ contract Network_v2 is Governed, ReentrancyGuard {
         }
     }
 
-    /// @dev cancel a bounty
+    /*
+     * Allow a bounty owner to cancel the created bounty
+     * Assert rules,
+     *  only bounty owner
+     *  is in draft
+     *  is still open
+     *  is not a funding request
+     */
     function cancelBounty(uint256 id) external {
         _isBountyOwner(id);
         _isInDraft(id, true);
@@ -343,17 +350,33 @@ contract Network_v2 is Governed, ReentrancyGuard {
         _cancelBounty(id);
     }
 
-    /// @dev cancel funding
+    /*
+     * Allow a bounty owner to cancel the funding request
+     * Assert rules,
+     *  only bounty owner
+     *  is in draft
+     *    funding requests are in draft until 100%
+     *  is still open
+     *  is a funding request
+     */
     function cancelFundRequest(uint256 id) external {
         _isBountyOwner(id);
-        _isInDraft(id, true);
-        _isNotCanceled(id);
         _isFundingRequest(id, true);
+        require(bounties[id].funded == false, "");
+        _isNotCanceled(id);
         _cancelFundingRequest(id);
-
     }
 
-    /// @dev update the value of a bounty with a new amount
+    /*
+     * Update the amount of the bounty entry;
+     *  If new amount is bigger transfer from sender
+     *  otherwise return the difference
+     *
+     * Assert rules,
+     *   only bounty owner
+     *   still in draft
+     *   is not funding request
+     */
     function updateBountyAmount(uint256 id, uint256 newTokenAmount) external {
         _isBountyOwner(id);
         _isInDraft(id, true);
@@ -377,11 +400,18 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyAmountUpdated(id, newTokenAmount);
     }
 
-    /// @dev enable users to fund a bounty
+    /*
+     * Add a funding entry to the funding request;
+     *  transfer the amount of tokens to the smart contract
+     *
+     * Assert rules,
+     *   is funding request
+     *   is not funded
+     *   is open
+     */
     function fundBounty(uint256 id, uint256 fundingAmount) external {
-
         _isFundingRequest(id, true);
-        _isInDraft(id, true);
+        require(bounties[id].funded == false, "F0");
         _isNotCanceled(id);
 
         INetwork_v2.Bounty storage bounty = bounties[id];
@@ -398,9 +428,17 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyFunded(id, bounty.funded, msg.sender, int256(fundingAmount));
     }
 
-    /// @dev enable users to retract their funding
+    /*
+     * Retracts an array of funding ids
+     *
+     * Assert rules,
+     *  funding request is not funded
+     *  bounty is funding request
+     *  bounty is not canceled
+     *  Benefactor entry must match msg.sender
+     */
     function retractFunds(uint256 id, uint256[] calldata fundingIds) external {
-        _isInDraft(id, true);
+        require(bounties[id].funded == false, "F0");
         _isFundingRequest(id, true);
         _isNotCanceled(id);
 
@@ -419,7 +457,14 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyFunded(id, bounty.funded, msg.sender, int256(bounty.tokenAmount - bounty.fundingAmount));
     }
 
-    /// @dev create pull request for bounty id
+    /*
+     * Create a pull request entry associated with a bounty
+     *
+     * Assert rules,
+     *  bounty is not closed
+     *  bounty is not canceled
+     *  bounty is not in draft
+     */
     function createPullRequest(
         uint256 forBountyId,
         string memory originRepo,
@@ -452,6 +497,14 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyPullRequestCreated(forBountyId, pullRequest.id);
     }
 
+    /*
+     * Allows for a PR entry to be deleted by its creator
+     * Assert rules,
+     *   bounty is open, not closed and not in draft
+     *   PR entry must exist
+     *   PR creator must be sender
+     *   PR can't have been used in a proposal
+     */
     function cancelPullRequest(uint256 ofBounty, uint256 prId) public {
         _isOpen(ofBounty);
         _isInDraft(ofBounty, false);
@@ -470,7 +523,15 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyPullRequestCanceled(ofBounty, prId);
     }
 
-    /// @dev mark a PR ready for review
+    /*
+     * Mark a PR entry as being ready for review so proposals can be created from it
+     *
+     * Assert rules,
+     *   bounty is open, not closed and not in draft
+     *   PR can't have been previously marked as ready
+     *   PR creator must match sender
+     *   PR has to exist
+     */
     function markPullRequestReadyForReview(uint256 bountyId, uint256 pullRequestId) public {
         _isInDraft(bountyId, false);
         _isNotCanceled(bountyId);
@@ -485,7 +546,16 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyPullRequestReadyForReview(bountyId, pullRequestId);
     }
 
-    /// @dev create a proposal with a pull request for a bounty
+    /*
+     * Create a proposal entry by using a combination of a bounty id with a pr id that has been marked as ready
+     * and providing the distribution for this payment
+     *
+     * Assert rules,
+     *   bounty is open, not closed and not in draft
+     *   sender must be council member
+     *   pr id must exist and be ready
+     *   the total distribution matches 100 (100% percent)
+     */
     function createBountyProposal(
         uint256 id,
         uint256 prId,
@@ -524,7 +594,16 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyProposalCreated(id, prId, proposal.id);
     }
 
-    /// @dev dispute a proposal for a bounty
+    /*
+     * Dispute a proposal by using oracles (voting points), this can only be done once per proposal by each sender
+     *  !these can be reused and aren't locked until a proposal is accepted or disputed!
+     *
+     * Assert rules,
+     *   bounty is open, not closed and not in draft
+     *   proposal exists
+     *   sender hasn't disputed before
+     *   sender weight (total of oracles) must be higher than 0
+     */
     function disputeBountyProposal(uint256 bountyId, uint256 proposalId) external {
         _isInDraft(bountyId, false);
         _isOpen(bountyId);
@@ -547,6 +626,14 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyProposalDisputed(bountyId, proposal.prId, proposalId, proposal.disputeWeight, proposal.disputeWeight >= oraclesDistributed.mul(percentageNeededForDispute).div(10000));
     }
 
+    /*
+     * Allows bounty creators to refuse a proposal
+     *
+     * Assert rules,
+     *   bounty is open, not closed and not in draft
+     *   is bounty owner
+     *   proposal exists
+     */
     function refuseBountyProposal(uint256 bountyId, uint256 proposalId) external {
         _isInDraft(bountyId, false);
         _isNotCanceled(bountyId);
@@ -559,7 +646,15 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyProposalRefused(bountyId, bounties[bountyId].proposals[proposalId].prId, proposalId);
     }
 
-    /// @dev close bounty with the selected proposal id
+    /*
+     * Close and distribute a bounty entry, anyone can use this function and will be rewarded for it
+     *  ! if bounty is a funding request, and rewards exist, also distribute the rewards for benefactors
+     *  ! if a registry, or a nftToken, exists - award a bounty token for each participant
+     *
+     * Assert rules,
+     *   bounty is open, not closed and not in draft
+     *   proposal exists
+     */
     function closeBounty(uint256 id, uint256 proposalId, string memory ipfsUri) external {
         _isOpen(id);
         _isNotCanceled(id);

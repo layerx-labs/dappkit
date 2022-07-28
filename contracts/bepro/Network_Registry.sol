@@ -66,6 +66,9 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         return networksArray.length;
     }
 
+    /*
+     * Lock an amount into the smart contract to be used to register a network
+     */
     function lock(uint256 _amount) public {
         require(_amount > 0, "L0");
         require(erc20.transferFrom(msg.sender, address(this), _amount), "L1");
@@ -76,6 +79,9 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
     }
 
+    /*
+     * Unlock all tokens
+     */
     function unlock() public {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
 
@@ -84,7 +90,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
             require(network.totalNetworkToken() == 0, "UL1");
             require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
 
-            openNetworks[networkOfAddress[msg.sender]] = true;
+            openNetworks[networkOfAddress[msg.sender]] = false;
             networkOfAddress[msg.sender] = address(0);
 
             emit NetworkClosed(networkOfAddress[msg.sender]);
@@ -114,7 +120,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         require(address(network.registry()) == address(this), "R4");
 
         networksArray.push(network);
-        openNetworks[networksArray] = true;
+        openNetworks[networkAddress] = true;
         networkOfAddress[msg.sender] = networkAddress;
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
         emit NetworkCreated(networkAddress, msg.sender, networksArray.length - 1);
@@ -158,8 +164,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     function getAllowedTokens() public view returns (address[] memory transactional, address[] memory reward) {
         uint256 tLen = _transactionalTokens.length();
         uint256 rLen = _rewardTokens.length();
-        address[] memory transactional = new address[](tLen);
-        address[] memory reward = new address[](rLen);
+        transactional = new address[](tLen);
+        reward = new address[](rLen);
 
         for (uint256 z = 0; z < tLen; z++) {
             transactional[z] = _transactionalTokens.at(z);
@@ -168,8 +174,6 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         for (uint256 z = 0; z < rLen; z++) {
             reward[z] = _rewardTokens.at(z);
         }
-
-        return (transactional, reward);
     }
 
     function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) public {
