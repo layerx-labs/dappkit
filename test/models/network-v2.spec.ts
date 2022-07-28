@@ -356,7 +356,7 @@ describe(`NetworkV2`, () => {
     });
   });
 
-  describe.only(`With Registry`, () => {
+  describe(`With Registry`, () => {
     async function allowTokens() {
       await hasTxBlockNumber(network.registry.addAllowedTokens([networkToken.contractAddress!], false));
       await hasTxBlockNumber(network.registry.addAllowedTokens([networkToken.contractAddress!], true));
@@ -371,7 +371,7 @@ describe(`NetworkV2`, () => {
     });
 
 
-    describe.only(`Manage tokens as registry owner`, () => {
+    describe(`Manage tokens as registry owner`, () => {
         before(async () => {
           await allowTokens();
         });
