@@ -186,7 +186,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
             _lessThan20MoreThan1(_value);
             disputableTime = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.percentageNeededForDispute)) {
-            require(_value >= 0, "D1");
+            require(_value >= 0 && _value.div(PERCENT_DIVISOR) <= 10, "D1");
             percentageNeededForDispute = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.mergeCreatorFeeShare)) {
             require(_value >= 0 && _value.div(PERCENT_DIVISOR) <= 10, "M1");
