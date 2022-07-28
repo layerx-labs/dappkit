@@ -157,11 +157,11 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         }
     }
 
-    function removeAllowedTokens(uint256[] calldata _ids, bool transactional) external {
+    function removeAllowedTokens(address[] calldata _erc20, bool transactional) external {
         EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _ids.length;
         for (uint256 z = 0; z < len; z++) {
-            require(pointer.remove(pointer.at(_ids[z])) == true, "RT1");
+            require(pointer.remove(_ids[z]) == true, "RT1");
         }
     }
 
