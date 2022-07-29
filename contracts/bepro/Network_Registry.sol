@@ -16,6 +16,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    uint256 constant MAX_PERCENT = 1000000;
+
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
     BountyToken public bountyToken;
@@ -110,7 +112,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
      */
     function registerNetwork(address networkAddress) public {
         INetwork_v2 network = INetwork_v2(networkAddress);
-        uint256 fee = lockAmountForNetworkCreation.div(100).mul(lockFeePercentage.div(10000));
+        uint256 fee = (lockAmountForNetworkCreation.mul(lockFeePercentage)).div(MAX_PERCENT);
 
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
@@ -145,8 +147,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
      * 1% = 10,000
      */
     function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) public onlyGovernor {
-        require(_cancelFee >= 0 && _cancelFee <= 1000000, "CGF1");
-        require(_closeFee >= 0 && _closeFee <= 1000000, "CGF1");
+        require(_cancelFee >= 0 && _cancelFee <= MAX_PERCENT, "CGF1");
+        require(_closeFee >= 0 && _closeFee <= MAX_PERCENT, "CGF1");
         closeFeePercentage = _closeFee;
         cancelFeePercentage = _cancelFee;
         emit ChangedFee(closeFeePercentage, cancelFeePercentage);

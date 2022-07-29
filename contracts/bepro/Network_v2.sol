@@ -23,6 +23,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     uint256 public totalNetworkToken = 0; // TVL essentially
 
     uint256 constant PERCENT_DIVISOR = 10000;
+    uint256 constant MAX_PERCENT = 1000000;
 
     uint256 public oracleExchangeRate = 10000; // 10,000 = 1:1 ; parts per 10K
     uint256 public oraclesDistributed = 0; // essentially, the converted math of TVL
@@ -139,7 +140,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         uint256 returnAmount = bounty.tokenAmount;
         if (address(registry) != address(0)) {
             if (registry.treasury() != address(0)) {
-                uint256 treasuryFee = _mulDiv(bounty.tokenAmount.div(100), registry.cancelFeePercentage());
+                uint256 treasuryFee = _toPercent(bounty.tokenAmount, registry.cancelFeePercentage());
                 returnAmount = returnAmount.sub(treasuryFee);
                 require(erc20.transfer(registry.treasury(), treasuryFee), "C3");
             }
@@ -152,8 +153,8 @@ contract Network_v2 is Governed, ReentrancyGuard {
         emit BountyCanceled(id);
     }
 
-    function _mulDiv(uint256 a, uint256 b) internal returns (uint256) {
-        return a.mul(b.div(PERCENT_DIVISOR));
+    function _toPercent(uint256 a, uint256 b) internal returns (uint256) {
+        return (a.mul(b)).div(MAX_PERCENT);
     }
 
     function getBounty(uint256 id) external view returns (INetwork_v2.Bounty memory) {
@@ -209,7 +210,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     function manageOracles(bool lock, uint256 amount) external {
         uint256 exchanged = 0;
         if (lock) {
-            exchanged = _mulDiv(amount, oracleExchangeRate);
+            exchanged = _toPercent(amount, oracleExchangeRate);
             oracles[msg.sender].locked = oracles[msg.sender].locked.add(exchanged);
             require(networkToken.transferFrom(msg.sender, address(this), amount), "MO0");
             totalNetworkToken = totalNetworkToken.add(amount);
@@ -338,7 +339,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         if (bounties[id].proposals.length > 0) {
             for (uint256 i = 0; i <= bounties[id].proposals.length - 1; i++) {
                 INetwork_v2.Proposal memory proposal = bounties[id].proposals[i];
-                require((proposal.disputeWeight >= _mulDiv(oraclesDistributed, percentageNeededForDispute)) || proposal.refusedByBountyOwner == true, "HC4");
+                require((proposal.disputeWeight >= _toPercent(oraclesDistributed, percentageNeededForDispute)) || proposal.refusedByBountyOwner == true, "HC4");
             }
         }
 
@@ -638,7 +639,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
         proposal.disputeWeight = proposal.disputeWeight.add(weight);
         disputes[msg.sender][b32] = weight;
 
-        emit BountyProposalDisputed(bountyId, proposal.prId, proposalId, proposal.disputeWeight, proposal.disputeWeight >= _mulDiv(oraclesDistributed, percentageNeededForDispute));
+        emit BountyProposalDisputed(bountyId, proposal.prId, proposalId, proposal.disputeWeight, proposal.disputeWeight >= _toPercent(oraclesDistributed, percentageNeededForDispute));
     }
 
     /*
@@ -681,21 +682,21 @@ contract Network_v2 is Governed, ReentrancyGuard {
         INetwork_v2.Proposal storage proposal = bounty.proposals[proposalId];
 
         require(block.timestamp >= bounty.proposals[proposalId].creationDate.add(disputableTime), "CB2");
-        require(proposal.disputeWeight < _mulDiv(oraclesDistributed, percentageNeededForDispute), "CB3");
+        require(proposal.disputeWeight < _toPercent(oraclesDistributed, percentageNeededForDispute), "CB3");
         require(proposal.refusedByBountyOwner == false, "CB7");
 
         uint256 returnAmount = bounty.tokenAmount;
 
         if (address(registry) != address(0)) {
             if (registry.treasury() != address(0)) {
-                uint256 treasuryAmount = _mulDiv(bounty.tokenAmount.div(100), registry.closeFeePercentage());
+                uint256 treasuryAmount = _toPercent(bounty.tokenAmount, registry.closeFeePercentage());
                 returnAmount = returnAmount.sub(treasuryAmount);
                 require(erc20.transfer(registry.treasury(), treasuryAmount), "C3");
             }
         }
 
-        uint256 mergerFee = _mulDiv(returnAmount.div(100), mergeCreatorFeeShare);
-        uint256 proposerFee = _mulDiv(returnAmount.sub(mergerFee).div(100), proposerFeeShare);
+        uint256 mergerFee = _toPercent(returnAmount, mergeCreatorFeeShare);
+        uint256 proposerFee = _toPercent(returnAmount.sub(mergerFee), proposerFeeShare);
         uint256 proposalAmount = returnAmount.sub(mergerFee).sub(proposerFee);
 
         require(erc20.transfer(msg.sender, mergerFee), "CB4");
