@@ -18,6 +18,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     uint256 constant MAX_PERCENT = 100000000;
     uint256 public DIVISOR = 1000000; // used so client can understand and send correct conversions
+    uint256 public MAX_LOCK_PERCENTAGE_FEE = 10000000; // used so client can understand and send correct conversions
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
@@ -31,7 +32,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     uint256 public lockAmountForNetworkCreation = 1000000 * 10 ** 18; // 1M
     uint256 public totalLockedAmount = 0;
     uint256 public lockFeePercentage = 1000000; // 1%
-    uint256 public closeFeePercentage = 5000000; // 3%
+    uint256 public closeFeePercentage = 5000000; // 5%
     uint256 public cancelFeePercentage = 5000000; // 5%
 
     mapping(address => uint256) public lockedTokensOfAddress;
@@ -139,7 +140,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     }
 
     function changeLockPercentageFee(uint256 newAmount) public onlyGovernor {
-        require(newAmount.div(10000) <= 10, "CLF1");
+        require(newAmount >= 0 && newAmount <= MAX_LOCK_PERCENTAGE_FEE, "CLF1");
         lockFeePercentage = newAmount;
     }
 
