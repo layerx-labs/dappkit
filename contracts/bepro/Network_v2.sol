@@ -15,7 +15,6 @@ contract Network_v2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
     uint256 constant MAX_PERCENT = 100000000;
-    uint256 constant DIVISOR = 1000000;
 
     uint256 constant MAX_MERGE_CREATOR_FEE_SHARE = 10000000;
     uint256 constant MAX_PROPOSER_FEE_SHARE = 10000000;
@@ -31,6 +30,8 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     uint256 constant MAX_COUNCIL_AMOUNT = 50000000;
     uint256 constant MIN_COUNCIL_AMOUNT = 1;
+
+    uint256 public DIVISOR = 1000000; // public because userland uses this to convert values to send
 
     ERC20 public networkToken;
     BountyToken public nftToken;
@@ -224,7 +225,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
     function manageOracles(bool lock, uint256 amount) external {
         uint256 exchanged = 0;
         if (lock) {
-            exchanged = _toPercent(amount, oracleExchangeRate);
+            exchanged = amount.mul(oracleExchangeRate.div(DIVISOR));
             oracles[msg.sender].locked = oracles[msg.sender].locked.add(exchanged);
             require(networkToken.transferFrom(msg.sender, address(this), amount), "MO0");
             totalNetworkToken = totalNetworkToken.add(amount);

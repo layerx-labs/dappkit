@@ -47,4 +47,7 @@ export interface Network_RegistryMethods {
   getAllowedTokens(): ContractCallMethod<{ transactional: string[], reward: string[] }>;
   allowedTokens(x: number, y: number): ContractCallMethod<string>;
 
+  DIVISOR(): ContractCallMethod<number>;
+  MAX_PERCENTAGE(): ContractCallMethod<number>;
+
 }

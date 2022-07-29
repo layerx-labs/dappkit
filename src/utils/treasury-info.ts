@@ -1,6 +1,4 @@
-import { TenK } from "./constants";
-
-export interface TreasuryInfoParams { 
+export interface TreasuryInfoParams {
   "0": string; 
   "1": number; 
   "2": number; 
@@ -10,10 +8,10 @@ export function treasuryInfo({
   "0": treasury,
   "1": closeFee,
   "2": cancelFee
-}: TreasuryInfoParams) {
+}: TreasuryInfoParams, divisor = 1) {
   return {
     treasury,
-    closeFee: +closeFee / TenK,
-    cancelFee: +cancelFee / TenK,
+    closeFee: +closeFee / divisor,
+    cancelFee: +cancelFee / divisor,
   };
 }

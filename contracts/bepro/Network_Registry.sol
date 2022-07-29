@@ -17,7 +17,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     uint256 constant MAX_PERCENT = 100000000;
-    uint256 constant DIVISOR = 1000000; // used so client can understand and send correct conversions
+    uint256 public DIVISOR = 1000000; // used so client can understand and send correct conversions
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;

@@ -12,7 +12,7 @@ import {BountyToken} from '@models/bounty-token';
 import {ERC20} from '@models/erc20';
 import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
-import {nativeZeroAddress, TenK, Thousand} from '@utils/constants';
+import {nativeZeroAddress, Thousand} from '@utils/constants';
 import { OraclesResume } from '@interfaces/oracles-resume';
 import { Delegation } from '@interfaces/delegation';
 import { oraclesResume } from '@utils/oracles-resume';
@@ -31,6 +31,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   private _networkToken!: ERC20;
   private _governed!: Governed;
   private _registry!: NetworkRegistry;
+  private _DIVISOR!: number;
 
   public Params = {
     councilAmount: 0,
@@ -59,6 +60,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   get registry() { return this._registry }
 
+  get divisor() { return this._DIVISOR; }
+
   async start() {
     await super.start();
     await this.loadContract();
@@ -86,6 +89,9 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
       this._registry = new NetworkRegistry(this.connection, registryAddress);
       await this._registry.loadContract();
     }
+
+    this._DIVISOR = await this.getDivisor();
+
   }
 
   async deployJsonAbi(_oracleTokenAddress: string,
@@ -99,8 +105,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.deploy(deployOptions, this.connection.Account);
   }
 
-  async bountyNftUri() {
-    return this.callTx(this.contract.methods.bountyNftUri());
+  async getDivisor() {
+    return this.callTx(this.contract.methods.DIVISOR());
   }
 
   async canceledBounties() {
@@ -112,7 +118,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async treasuryInfo() {
-    return treasuryInfo(await this.callTx(this.contract.methods.treasuryInfo()));
+    return treasuryInfo(await this.callTx(this.contract.methods.treasuryInfo()), this.divisor);
   }
 
   /**
@@ -128,7 +134,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async oracleExchangeRate() {
-    return (await this.callTx(this.contract.methods.oracleExchangeRate())) / TenK;
+    return (await this.callTx(this.contract.methods.oracleExchangeRate())) / this.divisor;
   }
 
   /**
@@ -157,11 +163,11 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async mergeCreatorFeeShare() {
-    return (await this.callTx(this.contract.methods.mergeCreatorFeeShare())) / TenK;
+    return (await this.callTx(this.contract.methods.mergeCreatorFeeShare())) / this.divisor;
   }
 
   async proposerFeeShare() {
-    return (await this.callTx(this.contract.methods.proposerFeeShare())) / TenK;
+    return (await this.callTx(this.contract.methods.proposerFeeShare())) / this.divisor;
   }
 
   async oraclesDistributed() {
@@ -170,7 +176,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async percentageNeededForDispute() {
-    return (await this.callTx(this.contract.methods.percentageNeededForDispute())) / TenK;
+    return (await this.callTx(this.contract.methods.percentageNeededForDispute())) / this.divisor;
   }
 
   async networkTokenAddress() {
@@ -247,7 +253,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changePercentageNeededForDispute(percentageNeededForDispute: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.percentageNeededForDispute, 
-                                                                    percentageNeededForDispute * TenK));
+                                                                    percentageNeededForDispute * this.divisor));
   }
 
   /**
@@ -255,7 +261,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeMergeCreatorFeeShare(mergeCreatorFeeShare: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.mergeCreatorFeeShare, 
-                                                                    mergeCreatorFeeShare * TenK));
+                                                                    mergeCreatorFeeShare * this.divisor));
   }
 
   /**
@@ -263,7 +269,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeOracleExchangeRate(oracleExchangeRate: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.oracleExchangeRate, 
-                                                                    oracleExchangeRate * TenK));
+                                                                    oracleExchangeRate * this.divisor));
   }
 
   /**

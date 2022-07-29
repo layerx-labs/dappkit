@@ -6,7 +6,8 @@ export interface Network_v2Methods {
   _proposedGovernor(): ContractCallMethod<string>;
   bountiesIndex(): ContractCallMethod<number>;
   treasuryInfo(): ContractCallMethod<{'0': string, '1': number, '2': number}>;
-  bountyNftUri(): ContractCallMethod<string>;
+  DIVISOR(): ContractCallMethod<number>;
+  MAX_PERCENTAGE(): ContractCallMethod<number>;
   canceledBounties(): ContractCallMethod<number>;
   cidBountyId(v1: string): ContractCallMethod<number>;
   claimGovernor(): ContractSendMethod;
