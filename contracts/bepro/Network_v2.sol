@@ -22,18 +22,18 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     uint256 public totalNetworkToken = 0; // TVL essentially
 
-    uint256 constant PERCENT_DIVISOR = 10000;
-    uint256 constant MAX_PERCENT = 1000000;
+    uint256 constant MAX_PERCENT = 100000000;
+    uint256 constant DIVISOR = 1000000;
 
-    uint256 public oracleExchangeRate = 10000; // 10,000 = 1:1 ; parts per 10K
+    uint256 public oracleExchangeRate = 1000000; // 1:1
     uint256 public oraclesDistributed = 0; // essentially, the converted math of TVL
 
     uint256 public closedBounties = 0;
     uint256 public canceledBounties = 0;
 
-    uint256 public mergeCreatorFeeShare = 30000; // 3%; parts per 10,000
-    uint256 public proposerFeeShare = 30000; // 3%; parts per 10,000
-    uint256 public percentageNeededForDispute = 30000; // 3% parts per 10,000
+    uint256 public mergeCreatorFeeShare = 500000; // 0.5%
+    uint256 public proposerFeeShare = 2000000; // 2%
+    uint256 public percentageNeededForDispute = 3000000; // 3%
 
     uint256 public disputableTime = 3 days;
     uint256 public draftTime = 1 days;
@@ -187,10 +187,10 @@ contract Network_v2 is Governed, ReentrancyGuard {
             _lessThan20MoreThan1(_value);
             disputableTime = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.percentageNeededForDispute)) {
-            require(_value >= 0 && _value.div(PERCENT_DIVISOR) <= 10, "D1");
+            require(_value >= 0 && _value.div(DIVISOR) <= 10, "D1");
             percentageNeededForDispute = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.mergeCreatorFeeShare)) {
-            require(_value >= 0 && _value.div(PERCENT_DIVISOR) <= 10, "M1");
+            require(_value >= 0 && _value.div(DIVISOR) <= 10, "M1");
             mergeCreatorFeeShare = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.oracleExchangeRate)) {
             require(_value >= 0, "EX0");
@@ -216,7 +216,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
             totalNetworkToken = totalNetworkToken.add(amount);
             oraclesDistributed = oraclesDistributed.add(exchanged);
         } else {
-            exchanged = amount.div(oracleExchangeRate.div(PERCENT_DIVISOR)); // We are unlocking POINTS not tokens
+            exchanged = amount.div(oracleExchangeRate.div(DIVISOR)); // We are unlocking POINTS not tokens
             require(amount <= oracles[msg.sender].locked, "MO1");
             require(networkToken.transfer(msg.sender, exchanged), "MO2");
             oracles[msg.sender].locked = oracles[msg.sender].locked.sub(amount);

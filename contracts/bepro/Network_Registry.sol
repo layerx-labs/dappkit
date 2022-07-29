@@ -16,7 +16,8 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 constant MAX_PERCENT = 1000000;
+    uint256 constant MAX_PERCENT = 100000000;
+    uint256 constant DIVISOR = 1000000;
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
@@ -29,9 +30,9 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     uint256 public lockAmountForNetworkCreation = 1000000 * 10 ** 18; // 1M
     uint256 public totalLockedAmount = 0;
-    uint256 public lockFeePercentage = 10000; // 1%; parts per 10,000
-    uint256 public closeFeePercentage = 0;
-    uint256 public cancelFeePercentage = 0;
+    uint256 public lockFeePercentage = 1000000; // 1%
+    uint256 public closeFeePercentage = 5000000; // 3%
+    uint256 public cancelFeePercentage = 5000000; // 5%
 
     mapping(address => uint256) public lockedTokensOfAddress;
     mapping(address => address) public networkOfAddress;
