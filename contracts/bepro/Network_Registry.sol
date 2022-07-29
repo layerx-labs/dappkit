@@ -18,7 +18,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
 
     uint256 constant MAX_PERCENT = 100000000;
     uint256 public DIVISOR = 1000000; // used so client can understand and send correct conversions
-    uint256 public MAX_LOCK_PERCENTAGE_FEE = 5100000000; // used so client can understand and send correct conversions
+    uint256 public MAX_LOCK_PERCENTAGE_FEE = 10000000; // used so client can understand and send correct conversions
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;

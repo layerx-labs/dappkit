@@ -18,7 +18,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     uint256 constant MAX_MERGE_CREATOR_FEE_SHARE = 10000000;
     uint256 constant MAX_PROPOSER_FEE_SHARE = 10000000;
-    uint256 constant MAX_PERCENTAGE_NEEDED_FOR_DISPUTE = 10000000;
+    uint256 constant MAX_PERCENTAGE_NEEDED_FOR_DISPUTE = 51000000;
 
     uint256 constant MAX_DISPUTABLE_TIME = 20 days;
     uint256 constant MIN_DISPUTABLE_TIME = 1 minutes;
