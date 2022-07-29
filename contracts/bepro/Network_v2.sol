@@ -200,13 +200,13 @@ contract Network_v2 is Governed, ReentrancyGuard {
             require(_value >= MIN_DISPUTABLE_TIME && _value <= MAX_DISPUTABLE_TIME, "C4");
             disputableTime = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.percentageNeededForDispute)) {
-            require(_value >= 0 && _value.div(DIVISOR) <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "C5");
+            require(_value >= 0 && _value <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "C5");
             percentageNeededForDispute = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.mergeCreatorFeeShare)) {
-            require(_value >= 0 && _value.div(DIVISOR) <= MAX_MERGE_CREATOR_FEE_SHARE, "C6");
+            require(_value >= 0 && _value <= MAX_MERGE_CREATOR_FEE_SHARE, "C6");
             mergeCreatorFeeShare = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.proposerFeeShare)) {
-            require(_value >= 0 && _value.div(DIVISOR) <= MAX_PROPOSER_FEE_SHARE);
+            require(_value >= 0 && _value <= MAX_PROPOSER_FEE_SHARE);
             proposerFeeShare = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.oracleExchangeRate)) {
             require(_value >= 0, "EX0");
