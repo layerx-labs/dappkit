@@ -96,7 +96,8 @@ interface INetwork_v2 {
         mergeCreatorFeeShare,
         percentageNeededForDispute,
         cancelFee,
-        cancelableTime
+        cancelableTime,
+        proposerFeeShare
     }
 
     function networkToken() external view returns (ERC20);

@@ -14,16 +14,29 @@ import "./Network_Registry.sol";
 contract Network_v2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
+    uint256 constant MAX_PERCENT = 100000000;
+    uint256 constant DIVISOR = 1000000;
+
+    uint256 constant MAX_MERGE_CREATOR_FEE_SHARE = 10000000;
+    uint256 constant MAX_PROPOSER_FEE_SHARE = 10000000;
+    uint256 constant MAX_PERCENTAGE_NEEDED_FOR_DISPUTE = 10000000;
+
+    uint256 constant MAX_DISPUTABLE_TIME = 20 days;
+    uint256 constant MIN_DISPUTABLE_TIME = 1 minutes;
+
+    uint256 constant MAX_DRAFT_TIME = 20 days;
+    uint256 constant MIN_DRAFT_TIME = 1 minutes;
+
+    uint256 constant MIN_CANCELABLE_TIME = 180 days;
+
+    uint256 constant MAX_COUNCIL_AMOUNT = 50000000;
+    uint256 constant MIN_COUNCIL_AMOUNT = 1;
+
     ERC20 public networkToken;
     BountyToken public nftToken;
     Network_Registry public registry;
 
-    string public bountyNftUri = "";
-
     uint256 public totalNetworkToken = 0; // TVL essentially
-
-    uint256 constant MAX_PERCENT = 100000000;
-    uint256 constant DIVISOR = 1000000;
 
     uint256 public oracleExchangeRate = 1000000; // 1:1
     uint256 public oraclesDistributed = 0; // essentially, the converted math of TVL
@@ -177,29 +190,30 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
     function changeNetworkParameter(uint256 _parameter, uint256 _value) public onlyGovernor {
         if (_parameter == uint256(INetwork_v2.Params.councilAmount)) {
-            require(_value >= 1 * 10 ** networkToken.decimals(), "C1");
-            require(_value <= 50000000 * 10 ** networkToken.decimals(), "C2");
+            require(_value >= MIN_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "C1");
+            require(_value <= MAX_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "C2");
             councilAmount = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.draftTime)) {
-            _lessThan20MoreThan1(_value);
+            require(_value >= MIN_DRAFT_TIME && _value <= MAX_DRAFT_TIME, "C3");
             draftTime = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.disputableTime)) {
-            _lessThan20MoreThan1(_value);
+            require(_value >= MIN_DISPUTABLE_TIME && _value <= MAX_DISPUTABLE_TIME, "C4");
             disputableTime = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.percentageNeededForDispute)) {
-            require(_value >= 0 && _value.div(DIVISOR) <= 10, "D1");
+            require(_value >= 0 && _value.div(DIVISOR) <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "C5");
             percentageNeededForDispute = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.mergeCreatorFeeShare)) {
-            require(_value >= 0 && _value.div(DIVISOR) <= 10, "M1");
+            require(_value >= 0 && _value.div(DIVISOR) <= MAX_MERGE_CREATOR_FEE_SHARE, "C6");
             mergeCreatorFeeShare = _value;
+        } else if (_parameter == uint256(INetwork_v2.Params.proposerFeeShare)) {
+            require(_value >= 0 && _value.div(DIVISOR) <= MAX_PROPOSER_FEE_SHARE);
+            proposerFeeShare = _value;
         } else if (_parameter == uint256(INetwork_v2.Params.oracleExchangeRate)) {
             require(_value >= 0, "EX0");
             require(totalNetworkToken == 0, "EX1");
             oracleExchangeRate = _value;
-        }
-
-        else if (_parameter == uint256(INetwork_v2.Params.cancelableTime)) {
-            require(_value >= 180 days, "C3");
+        } else if (_parameter == uint256(INetwork_v2.Params.cancelableTime)) {
+            require(_value >= MIN_CANCELABLE_TIME, "C3");
             cancelableTime = _value;
         }
     }
