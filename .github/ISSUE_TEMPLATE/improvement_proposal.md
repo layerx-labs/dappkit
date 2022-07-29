@@ -11,9 +11,6 @@ labels: ip, needs-triage
 <!-- Improvement description -->
 
 ### Proposed solution
-<!--  
-one of the following,
-- link to a PR or piece of code
-- description of how this improvement could be done
-
--->
+<!-- one of the following,
+        - link to a PR or piece of code
+        - description of how this improvement could be done -->

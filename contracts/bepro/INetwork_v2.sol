@@ -2,8 +2,16 @@ pragma abicoder v2;
 
 import "./BountyToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./Network_Registry.sol";
 
 interface INetwork_v2 {
+
+    struct BountyConnector {
+        address originNetwork;
+        uint256 bountyId;
+        uint percentage; // 0 - 100
+        string kind; // proposer, dev, closer, [reviewer?]
+    }
 
     struct PullRequest {
         string originRepo;
@@ -88,23 +96,63 @@ interface INetwork_v2 {
         mergeCreatorFeeShare,
         percentageNeededForDispute,
         cancelFee,
-        cancelableTime
+        cancelableTime,
+        proposerFeeShare
     }
 
-    function totalSettlerLocked() external view returns (uint256);
+    function networkToken() external view returns (ERC20);
+    function nftToken() external view returns (BountyToken);
+    function registry() external view returns (Network_Registry);
+
+    function bountyNftUri() external view returns (string memory);
+
+    function totalNetworkToken() external view returns (uint256);
+
+    function oracleExchangeRate() external view returns (uint256);
+    function oraclesDistributed() external view returns (uint256);
 
     function closedBounties() external view returns (uint256);
     function canceledBounties() external view returns (uint256);
+
+    function mergeCreatorFeeShare() external view returns (uint256);
+    function proposerFeeShare() external view returns (uint256);
+    function percentageNeededForDispute() external view returns (uint256);
+
+    function disputableTime() external view returns (uint256);
+    function draftTime() external view returns (uint256);
+    function cancelableTime() external view returns (uint256);
+
+    function councilAmount() external view returns (uint256);
+
     function _governor() external view returns (address);
     function bountiesIndex() external view returns (uint256);
+
+    function bounties(uint256 id) external view returns (Bounty memory);
+    function bountiesOfAddress(address owner) external view returns (uint256[] memory);
+    function cidBountyId(uint256 cid) external view returns (uint256);
+    function oracles(address _address) external view returns (Oracle memory);
+    function delegations(address _address) external view returns (Delegation[] memory);
+    function disputes(address _address, bytes32 _bytes) external view returns (uint256);
+
+    event BountyCreated(uint256 id, string cid, address indexed creator);
+    event BountyCanceled(uint256 indexed id);
+    event BountyFunded(uint256 indexed id, bool indexed funded, address benefactor, int256 amount);
+    event BountyClosed(uint256 indexed id, uint256 proposalId);
+    event BountyPullRequestCreated(uint256 indexed bountyId, uint256 pullRequestId);
+    event BountyPullRequestReadyForReview(uint256 indexed bountyId, uint256 pullRequestId);
+    event BountyPullRequestCanceled(uint256 indexed bountyId, uint256 pullRequestId);
+    event BountyProposalCreated(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
+    event BountyProposalDisputed(uint256 indexed bountyId, uint256 prId, uint256 proposalId, uint256 weight, bool overflow);
+    event BountyProposalRefused(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
+    event BountyAmountUpdated(uint256 indexed id, uint256 amount);
+    event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
 
     function getBounty(uint256 id) external view returns (Bounty memory);
     function getDelegationsFor(address _address) external view returns (Delegation[] memory);
     function getBountiesOfAddress(address owner) external view returns (uint256[] memory);
     function treasuryInfo() external view returns(address, uint256, uint256);
-
     function changeNetworkParameter(uint256 _parameter, uint256 _value) external;
-    function updateTresuryAddress(address _address) external;
+
     function manageOracles(bool lock, uint256 amount) external;
     function delegateOracles(uint256 amount, address toAddress) external;
     function takeBackOracles(uint256 entryId) external;
@@ -122,6 +170,7 @@ interface INetwork_v2 {
         string memory githubUser
     ) external;
 
+    function hardCancel(uint256 id) external;
     function cancelBounty(uint256 id) external;
     function cancelFundRequest(uint256 id) external;
     function updateBountyAmount(uint256 id, uint256 newTokenAmount) external;

@@ -11,6 +11,7 @@ export interface Network_RegistryMethods {
   claimGovernor(): ContractSendMethod;
 
   erc20(): ContractCallMethod<string>;
+  bountyToken(): ContractCallMethod<string>;
 
   lockAmountForNetworkCreation(): ContractCallMethod<number>;
 
@@ -28,7 +29,7 @@ export interface Network_RegistryMethods {
 
   treasury(): ContractCallMethod<string>;
 
-  changeLockPercentageFee(): ContractSendMethod;
+  changeLockPercentageFee(newAmount: number): ContractSendMethod;
 
   amountOfNetworks(): ContractCallMethod<number>;
 
@@ -39,5 +40,14 @@ export interface Network_RegistryMethods {
   registerNetwork(networkAddress: string): ContractSendMethod;
 
   changeAmountForNetworkCreation(newAmount: number): ContractSendMethod;
+  changeGlobalFees(closeFee: number, cancelFee: number): ContractSendMethod;
+  addAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;
+  removeAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;
+
+  getAllowedTokens(): ContractCallMethod<{ transactional: string[], reward: string[] }>;
+  allowedTokens(x: number, y: number): ContractCallMethod<string>;
+
+  DIVISOR(): ContractCallMethod<number>;
+  MAX_PERCENTAGE(): ContractCallMethod<number>;
 
 }

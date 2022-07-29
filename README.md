@@ -1,10 +1,8 @@
-# dappkit - SDK for Web3.0
+# dappkit
+A javascript SDK for web3 projects with curated community contracts to ease development and interactions with blockchain contracts. 
 
-dappkit is a curated framework so that you can automate creation and unit testing, javascript wrappers, and extended integration just by writing solidity - a tool built with [Truffle](https://trufflesuite.com/docs/truffle/) (integrates compiling in solc together in your Smart Contracts) & [Open Zeppelin](https://openzeppelin.com/) (provides trustable, audited & tested Smart Contracts) already integrated, solving a very simple problem: velocity in solidity development.
-
-![Build Status](https://github.com/taikai/dappkit/actions/workflows/build.yml/badge.svg)
-![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)
-[![GitHub issues](https://img.shields.io/github/issues/taikai/dappkit.svg)](https://GitHub.com/taikai/dappkit/issues/)
+![Build Status](https://img.shields.io/github/workflow/status/taikai/dappkit/integration-tests)
+[![GitHub issues](https://img.shields.io/github/issues/taikai/dappkit)](https://GitHub.com/taikai/dappkit/issues/)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 [![License](https://img.shields.io/badge/license-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
@@ -18,15 +16,14 @@ $ npm install @taikai/dappkit
 ## Usage
 
 ```ts
-import {Web3Connection, Web3ConnectionOptions, ERC20} from '@taikai/dappkit';
+import {Web3Connection, ERC20} from '@taikai/dappkit';
 
-const options: Web3ConnectionOptions = { web3Host: process.env.WEB3_HOST_PROVIDER };
-const web3Connection = new Web3Connection(options);
+const connection = new Web3Connection({ web3Host: process.env.WEB3_HOST_PROVIDER });
 
-await web3Connection.start(); // start web3 connection so assignments are made
-await web3Connection.connect(); // connect web3 by asking the user to allow the connection (this is needed for the user to _interact_ with the chain)
+await connection.start(); // start web3 connection so assignments are made
+await connection.connect(); // connect web3 by asking the user to allow the connection (this is needed for the user to _interact_ with the chain)
 
-const erc20Deployer = new ERC20(web3Connection);
+const erc20Deployer = new ERC20(connection);
 await erc20Deployer.loadAbi(); // load abi contract is only needed for deploy actions
 
 const tx =
@@ -39,10 +36,9 @@ const tx =
 
 console.log(tx); // { ... , contractAddress: string} 
 
-const myToken = new ERC20(web3Connection, tx.contractAddress);
+const myToken = new ERC20(connection, tx.contractAddress);
 
 await myToken.start() // load contract and connection into the class representing your token
-
 await myToken.transferTokenAmount('0xYourOtherAddress', 1); // transfer 1 token from your address to other address
 
 ```

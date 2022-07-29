@@ -6,7 +6,8 @@ export interface Network_v2Methods {
   _proposedGovernor(): ContractCallMethod<string>;
   bountiesIndex(): ContractCallMethod<number>;
   treasuryInfo(): ContractCallMethod<{'0': string, '1': number, '2': number}>;
-  bountyNftUri(): ContractCallMethod<string>;
+  DIVISOR(): ContractCallMethod<number>;
+  MAX_PERCENTAGE(): ContractCallMethod<number>;
   canceledBounties(): ContractCallMethod<number>;
   cidBountyId(v1: string): ContractCallMethod<number>;
   claimGovernor(): ContractSendMethod;
@@ -22,8 +23,8 @@ export interface Network_v2Methods {
   percentageNeededForDispute(): ContractCallMethod<number>;
   proposeGovernor(proposedGovernor: string): ContractSendMethod;
   proposerFeeShare(): ContractCallMethod<number>;
-  settlerToken(): ContractCallMethod<string>;
-  totalSettlerLocked(): ContractCallMethod<number>;
+  networkToken(): ContractCallMethod<string>;
+  totalNetworkToken(): ContractCallMethod<number>;
   getBounty(id: number): ContractCallMethod<{id: number; creationDate: number; tokenAmount: number; creator: string; transactional: string; rewardToken: string; rewardAmount: number; fundingAmount: number; closed: boolean; canceled: boolean; funded: boolean; title: string; repoPath: string; branch: string; cid: string; githubUser: string; closedDate: number; pullRequests: { originRepo: string; originCID: string; originBranch: string; userRepo: string; userBranch: string; ready: boolean; canceled: boolean; creator: string; cid: number; id: number; }[]; proposals: { id: number; creationDate: number; oracles: number; disputeWeight: number; prId: number; refusedByBountyOwner: boolean; creator: string; details: { recipient: string; percentage: number; }[] }[]; funding: { benefactor: string;amount: number;creationDate: number; }[];}>;
   disputes(address: string, bountyAndProposalIds: string): ContractCallMethod<number>;
   disputes(address: string, bountyId: string | number, proposalId: string | number): ContractCallMethod<number>;
@@ -46,7 +47,8 @@ export interface Network_v2Methods {
   createBountyProposal(id: number, prId: number, recipients: string[], percentages: number[]): ContractSendMethod;
   disputeBountyProposal(bountyId: number, proposalId: number): ContractSendMethod;
   refuseBountyProposal(bountyId: number, proposalId: number): ContractSendMethod;
-  closeBounty(id: number, proposalId: number): ContractSendMethod;
+  closeBounty(id: number, proposalId: number, ipfsUri: string): ContractSendMethod;
   hardCancel(id: number): ContractSendMethod;
   cancelableTime(): ContractCallMethod<number>;
+  registry(): ContractCallMethod<string>;
 }

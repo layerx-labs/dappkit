@@ -3,35 +3,36 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../utils/Governed.sol";
+import "./INetwork_v2.sol";
 
 contract BountyToken is ERC721, Governed {
 
-    struct BountyConnector {
-        uint256 bountyId;
-        uint percentage; // 0 - 100
-        // todo add if proposer, dev, or closer
-    }
-
     address public dispatcher = address(0);
 
-    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {}
+    constructor(string memory name_, string memory symbol_, address _dispatcher) ERC721(name_, symbol_) Governed() {
+        dispatcher = _dispatcher;
+    }
 
-    BountyConnector[] tokenIds;
+    INetwork_v2.BountyConnector[] tokenIds;
 
-    function awardBounty(address to, string memory uri, uint256 bountyId, uint percentage) public payable {
+    function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) external {
         require(msg.sender == dispatcher, "AB0");
         uint256 id = tokenIds.length;
         _safeMint(to, id);
         _setTokenURI(id, uri);
-        tokenIds.push(BountyConnector(bountyId, percentage));
+        tokenIds.push(award);
     }
 
-    function getBountyToken(uint256 id) public view returns (BountyConnector memory bountyConnector) {
+    function getBountyToken(uint256 id) public view returns (INetwork_v2.BountyConnector memory bountyConnector) {
         require(tokenIds.length <= id, "B0");
         return tokenIds[id];
     }
 
-    function setDispatcher(address dispatcher_) public payable onlyGovernor {
+    function getNextId() public view returns (uint256) {
+        return tokenIds.length;
+    }
+
+    function setDispatcher(address dispatcher_) public  onlyGovernor {
         require(dispatcher_ != dispatcher, "SD0");
         dispatcher = dispatcher_;
     }

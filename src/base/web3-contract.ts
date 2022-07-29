@@ -64,7 +64,7 @@ export class Web3Contract<Methods = any, Events = any> {
   /* eslint-disable complexity */
   async txOptions(method: ContractSendMethod, value?: string, from?: string) {
     let {gas = 0, gasAmount = 0, gasPrice = ``,} = this.options || {};
-    const {gasFactor = 1, auto = false} = this.options || {};
+    const {gasFactor = 1, auto = true} = this.options || {};
 
     if (!auto && (!gas || !gasPrice))
       throw new Error(Errors.GasAndGasPriceMustBeProvidedIfNoAutoTxOptions);

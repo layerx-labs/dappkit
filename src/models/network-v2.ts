@@ -12,22 +12,26 @@ import {BountyToken} from '@models/bounty-token';
 import {ERC20} from '@models/erc20';
 import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
-import {nativeZeroAddress, TenK, Thousand} from '@utils/constants';
+import {nativeZeroAddress, Thousand} from '@utils/constants';
 import { OraclesResume } from '@interfaces/oracles-resume';
 import { Delegation } from '@interfaces/delegation';
 import { oraclesResume } from '@utils/oracles-resume';
 import { bounty } from '@utils/bounty';
 import { treasuryInfo } from '@utils/treasury-info';
 import {delegationEntry} from "@utils/delegation";
+import {NetworkRegistry} from "@models/network-registry";
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     super(web3Connection, (Network_v2Json as any).abi as AbiItem[], contractAddress);
   }
 
   private _nftToken!: BountyToken;
-  private _settlerToken!: ERC20;
+  private _networkToken!: ERC20;
   private _governed!: Governed;
+  private _registry!: NetworkRegistry;
+  private _DIVISOR!: number;
 
   public Params = {
     councilAmount: 0,
@@ -36,7 +40,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     oracleExchangeRate: 3,
     mergeCreatorFeeShare: 4,
     percentageNeededForDispute: 5,
-    cancelFee: 6,
     cancelableTime: 7
   }
 
@@ -45,12 +48,19 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   /**
    * Settler token is the token that originates oracles
    */
-  get settlerToken() { return this._settlerToken; }
+  get networkToken() { return this._networkToken; }
 
   /**
    * Access Governed contract functions through here
    */
   get governed() { return this._governed; }
+
+  /**
+   * Access registry for this network, in case one exists
+   */
+  get registry() { return this._registry }
+
+  get divisor() { return this._DIVISOR; }
 
   async start() {
     await super.start();
@@ -62,34 +72,41 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
       await super.loadContract();
 
     const nftAddress = await this.nftTokenAddress();
-    const transactionalTokenAddress = await this.settlerTokenAddress();
+    const transactionalTokenAddress = await this.networkTokenAddress();
+    const registryAddress = await this.registryAddress();
 
-    this._nftToken = new BountyToken(this.connection, nftAddress);
-    this._settlerToken = new ERC20(this.connection, transactionalTokenAddress);
+    this._networkToken = new ERC20(this.connection, transactionalTokenAddress);
+
+    if (nftAddress) {
+      this._nftToken = new BountyToken(this.connection, nftAddress);
+      await this._nftToken.loadContract();
+    }
 
     this._governed = new Governed(this);
+    await this._networkToken.loadContract();
 
-    await this._nftToken.loadContract();
-    await this._settlerToken.loadContract();
+    if (registryAddress !== nativeZeroAddress) {
+      this._registry = new NetworkRegistry(this.connection, registryAddress);
+      await this._registry.loadContract();
+    }
+
+    this._DIVISOR = await this.getDivisor();
 
   }
 
-  async deployJsonAbi(_settlerToken: string,
-                      _nftTokenAddress: string,
-                      _bountyNftUri: string,
-                      treasury = nativeZeroAddress,
-                      cancelFee = 0,
-                      closeFee = 0) {
+  async deployJsonAbi(_oracleTokenAddress: string,
+                      _registryAddress = nativeZeroAddress) {
     const deployOptions = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: (Network_v2Json as any).bytecode,
-      arguments: [_settlerToken, _nftTokenAddress, _bountyNftUri, treasury, cancelFee, closeFee]
+      arguments: [_oracleTokenAddress, _registryAddress]
     };
 
     return this.deploy(deployOptions, this.connection.Account);
   }
 
-  async bountyNftUri() {
-    return this.callTx(this.contract.methods.bountyNftUri());
+  async getDivisor() {
+    return this.callTx(this.contract.methods.DIVISOR());
   }
 
   async canceledBounties() {
@@ -101,7 +118,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async treasuryInfo() {
-    return treasuryInfo(await this.callTx(this.contract.methods.treasuryInfo()));
+    return treasuryInfo(await this.callTx(this.contract.methods.treasuryInfo()), this.divisor);
   }
 
   /**
@@ -113,11 +130,11 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
   async councilAmount() {
     return fromSmartContractDecimals(await this.callTx(this.contract
-                                                           .methods.councilAmount()), this.settlerToken.decimals);
+                                                           .methods.councilAmount()), this.networkToken.decimals);
   }
 
   async oracleExchangeRate() {
-    return (await this.callTx(this.contract.methods.oracleExchangeRate())) / TenK;
+    return (await this.callTx(this.contract.methods.oracleExchangeRate())) / this.divisor;
   }
 
   /**
@@ -142,37 +159,41 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const hash = this.web3.utils.keccak256(`${this.web3.utils.encodePacked(bountyId, proposalId)}`);
     
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.disputes(address, hash)), 
-                                     this.settlerToken.decimals);
+                                     this.networkToken.decimals);
   }
 
   async mergeCreatorFeeShare() {
-    return (await this.callTx(this.contract.methods.mergeCreatorFeeShare())) / TenK;
+    return (await this.callTx(this.contract.methods.mergeCreatorFeeShare())) / this.divisor;
   }
 
   async proposerFeeShare() {
-    return (await this.callTx(this.contract.methods.proposerFeeShare())) / TenK;
+    return (await this.callTx(this.contract.methods.proposerFeeShare())) / this.divisor;
   }
 
   async oraclesDistributed() {
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.oraclesDistributed()), 
-                                     this.settlerToken.decimals);
+                                     this.networkToken.decimals);
   }
 
   async percentageNeededForDispute() {
-    return (await this.callTx(this.contract.methods.percentageNeededForDispute())) / TenK;
+    return (await this.callTx(this.contract.methods.percentageNeededForDispute())) / this.divisor;
   }
 
-  async settlerTokenAddress() {
-    return this.callTx(this.contract.methods.settlerToken());
+  async networkTokenAddress() {
+    return this.callTx(this.contract.methods.networkToken());
+  }
+
+  async registryAddress() {
+    return this.callTx(this.contract.methods.registry());
   }
 
   async nftTokenAddress() {
     return this.callTx(this.contract.methods.nftToken());
   }
 
-  async totalSettlerLocked() {
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalSettlerLocked()),
-                                     this.settlerToken.decimals);
+  async totalNetworkToken() {
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalNetworkToken()),
+                                     this.networkToken.decimals);
   }
 
   async getBountiesOfAddress(_address: string) {
@@ -209,7 +230,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async changeCouncilAmount(newAmount: number) {
-    newAmount = toSmartContractDecimals(newAmount, this.settlerToken.decimals);
+    newAmount = toSmartContractDecimals(newAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.councilAmount, newAmount));
   }
 
@@ -218,13 +239,6 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeDraftTime(_draftTime: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.draftTime, _draftTime));
-  }
-
-  /**
-   * @param _cancelFee new cancel fee value
-   */
-  async changeCancelFee(_cancelFee: number) {
-    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.cancelFee, _cancelFee * TenK));
   }
 
   /**
@@ -239,7 +253,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changePercentageNeededForDispute(percentageNeededForDispute: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.percentageNeededForDispute, 
-                                                                    percentageNeededForDispute * TenK));
+                                                                    percentageNeededForDispute * this.divisor));
   }
 
   /**
@@ -247,7 +261,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeMergeCreatorFeeShare(mergeCreatorFeeShare: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.mergeCreatorFeeShare, 
-                                                                    mergeCreatorFeeShare * TenK));
+                                                                    mergeCreatorFeeShare * this.divisor));
   }
 
   /**
@@ -255,7 +269,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeOracleExchangeRate(oracleExchangeRate: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.oracleExchangeRate, 
-                                                                    oracleExchangeRate * TenK));
+                                                                    oracleExchangeRate * this.divisor));
   }
 
   /**
@@ -282,7 +296,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async getOraclesOf(_address: string) {
     const oracles = await this.callTx(this.contract.methods.oracles(_address));
-    return fromSmartContractDecimals(+oracles.locked + +oracles.byOthers, this.settlerToken.decimals);
+    return fromSmartContractDecimals(+oracles.locked + +oracles.byOthers, this.networkToken.decimals);
   }
 
   /**
@@ -292,14 +306,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async getOraclesResume(address: string): Promise<OraclesResume> {
     return oraclesResume( await this.callTx(this.contract.methods.oracles(address)), 
                           await this.getDelegationsOf(address), 
-                          this.settlerToken.decimals );
+                          this.networkToken.decimals );
   }
 
   /**
    * Lock given amount into the oracle mapping
    */
   async lock(tokenAmount: number) {
-    tokenAmount = toSmartContractDecimals(tokenAmount, this.settlerToken.decimals);
+    tokenAmount = toSmartContractDecimals(tokenAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.manageOracles(true, tokenAmount));
   }
 
@@ -307,7 +321,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * Unlock from the oracle mapping
    */
   async unlock(tokenAmount: number) {
-    tokenAmount = toSmartContractDecimals(tokenAmount, this.settlerToken.decimals);
+    tokenAmount = toSmartContractDecimals(tokenAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.manageOracles(false, tokenAmount));
   }
 
@@ -315,7 +329,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * Gives oracles from msg.sender to recipient
    */
   async delegateOracles(tokenAmount: number, recipient: string) {
-    tokenAmount = toSmartContractDecimals(tokenAmount, this.settlerToken.decimals);
+    tokenAmount = toSmartContractDecimals(tokenAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.delegateOracles(tokenAmount, recipient));
   }
 
@@ -479,8 +493,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   /**
    * close bounty with the selected proposal id
    */
-  async closeBounty(id: number, proposalId: number) {
-    return this.sendTx(this.contract.methods.closeBounty(id, proposalId));
+  async closeBounty(id: number, proposalId: number, ipfsUri = "") {
+    return this.sendTx(this.contract.methods.closeBounty(id, proposalId, ipfsUri));
   }
 
   async cidBountyId(cid: string) {
@@ -489,7 +503,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
   async getDelegationsOf(address: string): Promise<Delegation[]> {
     return (await this.callTx(this.contract.methods.getDelegationsFor(address)))
-      .map((d, i) => delegationEntry(d, i, this.settlerToken.decimals))
+      .map((d, i) => delegationEntry(d, i, this.networkToken.decimals))
       .filter(({amount}) => amount > 0);
   }
 
