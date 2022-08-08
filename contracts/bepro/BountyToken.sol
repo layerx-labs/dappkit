@@ -15,6 +15,9 @@ contract BountyToken is ERC721, Governed {
 
     INetwork_v2.BountyConnector[] tokenIds;
 
+    /**
+     * Mint a NFT with the required information
+     */
     function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) external {
         require(msg.sender == dispatcher, "AB0");
         uint256 id = tokenIds.length;
@@ -23,8 +26,11 @@ contract BountyToken is ERC721, Governed {
         tokenIds.push(award);
     }
 
+    /**
+     * Return the information of the related NFT
+     */
     function getBountyToken(uint256 id) public view returns (INetwork_v2.BountyConnector memory bountyConnector) {
-        require(tokenIds.length <= id, "B0");
+        require(tokenIds.length > id, "B0");
         return tokenIds[id];
     }
 
@@ -32,12 +38,15 @@ contract BountyToken is ERC721, Governed {
         return tokenIds.length;
     }
 
+    /**
+     * Change who is able to dispatch NFTs
+     */
     function setDispatcher(address dispatcher_) public  onlyGovernor {
         require(dispatcher_ != dispatcher, "SD0");
         dispatcher = dispatcher_;
     }
 
-    function transferFrom(address from, address to, uint256 tokenId) public override {}
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override {}
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public override {}
+    function transferFrom(address from, address to, uint256 tokenId) public override { revert(); }
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override { revert(); }
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public override { revert(); }
 }

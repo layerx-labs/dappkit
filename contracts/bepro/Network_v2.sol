@@ -2,7 +2,6 @@ pragma solidity >=0.6.0 <=8.0.0;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "../math/SafePercentMath.sol";
 import "../utils/Governed.sol";
@@ -11,7 +10,7 @@ import "./INetwork_v2.sol";
 import "./Network_Registry.sol";
 
 
-contract Network_v2 is Governed, ReentrancyGuard {
+contract Network_v2 is Governed {
     using SafeMath for uint256;
 
     uint256 constant MAX_PERCENT = 100000000;
@@ -131,18 +130,17 @@ contract Network_v2 is Governed, ReentrancyGuard {
         for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
             INetwork_v2.Benefactor storage x = bounty.funding[i];
             if (x.amount > 0) {
-                require(ERC20(bounty.transactional).transfer(x.benefactor, x.amount), "C4");
                 x.amount = 0;
+                require(ERC20(bounty.transactional).transfer(x.benefactor, x.amount), "C4");
             }
         }
 
         bounty.canceled = true;
-
         canceledBounties = canceledBounties.add(1);
 
-        require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "C5");
-
         emit BountyCanceled(id);
+
+        require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "C5");
     }
 
     function _cancelBounty(uint256 id) internal {
@@ -223,6 +221,7 @@ contract Network_v2 is Governed, ReentrancyGuard {
      * Lock or Unlock tokens into this smart contract by applying a exchange rate configured in {@oracleExchangeRate}
      */
     function manageOracles(bool lock, uint256 amount) external {
+        require(amount > 0, "M03");
         uint256 exchanged = 0;
         if (lock) {
             exchanged = amount.mul(oracleExchangeRate.div(DIVISOR));
@@ -240,18 +239,22 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
         }
 
-        emit OraclesChanged(msg.sender, int256(lock ? amount : -amount), oracles[msg.sender].locked);
+        emit OraclesChanged(msg.sender, int256(lock ? amount : -amount), oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
     }
 
     /*
      * allocate voting power from the mapper of one address to another
      */
     function delegateOracles(uint256 amount, address toAddress) external {
+        require(amount > 0, "M03");
         require(amount <= oracles[msg.sender].locked, "MD0");
         oracles[msg.sender].locked = oracles[msg.sender].locked.sub(amount);
         oracles[msg.sender].toOthers = oracles[msg.sender].toOthers.add(amount);
         oracles[toAddress].byOthers = oracles[toAddress].byOthers.add(amount);
         delegations[msg.sender].push(INetwork_v2.Delegation(msg.sender, toAddress, amount));
+
+        emit OraclesChanged(msg.sender, -amount, oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
+        emit OraclesChanged(toAddress, +amount, oracles[toAddress].locked.add(oracles[toAddress].byOthers));
     }
 
     /*
@@ -265,6 +268,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
         oracles[msg.sender].toOthers = oracles[msg.sender].toOthers.sub(amount);
         oracles[delegated].byOthers = oracles[delegated].byOthers.sub(amount);
         delegations[msg.sender][entryId].amount = 0;
+
+        emit OraclesChanged(msg.sender, +amount, oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
+        emit OraclesChanged(delegated, -amount, oracles[delegated].locked.add(oracles[delegated].byOthers));
     }
 
     /*
@@ -418,17 +424,15 @@ contract Network_v2 is Governed, ReentrancyGuard {
 
         require(newTokenAmount > 0 && (bounty.tokenAmount != newTokenAmount) , "U1");
 
-        if (newTokenAmount > bounty.tokenAmount) {
-            uint256 giveAmount = newTokenAmount.sub(bounty.tokenAmount);
-            require(erc20.transferFrom(msg.sender, address(this), giveAmount), "U2");
-        } else {
-            uint256 retrieveAmount = bounty.tokenAmount.sub(newTokenAmount);
-            require(erc20.transfer(bounty.creator, retrieveAmount), "U3");
-        }
-
         bounty.tokenAmount = newTokenAmount;
 
         emit BountyAmountUpdated(id, newTokenAmount);
+
+        if (newTokenAmount > bounty.tokenAmount) {
+            require(erc20.transferFrom(msg.sender, address(this), newTokenAmount.sub(bounty.tokenAmount)), "U2");
+        } else {
+            require(erc20.transfer(bounty.creator, bounty.tokenAmount.sub(newTokenAmount)), "U3");
+        }
     }
 
     /*
@@ -446,8 +450,6 @@ contract Network_v2 is Governed, ReentrancyGuard {
         _isNotCanceled(id);
 
         INetwork_v2.Bounty storage bounty = bounties[id];
-        require(bounty.funded == false, "F1");
-        require(bounty.tokenAmount < bounty.fundingAmount, "F2");
         require(bounty.tokenAmount.add(fundingAmount) <= bounty.fundingAmount, "F3");
 
         bounty.funding.push(INetwork_v2.Benefactor(msg.sender, fundingAmount, block.timestamp));
@@ -455,8 +457,9 @@ contract Network_v2 is Governed, ReentrancyGuard {
         bounty.tokenAmount = bounty.tokenAmount.add(fundingAmount);
         bounty.funded = bounty.fundingAmount == bounty.tokenAmount;
 
-        require(ERC20(bounty.transactional).transferFrom(msg.sender, address(this), fundingAmount), "F3");
         emit BountyFunded(id, bounty.funded, msg.sender, int256(fundingAmount));
+
+        require(ERC20(bounty.transactional).transferFrom(msg.sender, address(this), fundingAmount), "F3");
     }
 
     /*
@@ -720,7 +723,6 @@ contract Network_v2 is Governed, ReentrancyGuard {
         for (uint256 i = 0; i <= proposal.details.length - 1; i++) {
             INetwork_v2.ProposalDetail memory detail = proposal.details[i];
             INetwork_v2.BountyConnector memory award = INetwork_v2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
-            require(erc20.transfer(detail.recipient, proposalAmount.div(100).mul(detail.percentage)), "CB5");
 
             if (address(registry) != address(0)) {
                 if (address(registry.bountyToken()) != address(0)) {
@@ -731,6 +733,8 @@ contract Network_v2 is Governed, ReentrancyGuard {
                     nftToken.awardBounty(detail.recipient, ipfsUri, award);
                 }
             }
+
+            require(erc20.transfer(detail.recipient, proposalAmount.div(100).mul(detail.percentage)), "CB5");
         }
 
         if (bounties[id].rewardToken != address(0)) {

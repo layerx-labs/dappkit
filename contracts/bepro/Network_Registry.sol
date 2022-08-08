@@ -5,13 +5,12 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
-import "../utils/ReentrancyGuardOptimized.sol";
 import "./INetwork_v2.sol";
 import "../utils/Governed.sol";
 import "../math/SafePercentMath.sol";
 import "./BountyToken.sol";
 
-contract Network_Registry is ReentrancyGuardOptimized, Governed {
+contract Network_Registry is Governed {
 
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -45,6 +44,15 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     event ChangedFee(uint256 indexed closeFee, uint256 indexed cancelFee);
     event ChangeAllowedTokens(address[] indexed tokens, string operation, string kind);
 
+    function _closeAndCancelFeesLimits(uint256 _cancelFee, uint256 _closeFee) internal {
+        require(_cancelFee <= MAX_PERCENT, "CGF1");
+        require(_closeFee <= MAX_PERCENT, "CGF1");
+    }
+
+    function _lockPercentageLimits(uint256 newAmount) internal view {
+        require(newAmount <= MAX_LOCK_PERCENTAGE_FEE, "CLF1");
+    }
+
     constructor(IERC20 _erc20,
         uint256 _lockAmountForNetworkCreation,
         address _treasury,
@@ -52,6 +60,10 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         uint256 _closeFeePercentage,
         uint256 _cancelFeePercentage,
         address _bountyToken) ReentrancyGuardOptimized() Governed() {
+
+        _closeAndCancelFeesLimits(_cancelFeePercentage, _closeFeePercentage);
+        _lockPercentageLimits(_lockFeePercentage);
+
         erc20 = IERC20(_erc20);
         lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
         treasury = _treasury;
@@ -74,12 +86,13 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
      */
     function lock(uint256 _amount) public {
         require(_amount > 0, "L0");
-        require(erc20.transferFrom(msg.sender, address(this), _amount), "L1");
 
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].add(_amount);
         totalLockedAmount = totalLockedAmount.add(_amount);
 
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
+
+        require(erc20.transferFrom(msg.sender, address(this), _amount), "L1");
     }
 
     /*
@@ -99,12 +112,12 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
             emit NetworkClosed(networkOfAddress[msg.sender]);
         }
 
-        require(erc20.transfer(msg.sender, lockedTokensOfAddress[msg.sender]), "UL3");
-
         totalLockedAmount = totalLockedAmount.sub(lockedTokensOfAddress[msg.sender]);
         lockedTokensOfAddress[msg.sender] = 0;
 
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
+
+        require(erc20.transfer(msg.sender, lockedTokensOfAddress[msg.sender]), "UL3");
     }
 
     /*
@@ -135,12 +148,12 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
     }
 
     function changeAmountForNetworkCreation(uint256 newAmount) public onlyGovernor {
-        require(newAmount > 0, "C1");
+        _createNetworkMinimum(newAmount);
         lockAmountForNetworkCreation = newAmount;
     }
 
     function changeLockPercentageFee(uint256 newAmount) public onlyGovernor {
-        require(newAmount >= 0 && newAmount <= MAX_LOCK_PERCENTAGE_FEE, "CLF1");
+        _lockPercentageLimits(newAmount);
         lockFeePercentage = newAmount;
     }
 
@@ -149,14 +162,13 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
      * 1% = 10,000
      */
     function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) public onlyGovernor {
-        require(_cancelFee >= 0 && _cancelFee <= MAX_PERCENT, "CGF1");
-        require(_closeFee >= 0 && _closeFee <= MAX_PERCENT, "CGF1");
+        _closeAndCancelFeesLimits(_cancelFee, _closeFee);
         closeFeePercentage = _closeFee;
         cancelFeePercentage = _cancelFee;
         emit ChangedFee(closeFeePercentage, cancelFeePercentage);
     }
 
-    function addAllowedTokens(address[] calldata _erc20, bool transactional) external {
+    function addAllowedTokens(address[] calldata _erc20, bool transactional) onlyGovernor external {
         EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _erc20.length;
 
@@ -165,7 +177,7 @@ contract Network_Registry is ReentrancyGuardOptimized, Governed {
         }
     }
 
-    function removeAllowedTokens(address[] calldata _erc20, bool transactional) external {
+    function removeAllowedTokens(address[] calldata _erc20, bool transactional) onlyGovernor external {
         EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _erc20.length;
         for (uint256 z = 0; z < len; z++) {
