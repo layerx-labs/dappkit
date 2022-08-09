@@ -470,26 +470,25 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      *  bounty is not canceled
      *  Benefactor entry must match msg.sender
      */
-    function retractFunds(uint256 id, uint256[] calldata fundingIds) nonReentrant external {
+    function retractFunds(uint256 id, uint256 fundingId) nonReentrant external {
         _isInDraft(id, true);
         _isFundingRequest(id, true);
         _isNotCanceled(id);
+        require(fundingId < bounties[id].funding.length, "RF0");
 
         INetworkV2.Bounty storage bounty = bounties[id];
+        INetworkV2.Benefactor storage funding = bounty.funding[fundingId];
 
-        for (uint256 i = 0; i <= fundingIds.length - 1; i++) {
-            INetworkV2.Benefactor storage x = bounty.funding[fundingIds[i]];
-            require(x.benefactor == msg.sender, "RF1");
-            _amountGT0(x.amount);
+        require(funding.benefactor == msg.sender, "RF1");
 
-            bounty.tokenAmount = bounty.tokenAmount.sub(x.amount);
-            x.amount = 0;
-
-            require(ERC20(bounty.transactional).transfer(msg.sender, x.amount), "RF3");
-        }
+        _amountGT0(funding.amount);
+        bounty.tokenAmount = bounty.tokenAmount.sub(funding.amount);
+        funding.amount = 0;
 
         bounty.funded = bounty.tokenAmount == bounty.fundingAmount;
         emit BountyFunded(id, bounty.funded, msg.sender, int256(bounty.tokenAmount - bounty.fundingAmount));
+
+        require(ERC20(bounty.transactional).transfer(msg.sender, funding.amount), "RF3");
     }
 
     /*

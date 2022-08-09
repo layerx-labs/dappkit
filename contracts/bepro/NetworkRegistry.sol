@@ -139,7 +139,6 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
         require(address(network.registry()) == address(this), "R4");
 
         if (treasury != address(0)) {
-            require(erc20.transfer(treasury, fee), "R3");
             totalLockedAmount = totalLockedAmount.sub(fee);
         }
 
@@ -149,6 +148,10 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
         networkOfAddress[msg.sender] = networkAddress;
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
         emit NetworkRegistered(networkAddress, msg.sender, networksArray.length - 1);
+
+        if (treasury != address(0)) {
+            require(erc20.transfer(treasury, fee), "R3");
+        }
     }
 
     function changeAmountForNetworkCreation(uint256 newAmount) external onlyGovernor {

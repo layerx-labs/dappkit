@@ -252,7 +252,7 @@ describe(`NetworkV2`, () => {
         });
 
         it(`Retracts Bobs funding`, async () => {
-          await hasTxBlockNumber(network.retractFunds(bountyId, [1]));
+          await hasTxBlockNumber(network.retractFunds(bountyId, 1));
           expect((await network.getBounty(bountyId)).funded).to.be.false;
         });
 
