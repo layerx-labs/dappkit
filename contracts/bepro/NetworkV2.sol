@@ -733,7 +733,7 @@ contract NetworkV2 is Governed {
         // proposal.details can't be higher than @MAX_CONTRIBUTORS_LENGTH
         for (uint256 i = 0; i <= proposal.details.length - 1; i++) {
             INetworkV2.ProposalDetail memory detail = proposal.details[i];
-            INetworkV2.BountyConnector memory award = INetwork_v2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
+            INetworkV2.BountyConnector memory award = INetworkV2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
             require(erc20.transfer(detail.recipient, proposalAmount.div(100).mul(detail.percentage)), "CB5");
 
             if (address(registry) != address(0)) {
@@ -754,7 +754,7 @@ contract NetworkV2 is Governed {
         }
     }
 
-    function withdrawFundingReward(uint256 id, uint256 fundingId) {
+    function withdrawFundingReward(uint256 id, uint256 fundingId) external {
         _bountyExists(id);
         require(bounties[id].rewardToken != address(0), "WF0");
         require(bounties[id].closed == true, "WF1");
@@ -762,11 +762,11 @@ contract NetworkV2 is Governed {
         require(bounties[id].rewardToken != address(0), "WF3");
         require(bounties[id].funding[fundingId].benefactor == msg.sender, "WF4");
 
-        uint256 rewardAmount = bounties[id].funding[fundingId].amount.div(bounties[id].fundingAmount).mul(bounty.rewardAmount);
+        uint256 rewardAmount = bounties[id].funding[fundingId].amount.div(bounties[id].fundingAmount).mul(bounties[id].rewardAmount);
 
         bounties[id].funding[fundingId].amount = 0;
 
-        require(rewardToken.transfer(bounties[id].funding[fundingId].benefactor, rewardAmount), "WF5");
+        require(ERC20(bounties[id].rewardToken).transfer(bounties[id].funding[fundingId].benefactor, rewardAmount), "WF5");
     }
 
 }
