@@ -75,7 +75,7 @@ contract Network_v2 is Governed {
     event BountyAmountUpdated(uint256 indexed id, uint256 amount);
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
 
-    constructor(address _networkToken, address _registry) Governed() ReentrancyGuard() {
+    constructor(address _networkToken, address _registry) Governed() {
         networkToken = ERC20(_networkToken);
         registry = Network_Registry(_registry);
     }
@@ -253,8 +253,8 @@ contract Network_v2 is Governed {
         oracles[toAddress].byOthers = oracles[toAddress].byOthers.add(amount);
         delegations[msg.sender].push(INetwork_v2.Delegation(msg.sender, toAddress, amount));
 
-        emit OraclesChanged(msg.sender, -amount, oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
-        emit OraclesChanged(toAddress, +amount, oracles[toAddress].locked.add(oracles[toAddress].byOthers));
+        emit OraclesChanged(msg.sender, int256(-amount), oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
+        emit OraclesChanged(toAddress, int256(amount), oracles[toAddress].locked.add(oracles[toAddress].byOthers));
     }
 
     /*
@@ -269,8 +269,8 @@ contract Network_v2 is Governed {
         oracles[delegated].byOthers = oracles[delegated].byOthers.sub(amount);
         delegations[msg.sender][entryId].amount = 0;
 
-        emit OraclesChanged(msg.sender, +amount, oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
-        emit OraclesChanged(delegated, -amount, oracles[delegated].locked.add(oracles[delegated].byOthers));
+        emit OraclesChanged(msg.sender, int256(amount), oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
+        emit OraclesChanged(delegated, int256(-amount), oracles[delegated].locked.add(oracles[delegated].byOthers));
     }
 
     /*
@@ -418,11 +418,10 @@ contract Network_v2 is Governed {
         _isBountyOwner(id);
         _isInDraft(id, true);
         _isFundingRequest(id, false);
+        require(newTokenAmount > 0 && (bounties[id].tokenAmount != newTokenAmount) , "U1");
 
         INetwork_v2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
-
-        require(newTokenAmount > 0 && (bounty.tokenAmount != newTokenAmount) , "U1");
 
         bounty.tokenAmount = newTokenAmount;
 
@@ -482,9 +481,11 @@ contract Network_v2 is Governed {
             INetwork_v2.Benefactor storage x = bounty.funding[fundingIds[i]];
             require(x.benefactor == msg.sender, "RF1");
             _amountGT0(x.amount);
-            require(ERC20(bounty.transactional).transfer(msg.sender, x.amount), "RF3");
+
             bounty.tokenAmount = bounty.tokenAmount.sub(x.amount);
             x.amount = 0;
+
+            require(ERC20(bounty.transactional).transfer(msg.sender, x.amount), "RF3");
         }
 
         bounty.funded = bounty.tokenAmount == bounty.fundingAmount;

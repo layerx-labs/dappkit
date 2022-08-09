@@ -59,7 +59,7 @@ contract Network_Registry is Governed {
         uint256 _lockFeePercentage,
         uint256 _closeFeePercentage,
         uint256 _cancelFeePercentage,
-        address _bountyToken) ReentrancyGuardOptimized() Governed() {
+        address _bountyToken) Governed() {
 
         _closeAndCancelFeesLimits(_cancelFeePercentage, _closeFeePercentage);
         _lockPercentageLimits(_lockFeePercentage);
@@ -132,15 +132,15 @@ contract Network_Registry is Governed {
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
         require(network._governor() == msg.sender, "R2");
+        require(address(network.registry()) == address(this), "R4");
 
         if (treasury != address(0)) {
             require(erc20.transfer(treasury, fee), "R3");
             totalLockedAmount = totalLockedAmount.sub(fee);
         }
 
-        require(address(network.registry()) == address(this), "R4");
-
         networksArray.push(network);
+
         openNetworks[networkAddress] = true;
         networkOfAddress[msg.sender] = networkAddress;
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
@@ -148,7 +148,6 @@ contract Network_Registry is Governed {
     }
 
     function changeAmountForNetworkCreation(uint256 newAmount) public onlyGovernor {
-        _createNetworkMinimum(newAmount);
         lockAmountForNetworkCreation = newAmount;
     }
 
@@ -185,19 +184,9 @@ contract Network_Registry is Governed {
         }
     }
 
-    function getAllowedTokens() public view returns (address[] memory transactional, address[] memory reward) {
-        uint256 tLen = _transactionalTokens.length();
-        uint256 rLen = _rewardTokens.length();
-        transactional = new address[](tLen);
-        reward = new address[](rLen);
-
-        for (uint256 z = 0; z < tLen; z++) {
-            transactional[z] = _transactionalTokens.at(z);
-        }
-
-        for (uint256 z = 0; z < rLen; z++) {
-            reward[z] = _rewardTokens.at(z);
-        }
+    function getAllowedTokens() public view returns (bytes32[] memory transactional, bytes32[] memory reward) {
+        transactional = _transactionalTokens._inner._values;
+        reward = _transactionalTokens._inner._values;
     }
 
     function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) public {
