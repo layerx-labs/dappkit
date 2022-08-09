@@ -548,10 +548,11 @@ contract Network_v2 is Governed {
         require(prId <= bounties[ofBounty].pullRequests.length - 1, "CPR1");
         require(bounties[ofBounty].pullRequests[prId].canceled == false, "CPR2");
         require(bounties[ofBounty].pullRequests[prId].creator == msg.sender, "CPR3");
-        
-        for (uint256 i = 0; i < bounties[ofBounty].proposals.length; i++) {
-            require(bounties[ofBounty].proposals[i].prId != prId, "CPR4");
-        }
+
+//        We should check that the PR is not canceled on the other side - The owner of the PR should know better than the proposer
+//        for (uint256 i = 0; i < bounties[ofBounty].proposals.length; i++) {
+//            require(bounties[ofBounty].proposals[i].prId != prId, "CPR4");
+//        }
 
         bounties[ofBounty].pullRequests[prId].canceled = true;
 
@@ -575,6 +576,7 @@ contract Network_v2 is Governed {
         require(pullRequestId <= bounties[bountyId].pullRequests.length - 1, "PRR1");
         require(bounties[bountyId].pullRequests[pullRequestId].ready == false, "PRR2");
         require(bounties[bountyId].pullRequests[pullRequestId].creator == msg.sender, "PRR3");
+        require(bounties[bountyId].pullRequests[pullRequestId].canceled == false, "PRR4");
 
         bounties[bountyId].pullRequests[pullRequestId].ready = true;
 
@@ -604,6 +606,7 @@ contract Network_v2 is Governed {
         require(oracles[msg.sender].locked.add(oracles[msg.sender].byOthers) >= councilAmount, "OW0");
         require(prId <= bounties[id].pullRequests.length - 1, "CBP0");
         require(bounties[id].pullRequests[prId].ready == true, "CBP1");
+        require(bounties[id].pullRequests[prId].canceled == false, "CBP2");
 
         INetwork_v2.Bounty storage bounty = bounties[id];
 
@@ -705,12 +708,12 @@ contract Network_v2 is Governed {
         require(proposal.refusedByBountyOwner == false, "CB7");
 
         uint256 returnAmount = bounty.tokenAmount;
+        uint256 treasuryAmount = 0;
 
         if (address(registry) != address(0)) {
             if (registry.treasury() != address(0)) {
-                uint256 treasuryAmount = _toPercent(bounty.tokenAmount, registry.closeFeePercentage());
+                treasuryAmount = _toPercent(bounty.tokenAmount, registry.closeFeePercentage());
                 returnAmount = returnAmount.sub(treasuryAmount);
-                require(erc20.transfer(registry.treasury(), treasuryAmount), "C3");
             }
         }
 
@@ -718,8 +721,11 @@ contract Network_v2 is Governed {
         uint256 proposerFee = _toPercent(returnAmount.sub(mergerFee), proposerFeeShare);
         uint256 proposalAmount = returnAmount.sub(mergerFee).sub(proposerFee);
 
-        require(erc20.transfer(msg.sender, mergerFee), "CB4");
-        require(erc20.transfer(proposal.creator, proposerFee), "CB4");
+        bounty.closed = true;
+        bounty.closedDate = block.timestamp;
+        closedBounties = closedBounties.add(1);
+
+        emit BountyClosed(id, proposalId);
 
         for (uint256 i = 0; i <= proposal.details.length - 1; i++) {
             INetwork_v2.ProposalDetail memory detail = proposal.details[i];
@@ -744,16 +750,16 @@ contract Network_v2 is Governed {
                 INetwork_v2.Benefactor storage x = bounty.funding[i];
                 if (x.amount > 0) {
                     uint256 rewardAmount = x.amount.div(bounty.fundingAmount).mul(bounty.rewardAmount);
-                    require(rewardToken.transfer(x.benefactor, rewardAmount), "CB6");
                     x.amount = 0;
+                    require(rewardToken.transfer(x.benefactor, rewardAmount), "CB6");
                 }
             }
         }
 
-        bounty.closed = true;
-        bounty.closedDate = block.timestamp;
-        closedBounties = closedBounties.add(1);
-
-        emit BountyClosed(id, proposalId);
+        require(erc20.transfer(msg.sender, mergerFee), "CB4");
+        require(erc20.transfer(proposal.creator, proposerFee), "CB4");
+        if (treasuryAmount > 0) {
+            require(erc20.transfer(registry.treasury(), treasuryAmount), "C3");
+        }
     }
 }
