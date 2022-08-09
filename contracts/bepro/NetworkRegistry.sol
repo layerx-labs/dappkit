@@ -33,7 +33,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
 
     uint256 public lockAmountForNetworkCreation = 1000000 * 10 ** 18; // 1M
     uint256 public totalLockedAmount = 0;
-    uint256 public lockFeePercentage = 1000000; // 1%
+    uint256 public networkCreationFeePercentage = 1000000; // 1%
     uint256 public closeFeePercentage = 5000000; // 5%
     uint256 public cancelFeePercentage = 5000000; // 5%
 
@@ -60,7 +60,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
     constructor(IERC20 _erc20,
         uint256 _lockAmountForNetworkCreation,
         address _treasury,
-        uint256 _lockFeePercentage,
+        uint256 _networkCreationFeePercentage,
         uint256 _closeFeePercentage,
         uint256 _cancelFeePercentage,
         address _bountyToken) Governed() ReentrancyGuard() {
@@ -71,7 +71,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
         erc20 = IERC20(_erc20);
         lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
         treasury = _treasury;
-        lockFeePercentage = _lockFeePercentage;
+        networkCreationFeePercentage = _networkCreationFeePercentage;
         closeFeePercentage = _closeFeePercentage;
         cancelFeePercentage = _cancelFeePercentage;
         bountyToken = BountyToken(_bountyToken);
@@ -131,7 +131,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
      */
     function registerNetwork(address networkAddress) nonReentrant external {
         INetworkV2 network = INetworkV2(networkAddress);
-        uint256 fee = (lockAmountForNetworkCreation.mul(lockFeePercentage)).div(MAX_PERCENT);
+        uint256 fee = (lockAmountForNetworkCreation.mul(networkCreationFeePercentage)).div(MAX_PERCENT);
 
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
@@ -160,7 +160,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
 
     function changeLockPercentageFee(uint256 newAmount) external onlyGovernor {
         _lockPercentageLimits(newAmount);
-        lockFeePercentage = newAmount;
+        networkCreationFeePercentage = newAmount;
         emit LockFeeChanged(newAmount);
     }
 
