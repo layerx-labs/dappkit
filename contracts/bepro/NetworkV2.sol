@@ -766,7 +766,7 @@ contract NetworkV2 is Governed {
 
         bounties[id].funding[fundingId].amount = 0;
 
-        require(rewardToken.transfer(detail.benefactor, rewardAmount), "WF5");
+        require(rewardToken.transfer(bounties[id].funding[fundingId].benefactor, rewardAmount), "WF5");
     }
 
 }
