@@ -648,7 +648,7 @@ contract NetworkV2 is Governed {
         bytes32 b32 = keccak256(abi.encodePacked(bountyId, proposalId));
 
         require(disputes[msg.sender][b32] == 0, "DBP1");
-        require(bounties[id].pullRequests[bounties[id].proposals[proposalId].prId].canceled == false, "DBP1");
+        require(bounties[bountyId].pullRequests[bounties[bountyId].proposals[proposalId].prId].canceled == false, "DBP1");
 
         uint256 weight = oracles[msg.sender].locked.add(oracles[msg.sender].byOthers);
 
