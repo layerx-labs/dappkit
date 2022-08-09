@@ -53,7 +53,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
         require(_closeFee <= MAX_PERCENT, "CGF1");
     }
 
-    function _lockPercentageLimits(uint256 newAmount) internal view {
+    function _networkCreationFeeLimits(uint256 newAmount) internal view {
         require(newAmount <= MAX_LOCK_PERCENTAGE_FEE, "CLF1");
     }
 
@@ -66,7 +66,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
         address _bountyToken) Governed() ReentrancyGuard() {
 
         _closeAndCancelFeesLimits(_cancelFeePercentage, _closeFeePercentage);
-        _lockPercentageLimits(_lockFeePercentage);
+        _networkCreationFeeLimits(_networkCreationFeePercentage);
 
         erc20 = IERC20(_erc20);
         lockAmountForNetworkCreation = _lockAmountForNetworkCreation;
@@ -159,7 +159,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
     }
 
     function changeLockPercentageFee(uint256 newAmount) external onlyGovernor {
-        _lockPercentageLimits(newAmount);
+        _networkCreationFeeLimits(newAmount);
         networkCreationFeePercentage = newAmount;
         emit LockFeeChanged(newAmount);
     }
