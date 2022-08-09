@@ -3,6 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "../utils/Governed.sol";
 import "./BountyToken.sol";
@@ -10,7 +11,7 @@ import "./INetworkV2.sol";
 import "./NetworkRegistry.sol";
 
 
-contract NetworkV2 is Governed {
+contract NetworkV2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
     uint256 constant MAX_PERCENT = 100000000;
@@ -78,7 +79,7 @@ contract NetworkV2 is Governed {
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
     event OraclesTransfer(address indexed from, address indexed to, uint256 indexed amount);
 
-    constructor(address _networkToken, address _registry) Governed() {
+    constructor(address _networkToken, address _registry) Governed() ReentrancyGuard() {
         networkToken = ERC20(_networkToken);
         registry = NetworkRegistry(_registry);
     }
@@ -127,7 +128,7 @@ contract NetworkV2 is Governed {
         require(_amount > 0, "L0");
     }
 
-    function _cancelFundingRequest(uint256 id) internal {
+    function _cancelFundingRequest(uint256 id) nonReentrant internal {
         INetworkV2.Bounty storage bounty = bounties[id];
 
         for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
@@ -146,7 +147,7 @@ contract NetworkV2 is Governed {
         require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "C5");
     }
 
-    function _cancelBounty(uint256 id) internal {
+    function _cancelBounty(uint256 id) nonReentrant internal {
         INetworkV2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
 
@@ -222,7 +223,7 @@ contract NetworkV2 is Governed {
     /*
      * Lock or Unlock tokens into this smart contract by applying a exchange rate configured in {@oracleExchangeRate}
      */
-    function manageOracles(bool lock, uint256 amount) external {
+    function manageOracles(bool lock, uint256 amount) nonReentrant external {
         _amountGT0(amount);
         uint256 exchanged = 0;
         if (lock) {
@@ -293,7 +294,7 @@ contract NetworkV2 is Governed {
         string memory repoPath,
         string memory branch,
         string memory githubUser
-    ) external {
+    ) nonReentrant external {
         bountiesIndex = bountiesIndex.add(1);
 
         bounties[bountiesIndex].id = bountiesIndex;
@@ -352,9 +353,8 @@ contract NetworkV2 is Governed {
      *   sender is governor
      *   if bounty entry has proposals, require that all are disputed
      */
-    function hardCancel(uint256 id) external {
+    function hardCancel(uint256 id) nonReentrant onlyGovernor external {
         require(bounties[id].creator != address(0), "HC1");
-        require(msg.sender == _governor, "HC2");
         require(block.timestamp.sub(bounties[id].creationDate) >= cancelableTime, "HCV3");
 
         if (bounties[id].proposals.length > 0) {
@@ -379,7 +379,7 @@ contract NetworkV2 is Governed {
      *  is still open
      *  is not a funding request
      */
-    function cancelBounty(uint256 id) external {
+    function cancelBounty(uint256 id) nonReentrant external {
         _isBountyOwner(id);
         _isInDraft(id, true);
         _isNotCanceled(id);
@@ -396,7 +396,7 @@ contract NetworkV2 is Governed {
      *  is still open
      *  is a funding request
      */
-    function cancelFundRequest(uint256 id) external {
+    function cancelFundRequest(uint256 id) nonReentrant external {
         _isBountyOwner(id);
         _isFundingRequest(id, true);
         require(bounties[id].funded == false, "");
@@ -414,7 +414,7 @@ contract NetworkV2 is Governed {
      *   still in draft
      *   is not funding request
      */
-    function updateBountyAmount(uint256 id, uint256 newTokenAmount) external {
+    function updateBountyAmount(uint256 id, uint256 newTokenAmount) nonReentrant external {
         _isBountyOwner(id);
         _isInDraft(id, true);
         _isFundingRequest(id, false);
@@ -443,7 +443,7 @@ contract NetworkV2 is Governed {
      *   is not funded
      *   is open
      */
-    function fundBounty(uint256 id, uint256 fundingAmount) external {
+    function fundBounty(uint256 id, uint256 fundingAmount) nonReentrant external {
         _isFundingRequest(id, true);
         _isFunded(id, false);
         _isNotCanceled(id);
@@ -470,7 +470,7 @@ contract NetworkV2 is Governed {
      *  bounty is not canceled
      *  Benefactor entry must match msg.sender
      */
-    function retractFunds(uint256 id, uint256[] calldata fundingIds) external {
+    function retractFunds(uint256 id, uint256[] calldata fundingIds) nonReentrant external {
         _isInDraft(id, true);
         _isFundingRequest(id, true);
         _isNotCanceled(id);
@@ -691,7 +691,7 @@ contract NetworkV2 is Governed {
      *   bounty is open, not closed and not in draft
      *   proposal exists
      */
-    function closeBounty(uint256 id, uint256 proposalId, string memory ipfsUri) external {
+    function closeBounty(uint256 id, uint256 proposalId, string memory ipfsUri) nonReentrant external {
         _isOpen(id);
         _isNotCanceled(id);
         _isInDraft(id, false);
@@ -750,13 +750,14 @@ contract NetworkV2 is Governed {
         }
     }
 
-    function withdrawFundingReward(uint256 id, uint256 fundingId) external {
+    function withdrawFundingReward(uint256 id, uint256 fundingId) nonReentrant external {
         _bountyExists(id);
         require(bounties[id].rewardToken != address(0), "WF0");
         require(bounties[id].closed == true, "WF1");
         require(bounties[id].funding.length > fundingId, "WF2");
         require(bounties[id].rewardToken != address(0), "WF3");
         require(bounties[id].funding[fundingId].benefactor == msg.sender, "WF4");
+        _amountGT0(bounties[id].funding[fundingId].amount);
 
         uint256 rewardAmount = bounties[id].funding[fundingId].amount.div(bounties[id].fundingAmount).mul(bounties[id].rewardAmount);
 

@@ -4,15 +4,18 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./INetworkV2.sol";
 import "../utils/Governed.sol";
 import "./BountyToken.sol";
 
-contract NetworkRegistry is Governed {
+contract NetworkRegistry is Governed, ReentrancyGuard {
 
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
+
+    uint256 constant MAX_ALLOWED_TOKENS_LEN = 30;
 
     uint256 constant MAX_PERCENT = 100000000;
     uint256 public DIVISOR = 1000000; // used so client can understand and send correct conversions
@@ -42,6 +45,7 @@ contract NetworkRegistry is Governed {
     event NetworkClosed(address indexed network);
     event UserLockedAmountChanged(address indexed user, uint256 indexed newAmount);
     event ChangedFee(uint256 indexed closeFee, uint256 indexed cancelFee);
+    event LockFeeChanged(uint256 indexed lockFee);
     event ChangeAllowedTokens(address[] indexed tokens, string operation, string kind);
 
     function _closeAndCancelFeesLimits(uint256 _cancelFee, uint256 _closeFee) internal {
@@ -59,7 +63,7 @@ contract NetworkRegistry is Governed {
         uint256 _lockFeePercentage,
         uint256 _closeFeePercentage,
         uint256 _cancelFeePercentage,
-        address _bountyToken) Governed() {
+        address _bountyToken) Governed() ReentrancyGuard() {
 
         _closeAndCancelFeesLimits(_cancelFeePercentage, _closeFeePercentage);
         _lockPercentageLimits(_lockFeePercentage);
@@ -84,7 +88,7 @@ contract NetworkRegistry is Governed {
     /*
      * Lock an amount into the smart contract to be used to register a network
      */
-    function lock(uint256 _amount) external {
+    function lock(uint256 _amount) nonReentrant external {
         require(_amount > 0, "L0");
 
         lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].add(_amount);
@@ -98,7 +102,7 @@ contract NetworkRegistry is Governed {
     /*
      * Unlock all tokens and close the network if one exists and can be closed, otherwise don't allow unlocking
      */
-    function unlock() external {
+    function unlock() nonReentrant external {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
 
         if (networkOfAddress[msg.sender] != address(0)) {
@@ -122,10 +126,10 @@ contract NetworkRegistry is Governed {
 
     /*
      * Register a new network on the contract, if a treasury exists then subtract and transfer the amount
-     * of {@lockFeePercentage} to the treasury and update both the totalLockedAmount as the amount of locked
+     * of @lockFeePercentage to the treasury and update both the totalLockedAmount as the amount of locked
      * tokens of the sender
      */
-    function registerNetwork(address networkAddress) external {
+    function registerNetwork(address networkAddress) nonReentrant external {
         INetworkV2 network = INetworkV2(networkAddress);
         uint256 fee = (lockAmountForNetworkCreation.mul(lockFeePercentage)).div(MAX_PERCENT);
 
@@ -154,6 +158,7 @@ contract NetworkRegistry is Governed {
     function changeLockPercentageFee(uint256 newAmount) external onlyGovernor {
         _lockPercentageLimits(newAmount);
         lockFeePercentage = newAmount;
+        emit LockFeeChanged(newAmount);
     }
 
     /*
@@ -170,6 +175,8 @@ contract NetworkRegistry is Governed {
     function addAllowedTokens(address[] calldata _erc20Addresses, bool transactional) onlyGovernor external {
         EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _erc20Addresses.length;
+
+        require(len.add(pointer.length()) <= MAX_ALLOWED_TOKENS_LEN, "AT0");
 
         for (uint256 z = 0; z < len; z++) {
             require(pointer.add(_erc20Addresses[z]) == true, "AT1");
@@ -188,11 +195,6 @@ contract NetworkRegistry is Governed {
         emit ChangeAllowedTokens(_erc20Addresses, "remove", transactional ? "transactional" : "reward");
     }
 
-    function getAllowedTokens() public view returns (bytes32[] memory transactional, bytes32[] memory reward) {
-        transactional = _transactionalTokens._inner._values;
-        reward = _transactionalTokens._inner._values;
-    }
-
     function getAllowedToken(uint256 x, bool transactional) external view returns (address) {
         return (transactional ? _transactionalTokens : _rewardTokens).at(x);
     }
@@ -201,7 +203,16 @@ contract NetworkRegistry is Governed {
         return (transactional ? _transactionalTokens : _rewardTokens).length();
     }
 
-    function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) external {
+    /*
+     * bytes32 array of all the allowed arrays to be converted on the client side
+     * should work as a alternative to @getAllowedToken() and @getAllowedTokenLen() combo
+     */
+    function getAllowedTokens() external view returns (bytes32[] memory transactional, bytes32[] memory reward) {
+        transactional = _transactionalTokens._inner._values;
+        reward = _transactionalTokens._inner._values;
+    }
+
+    function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) nonReentrant external {
         require(openNetworks[msg.sender] == true, "A0");
         require(address(bountyToken) != address(0), "A1");
         bountyToken.awardBounty(to, uri, award);
