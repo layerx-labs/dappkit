@@ -128,7 +128,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require(_amount > 0, "L0");
     }
 
-    function _cancelFundingRequest(uint256 id) nonReentrant internal {
+    function _cancelFundingRequest(uint256 id) internal {
         INetworkV2.Bounty storage bounty = bounties[id];
 
         for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
@@ -147,7 +147,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "C5");
     }
 
-    function _cancelBounty(uint256 id) nonReentrant internal {
+    function _cancelBounty(uint256 id) internal {
         INetworkV2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
 
