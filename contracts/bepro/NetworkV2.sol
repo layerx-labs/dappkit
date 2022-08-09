@@ -549,11 +549,6 @@ contract NetworkV2 is Governed {
         require(bounties[ofBounty].pullRequests[prId].canceled == false, "CPR2");
         require(bounties[ofBounty].pullRequests[prId].creator == msg.sender, "CPR3");
 
-//        We should check that the PR is not canceled on the other side - The owner of the PR should know better than the proposer
-//        for (uint256 i = 0; i < bounties[ofBounty].proposals.length; i++) {
-//            require(bounties[ofBounty].proposals[i].prId != prId, "CPR4");
-//        }
-
         bounties[ofBounty].pullRequests[prId].canceled = true;
 
         emit BountyPullRequestCanceled(ofBounty, prId);
