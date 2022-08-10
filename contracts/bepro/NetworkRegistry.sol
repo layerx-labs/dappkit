@@ -48,7 +48,7 @@ contract NetworkRegistry is Governed, ReentrancyGuard {
     event LockFeeChanged(uint256 indexed lockFee);
     event ChangeAllowedTokens(address[] indexed tokens, string operation, string kind);
 
-    function _closeAndCancelFeesLimits(uint256 _cancelFee, uint256 _closeFee) internal {
+    function _closeAndCancelFeesLimits(uint256 _cancelFee, uint256 _closeFee) internal view {
         require(_cancelFee <= MAX_PERCENT, "CGF1");
         require(_closeFee <= MAX_PERCENT, "CGF1");
     }

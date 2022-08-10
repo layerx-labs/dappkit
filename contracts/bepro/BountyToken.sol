@@ -13,7 +13,7 @@ contract BountyToken is ERC721, Governed {
         dispatcher = _dispatcher;
     }
 
-    INetworkV2.BountyConnector[] tokenIds;
+    INetworkV2.BountyConnector[] public tokenIds;
 
     /**
      * Mint a NFT with the required information
