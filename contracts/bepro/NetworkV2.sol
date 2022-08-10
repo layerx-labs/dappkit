@@ -47,7 +47,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     uint256 public closedBounties = 0;
     uint256 public canceledBounties = 0;
 
-    uint256 public mergeCreatorFeeShare = 500000; // 0.5%
+    uint256 public mergeCreatorFeeShare = 50000; // 0.05%
     uint256 public proposerFeeShare = 2000000; // 2%
     uint256 public percentageNeededForDispute = 3000000; // 3%
 
@@ -169,7 +169,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         emit BountyCanceled(id);
     }
 
-    function _toPercent(uint256 a, uint256 b) internal returns (uint256) {
+    function _toPercent(uint256 a, uint256 b) internal pure returns (uint256) {
         return (a.mul(b)).div(MAX_PERCENT);
     }
 
@@ -191,7 +191,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         return (address(0), 0, 0);
     }
 
-    function changeNetworkParameter(uint256 _parameter, uint256 _value) public onlyGovernor {
+    function changeNetworkParameter(uint256 _parameter, uint256 _value) external onlyGovernor {
         if (_parameter == uint256(INetworkV2.Params.councilAmount)) {
             require(_value >= MIN_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "1");
             require(_value <= MAX_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "2");
@@ -224,7 +224,8 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     /*
      * Lock or Unlock tokens into this smart contract by applying a exchange rate configured in {@oracleExchangeRate}
      */
-    function manageOracles(bool lock, uint256 amount) external {
+    function manageOracles(bool lock, uint256 amount) nonReentrant external {
+        _amountGT0(amount);
         uint256 exchanged = 0;
         if (lock) {
             exchanged = amount.mul(oracleExchangeRate.div(DIVISOR));
@@ -242,13 +243,14 @@ contract NetworkV2 is Governed, ReentrancyGuard {
 
         }
 
-        emit OraclesChanged(msg.sender, int256(lock ? amount : -amount), oracles[msg.sender].locked);
+        emit OraclesChanged(msg.sender, int256(lock ? amount : -amount), oracles[msg.sender].locked.add(oracles[msg.sender].byOthers));
     }
 
     /*
      * allocate voting power from the mapper of one address to another
      */
     function delegateOracles(uint256 amount, address toAddress) external {
+        _amountGT0(amount);
         require(amount <= oracles[msg.sender].locked, "0");
         oracles[msg.sender].locked = oracles[msg.sender].locked.sub(amount);
         oracles[msg.sender].toOthers = oracles[msg.sender].toOthers.add(amount);
@@ -260,13 +262,15 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      * return voting power given to another address
      */
     function takeBackOracles(uint256 entryId) external {
-        require(delegations[msg.sender][entryId].amount > 0, "1");
+        _amountGT0(delegations[msg.sender][entryId].amount);
         uint256 amount = delegations[msg.sender][entryId].amount;
         address delegated = delegations[msg.sender][entryId].to;
         oracles[msg.sender].locked = oracles[msg.sender].locked.add(amount);
         oracles[msg.sender].toOthers = oracles[msg.sender].toOthers.sub(amount);
         oracles[delegated].byOthers = oracles[delegated].byOthers.sub(amount);
         delegations[msg.sender][entryId].amount = 0;
+
+        emit OraclesTransfer(delegated, msg.sender, amount);
     }
 
     /*
@@ -348,9 +352,8 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      *   sender is governor
      *   if bounty entry has proposals, require that all are disputed
      */
-    function hardCancel(uint256 id) nonReentrant external {
+    function hardCancel(uint256 id) nonReentrant onlyGovernor external {
         require(bounties[id].creator != address(0), "1");
-        require(msg.sender == _governor, "2");
         require(block.timestamp.sub(bounties[id].creationDate) >= cancelableTime, "3");
 
         if (bounties[id].proposals.length > 0) {
@@ -539,7 +542,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      *   PR creator must be sender
      *   PR can't have been used in a proposal
      */
-    function cancelPullRequest(uint256 ofBounty, uint256 prId) public {
+    function cancelPullRequest(uint256 ofBounty, uint256 prId) external {
         _isOpen(ofBounty);
         _isInDraft(ofBounty, false);
         _isNotCanceled(ofBounty);
@@ -562,7 +565,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      *   PR creator must match sender
      *   PR has to exist
      */
-    function markPullRequestReadyForReview(uint256 bountyId, uint256 pullRequestId) public {
+    function markPullRequestReadyForReview(uint256 bountyId, uint256 pullRequestId) external {
         _isInDraft(bountyId, false);
         _isNotCanceled(bountyId);
         _isOpen(bountyId);
@@ -592,7 +595,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         uint256 prId,
         address[] calldata recipients,
         uint256[] calldata percentages
-    ) public {
+    ) external {
         _isInDraft(id, false);
         _isOpen(id);
         _isNotCanceled(id);
@@ -706,7 +709,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require(bounties[id].pullRequests[proposal.prId].canceled == false, "8");
 
 
-    uint256 returnAmount = bounty.tokenAmount;
+        uint256 returnAmount = bounty.tokenAmount;
 
         if (address(registry) != address(0)) {
             if (registry.treasury() != address(0)) {
@@ -752,8 +755,12 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require(bounties[id].closed == true, "W1");
         require(bounties[id].funding.length > fundingId, "W2");
         _amountGT0(bounties[id].funding[fundingId].amount);
+
         uint256 rewardAmount = bounties[id].funding[fundingId].amount.div(bounties[id].fundingAmount).mul(bounties[id].rewardAmount);
+
         bounties[id].funding[fundingId].amount = 0;
+
         require(ERC20(bounties[id].rewardToken).transfer(bounties[id].funding[fundingId].benefactor, rewardAmount), "W5");
     }
+
 }

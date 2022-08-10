@@ -125,7 +125,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
 
     /*
      * Register a new network on the contract, if a treasury exists then subtract and transfer the amount
-     * of {@lockFeePercentage} to the treasury and update both the totalLockedAmount as the amount of locked
+     * of @lockFeePercentage to the treasury and update both the totalLockedAmount as the amount of locked
      * tokens of the sender
      */
     function registerNetwork(address networkAddress) nonReentrant external {
@@ -135,13 +135,12 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
         require(network._governor() == msg.sender, "R2");
+        require(address(network.registry()) == address(this), "R4");
 
         if (treasury != address(0)) {
             require(erc20.transfer(treasury, fee), "R3");
             totalLockedAmount = totalLockedAmount.sub(fee);
         }
-
-        require(address(network.registry()) == address(this), "R4");
 
         networksArray.push(network);
         openNetworks[networkAddress] = true;
@@ -150,7 +149,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         emit NetworkRegistered(networkAddress, msg.sender, networksArray.length - 1);
     }
 
-    function changeAmountForNetworkCreation(uint256 newAmount) public onlyGovernor {
+    function changeAmountForNetworkCreation(uint256 newAmount) external onlyGovernor {
         require(newAmount > 0, "C1");
         lockAmountForNetworkCreation = newAmount;
     }
@@ -161,12 +160,11 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         emit LockFeeChanged(newAmount);
     }
 
-
     /*
      * Change global fees related to registered networks
      * 1% = 10,000
      */
-    function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) public onlyGovernor {
+    function changeGlobalFees(uint256 _closeFee, uint256 _cancelFee) external onlyGovernor {
         _closeAndCancelFeesLimits(_cancelFee, _closeFee);
         closeFeePercentage = _closeFee;
         cancelFeePercentage = _cancelFee;
@@ -213,7 +211,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         reward = _transactionalTokens._inner._values;
     }
 
-    function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) public {
+    function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) nonReentrant external {
         require(openNetworks[msg.sender] == true, "A0");
         require(address(bountyToken) != address(0), "A1");
         bountyToken.awardBounty(to, uri, award);
