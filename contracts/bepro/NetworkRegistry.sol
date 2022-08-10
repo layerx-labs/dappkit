@@ -17,8 +17,11 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     uint256 constant MAX_PERCENT = 100000000;
+    uint256 constant MAX_ALLOWED_TOKENS_LEN = 30;
+
     uint256 public DIVISOR = 1000000; // used so client can understand and send correct conversions
     uint256 public MAX_LOCK_PERCENTAGE_FEE = 10000000; // used so client can understand and send correct conversions
+
 
     INetwork_v2[] public networksArray;
     IERC20 public erc20;
@@ -127,7 +130,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
      */
     function registerNetwork(address networkAddress) nonReentrant external {
         INetwork_v2 network = INetwork_v2(networkAddress);
-        uint256 fee = (lockAmountForNetworkCreation.mul(lockFeePercentage)).div(MAX_PERCENT);
+        uint256 fee = (lockAmountForNetworkCreation.mul(networkCreationFeePercentage)).div(MAX_PERCENT);
 
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
@@ -157,7 +160,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         networkCreationFeePercentage = newAmount;
         emit LockFeeChanged(newAmount);
     }
-}
+
 
     /*
      * Change global fees related to registered networks
