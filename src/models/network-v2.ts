@@ -497,6 +497,10 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.sendTx(this.contract.methods.closeBounty(id, proposalId, ipfsUri));
   }
 
+  async withdrawFundingReward(id: number, fundingId: number) {
+    return this.sendTx(this.contract.methods.withdrawFundingReward(id, fundingId));
+  }
+
   async cidBountyId(cid: string) {
     return this.callTx(this.contract.methods.cidBountyId(cid));
   }

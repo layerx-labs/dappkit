@@ -650,7 +650,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         bytes32 b32 = keccak256(abi.encodePacked(bountyId, proposalId));
 
         require(disputes[msg.sender][b32] == 0, "1");
-        require(bounties[bountyId].pullRequests[bounties[bountyId].proposals[proposalId].prId].canceled == false, "D2");
+        require(bounties[bountyId].pullRequests[bounties[bountyId].proposals[proposalId].prId].canceled == false, "2");
 
         uint256 weight = oracles[msg.sender].locked.add(oracles[msg.sender].byOthers);
 
