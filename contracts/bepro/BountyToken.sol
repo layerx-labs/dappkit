@@ -3,7 +3,7 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../utils/Governed.sol";
-import "./INetwork_v2.sol";
+import "./INetworkV2.sol";
 
 contract BountyToken is ERC721, Governed {
 
@@ -13,9 +13,9 @@ contract BountyToken is ERC721, Governed {
         dispatcher = _dispatcher;
     }
 
-    INetwork_v2.BountyConnector[] tokenIds;
+    INetworkV2.BountyConnector[] tokenIds;
 
-    function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) external {
+    function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) external {
         require(msg.sender == dispatcher, "AB0");
         uint256 id = tokenIds.length;
         _safeMint(to, id);
@@ -23,7 +23,7 @@ contract BountyToken is ERC721, Governed {
         tokenIds.push(award);
     }
 
-    function getBountyToken(uint256 id) public view returns (INetwork_v2.BountyConnector memory bountyConnector) {
+    function getBountyToken(uint256 id) public view returns (INetworkV2.BountyConnector memory bountyConnector) {
         require(id < tokenIds.length, "B0");
         return tokenIds[id];
     }

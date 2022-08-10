@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "../math/SafePercentMath.sol";
 import "../utils/Governed.sol";
 import "./BountyToken.sol";
-import "./INetwork_v2.sol";
+import "./INetworkV2.sol";
 import "./NetworkRegistry.sol";
 
 
@@ -58,11 +58,11 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     uint256 public councilAmount = 25000000*10**18; // 25M * 10 to the power of 18 (decimals)
 
     uint256 public bountiesIndex = 0;
-    mapping(uint256 => INetwork_v2.Bounty) bounties;
+    mapping(uint256 => INetworkV2.Bounty) bounties;
     mapping(address => uint256[]) bountiesOfAddress;
     mapping(string => uint256) public cidBountyId;
-    mapping(address => INetwork_v2.Oracle) public oracles;
-    mapping(address => INetwork_v2.Delegation[]) delegations;
+    mapping(address => INetworkV2.Oracle) public oracles;
+    mapping(address => INetworkV2.Delegation[]) delegations;
     mapping(address => mapping(bytes32 => uint256)) public disputes;
 
     event BountyCreated(uint256 id, string cid, address indexed creator);
@@ -128,10 +128,10 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     }
 
     function _cancelFundingRequest(uint256 id) internal {
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        INetworkV2.Bounty storage bounty = bounties[id];
 
         for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
-            INetwork_v2.Benefactor storage x = bounty.funding[i];
+            INetworkV2.Benefactor storage x = bounty.funding[i];
             if (x.amount > 0) {
                 require(ERC20(bounty.transactional).transfer(x.benefactor, x.amount), "4");
                 x.amount = 0;
@@ -148,7 +148,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     }
 
     function _cancelBounty(uint256 id) internal {
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        INetworkV2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
 
         bounty.canceled = true;
@@ -173,11 +173,11 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         return (a.mul(b)).div(MAX_PERCENT);
     }
 
-    function getBounty(uint256 id) external view returns (INetwork_v2.Bounty memory) {
+    function getBounty(uint256 id) external view returns (INetworkV2.Bounty memory) {
         return bounties[id];
     }
 
-    function getDelegationsFor(address _address) external view returns (INetwork_v2.Delegation[] memory) {
+    function getDelegationsFor(address _address) external view returns (INetworkV2.Delegation[] memory) {
         return delegations[_address];
     }
 
@@ -192,30 +192,30 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     }
 
     function changeNetworkParameter(uint256 _parameter, uint256 _value) public onlyGovernor {
-        if (_parameter == uint256(INetwork_v2.Params.councilAmount)) {
+        if (_parameter == uint256(INetworkV2.Params.councilAmount)) {
             require(_value >= MIN_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "1");
             require(_value <= MAX_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "2");
             councilAmount = _value;
-        } else if (_parameter == uint256(INetwork_v2.Params.draftTime)) {
+        } else if (_parameter == uint256(INetworkV2.Params.draftTime)) {
             require(_value >= MIN_DRAFT_TIME && _value <= MAX_DRAFT_TIME, "3");
             draftTime = _value;
-        } else if (_parameter == uint256(INetwork_v2.Params.disputableTime)) {
+        } else if (_parameter == uint256(INetworkV2.Params.disputableTime)) {
             require(_value >= MIN_DISPUTABLE_TIME && _value <= MAX_DISPUTABLE_TIME, "4");
             disputableTime = _value;
-        } else if (_parameter == uint256(INetwork_v2.Params.percentageNeededForDispute)) {
+        } else if (_parameter == uint256(INetworkV2.Params.percentageNeededForDispute)) {
             require(_value >= 0 && _value <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "5");
             percentageNeededForDispute = _value;
-        } else if (_parameter == uint256(INetwork_v2.Params.mergeCreatorFeeShare)) {
+        } else if (_parameter == uint256(INetworkV2.Params.mergeCreatorFeeShare)) {
             require(_value >= 0 && _value <= MAX_MERGE_CREATOR_FEE_SHARE, "6");
             mergeCreatorFeeShare = _value;
-        } else if (_parameter == uint256(INetwork_v2.Params.proposerFeeShare)) {
+        } else if (_parameter == uint256(INetworkV2.Params.proposerFeeShare)) {
             require(_value >= 0 && _value <= MAX_PROPOSER_FEE_SHARE);
             proposerFeeShare = _value;
-        } else if (_parameter == uint256(INetwork_v2.Params.oracleExchangeRate)) {
+        } else if (_parameter == uint256(INetworkV2.Params.oracleExchangeRate)) {
             require(_value >= 0, "0");
             require(totalNetworkToken == 0, "1");
             oracleExchangeRate = _value;
-        } else if (_parameter == uint256(INetwork_v2.Params.cancelableTime)) {
+        } else if (_parameter == uint256(INetworkV2.Params.cancelableTime)) {
             require(_value >= MIN_CANCELABLE_TIME, "3");
             cancelableTime = _value;
         }
@@ -253,7 +253,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         oracles[msg.sender].locked = oracles[msg.sender].locked.sub(amount);
         oracles[msg.sender].toOthers = oracles[msg.sender].toOthers.add(amount);
         oracles[toAddress].byOthers = oracles[toAddress].byOthers.add(amount);
-        delegations[msg.sender].push(INetwork_v2.Delegation(msg.sender, toAddress, amount));
+        delegations[msg.sender].push(INetworkV2.Delegation(msg.sender, toAddress, amount));
     }
 
     /*
@@ -355,7 +355,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
 
         if (bounties[id].proposals.length > 0) {
             for (uint256 i = 0; i <= bounties[id].proposals.length - 1; i++) {
-                INetwork_v2.Proposal memory proposal = bounties[id].proposals[i];
+                INetworkV2.Proposal memory proposal = bounties[id].proposals[i];
                 require((proposal.disputeWeight >= _toPercent(oraclesDistributed, percentageNeededForDispute)) || proposal.refusedByBountyOwner == true, "4");
             }
         }
@@ -415,7 +415,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         _isInDraft(id, true);
         _isFundingRequest(id, false);
 
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        INetworkV2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
 
         require(newTokenAmount > 0 && (bounty.tokenAmount != newTokenAmount) , "1");
@@ -447,12 +447,12 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         _isFunded(id, false);
         _isNotCanceled(id);
 
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        INetworkV2.Bounty storage bounty = bounties[id];
         require(bounty.funded == false, "1");
         require(bounty.tokenAmount < bounty.fundingAmount, "2");
         require(bounty.tokenAmount.add(fundingAmount) <= bounty.fundingAmount, "3");
 
-        bounty.funding.push(INetwork_v2.Benefactor(msg.sender, fundingAmount, block.timestamp));
+        bounty.funding.push(INetworkV2.Benefactor(msg.sender, fundingAmount, block.timestamp));
 
         bounty.tokenAmount = bounty.tokenAmount.add(fundingAmount);
         bounty.funded = bounty.fundingAmount == bounty.tokenAmount;
@@ -475,16 +475,17 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         _isFundingRequest(id, true);
         _isNotCanceled(id);
 
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        require(fundingId < bounties[id].funding.length, "R0");
 
-        for (uint256 i = 0; i <= fundingIds.length - 1; i++) {
-            INetwork_v2.Benefactor storage x = bounty.funding[fundingIds[i]];
-            require(x.benefactor == msg.sender, "1");
-            _amountGT0(x.amount);
-            require(ERC20(bounty.transactional).transfer(msg.sender, x.amount), "3");
-            bounty.tokenAmount = bounty.tokenAmount.sub(x.amount);
-            x.amount = 0;
-        }
+        INetworkV2.Bounty storage bounty = bounties[id];
+        INetworkV2.Benefactor storage funding = bounty.funding[fundingId];
+
+        require(funding.benefactor == msg.sender, "R1");
+        _amountGT0(funding.amount);
+
+        require(ERC20(bounty.transactional).transfer(msg.sender, funding.amount), "R3");
+        bounty.tokenAmount = bounty.tokenAmount.sub(funding.amount);
+        funding.amount = 0;
 
         bounty.funded = bounty.tokenAmount == bounty.fundingAmount;
         emit BountyFunded(id, bounty.funded, msg.sender, int256(bounty.tokenAmount - bounty.fundingAmount));
@@ -511,9 +512,9 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         _isNotCanceled(forBountyId);
         _isInDraft(forBountyId, false);
 
-        INetwork_v2.Bounty storage bounty = bounties[forBountyId];
+        INetworkV2.Bounty storage bounty = bounties[forBountyId];
 
-        INetwork_v2.PullRequest memory pullRequest;
+        INetworkV2.PullRequest memory pullRequest;
         pullRequest.cid = cid;
         pullRequest.id = bounty.pullRequests.length;
 
@@ -603,10 +604,10 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require((recipients.length + percentages.length) <= MAX_CONTRIBUTORS_LENGTH * 2, "C3");
         require(recipients.length == percentages.length, "C4");
 
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        INetworkV2.Bounty storage bounty = bounties[id];
 
         bounty.proposals.push();
-        INetwork_v2.Proposal storage proposal = bounty.proposals[bounty.proposals.length - 1];
+        INetworkV2.Proposal storage proposal = bounty.proposals[bounty.proposals.length - 1];
 
         proposal.id = bounty.proposals.length - 1;
         proposal.prId = prId;
@@ -652,7 +653,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
 
         _amountGT0(weight);
 
-        INetwork_v2.Proposal storage proposal = bounties[bountyId].proposals[proposalId];
+        INetworkV2.Proposal storage proposal = bounties[bountyId].proposals[proposalId];
 
         proposal.disputeWeight = proposal.disputeWeight.add(weight);
         disputes[msg.sender][b32] = weight;
@@ -695,9 +696,9 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         _isInDraft(id, false);
         _proposalExists(id, proposalId);
 
-        INetwork_v2.Bounty storage bounty = bounties[id];
+        INetworkV2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
-        INetwork_v2.Proposal storage proposal = bounty.proposals[proposalId];
+        INetworkV2.Proposal storage proposal = bounty.proposals[proposalId];
 
         require(block.timestamp >= bounty.proposals[proposalId].creationDate.add(disputableTime), "2");
         require(proposal.disputeWeight < _toPercent(oraclesDistributed, percentageNeededForDispute), "3");
@@ -723,8 +724,8 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require(erc20.transfer(proposal.creator, proposerFee), "9");
 
         for (uint256 i = 0; i <= proposal.details.length - 1; i++) {
-            INetwork_v2.ProposalDetail memory detail = proposal.details[i];
-            INetwork_v2.BountyConnector memory award = INetwork_v2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
+            INetworkV2.ProposalDetail memory detail = proposal.details[i];
+            INetworkV2.BountyConnector memory award = INetworkV2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
             require(erc20.transfer(detail.recipient, proposalAmount.div(100).mul(detail.percentage)), "5");
 
             if (address(registry) != address(0)) {

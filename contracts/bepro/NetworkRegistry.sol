@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-import "./INetwork_v2.sol";
+import "./INetworkV2.sol";
 import "../utils/Governed.sol";
 import "../math/SafePercentMath.sol";
 import "./BountyToken.sol";
@@ -23,7 +23,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
     uint256 public MAX_LOCK_PERCENTAGE_FEE = 10000000; // used so client can understand and send correct conversions
 
 
-    INetwork_v2[] public networksArray;
+    INetworkV2[] public networksArray;
     IERC20 public erc20;
     BountyToken public bountyToken;
 
@@ -105,7 +105,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
 
         if (networkOfAddress[msg.sender] != address(0)) {
-            INetwork_v2 network = INetwork_v2(networkOfAddress[msg.sender]);
+            INetworkV2 network = INetworkV2(networkOfAddress[msg.sender]);
             require(network.totalNetworkToken() == 0, "UL1");
             require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
 
@@ -129,7 +129,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
      * tokens of the sender
      */
     function registerNetwork(address networkAddress) nonReentrant external {
-        INetwork_v2 network = INetwork_v2(networkAddress);
+        INetworkV2 network = INetworkV2(networkAddress);
         uint256 fee = (lockAmountForNetworkCreation.mul(networkCreationFeePercentage)).div(MAX_PERCENT);
 
         require(networkOfAddress[msg.sender] == address(0), "R0");
@@ -213,7 +213,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         reward = _transactionalTokens._inner._values;
     }
 
-    function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) public {
+    function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) public {
         require(openNetworks[msg.sender] == true, "A0");
         require(address(bountyToken) != address(0), "A1");
         bountyToken.awardBounty(to, uri, award);

@@ -4,7 +4,7 @@ import "./BountyToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./NetworkRegistry.sol";
 
-interface INetwork_v2 {
+interface INetworkV2 {
 
     struct BountyConnector {
         address originNetwork;
