@@ -2,7 +2,7 @@ pragma abicoder v2;
 
 import "./BountyToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./Network_Registry.sol";
+import "./NetworkRegistry.sol";
 
 interface INetwork_v2 {
 
@@ -102,7 +102,7 @@ interface INetwork_v2 {
 
     function networkToken() external view returns (ERC20);
     function nftToken() external view returns (BountyToken);
-    function registry() external view returns (Network_Registry);
+    function registry() external view returns (NetworkRegistry);
 
     function bountyNftUri() external view returns (string memory);
 
