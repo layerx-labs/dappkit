@@ -470,7 +470,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      *  bounty is not canceled
      *  Benefactor entry must match msg.sender
      */
-    function retractFunds(uint256 id, uint256[] calldata fundingIds) nonReentrant external {
+    function retractFunds(uint256 id, uint256 fundingId) nonReentrant external {
         _isInDraft(id, true);
         _isFundingRequest(id, true);
         _isNotCanceled(id);
