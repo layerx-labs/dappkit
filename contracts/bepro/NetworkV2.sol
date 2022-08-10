@@ -11,7 +11,7 @@ import "./INetwork_v2.sol";
 import "./NetworkRegistry.sol";
 
 
-contract Network_v2 is Governed, ReentrancyGuard {
+contract NetworkV2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
     uint256 constant MAX_PERCENT = 100000000;
