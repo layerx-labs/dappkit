@@ -77,6 +77,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     event BountyProposalRefused(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
     event BountyAmountUpdated(uint256 indexed id, uint256 amount);
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
+    event OraclesTransfer(address indexed from, address indexed to, uint256 indexed amount);
 
     constructor(address _networkToken, address _registry) Governed() ReentrancyGuard() {
         networkToken = ERC20(_networkToken);
