@@ -24,7 +24,7 @@ contract BountyToken is ERC721, Governed {
     }
 
     function getBountyToken(uint256 id) public view returns (INetwork_v2.BountyConnector memory bountyConnector) {
-        require(tokenIds.length <= id, "B0");
+        require(id < tokenIds.length, "B0");
         return tokenIds[id];
     }
 
@@ -37,7 +37,7 @@ contract BountyToken is ERC721, Governed {
         dispatcher = dispatcher_;
     }
 
-    function transferFrom(address from, address to, uint256 tokenId) public override {}
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override {}
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public override {}
+    function transferFrom(address from, address to, uint256 tokenId) public override { revert(); }
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override { revert(); }
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public override { revert(); }
 }
