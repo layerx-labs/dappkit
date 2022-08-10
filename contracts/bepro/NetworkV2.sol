@@ -421,14 +421,15 @@ contract NetworkV2 is Governed {
         INetworkV2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
 
+        uint256 prevTokenAmount = bounty.tokenAmount;
         bounty.tokenAmount = newTokenAmount;
 
         emit BountyAmountUpdated(id, newTokenAmount);
 
         if (newTokenAmount > bounty.tokenAmount) {
-            require(erc20.transferFrom(msg.sender, address(this), newTokenAmount.sub(bounty.tokenAmount)), "U2");
+            require(erc20.transferFrom(msg.sender, address(this), newTokenAmount.sub(prevTokenAmount)), "U2");
         } else {
-            require(erc20.transfer(bounty.creator, bounty.tokenAmount.sub(newTokenAmount)), "U3");
+            require(erc20.transfer(bounty.creator, prevTokenAmount.sub(newTokenAmount)), "U3");
         }
     }
 
