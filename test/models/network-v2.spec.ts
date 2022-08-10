@@ -146,6 +146,7 @@ describe(`NetworkV2`, () => {
 
           const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
 
+          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq(1000);
           expect(events.length).to.be.eq(1);
           expect(events[0].returnValues.cid).to.be.eq('c1');
           expect((await network.getBountiesOfAddress(Admin.address)).length).to.be.eq(1);
@@ -162,6 +163,7 @@ describe(`NetworkV2`, () => {
 
           expect(events[0].returnValues.amount).to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
           expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq(1001);
+          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq(1001);
         });
 
         it(`Oracles Changed`, async () => {
@@ -252,7 +254,7 @@ describe(`NetworkV2`, () => {
         });
 
         it(`Retracts Bobs funding`, async () => {
-          await hasTxBlockNumber(network.retractFunds(bountyId, [1]));
+          await hasTxBlockNumber(network.retractFunds(bountyId, 1));
           expect((await network.getBounty(bountyId)).funded).to.be.false;
         });
 

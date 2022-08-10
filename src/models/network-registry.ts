@@ -5,7 +5,7 @@ import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
 import {XEvents, XPromiseEvent} from '@events/x-events';
 
-import Network_RegistryJson from '@abi/Network_Registry.json';
+import Network_RegistryJson from '@abi/NetworkRegistry.json';
 import { Network_RegistryMethods } from '@methods/network-registry';
 import * as Events from '@events/network-registry'
 import {PastEventOptions} from 'web3-eth-contract';
@@ -108,8 +108,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
                                      this.token.decimals);
   }
 
-  async lockFeePercentage() {
-    return +(await this.callTx(this.contract.methods.lockFeePercentage())) / this.divisor;
+  async networkCreationFeePercentage() {
+    return +(await this.callTx(this.contract.methods.networkCreationFeePercentage())) / this.divisor;
   }
 
   async treasury() {

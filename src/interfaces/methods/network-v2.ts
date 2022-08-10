@@ -40,7 +40,7 @@ export interface Network_v2Methods {
   cancelFundRequest(id: number): ContractSendMethod;
   updateBountyAmount(id: number, newTokenAmount: number): ContractSendMethod;
   fundBounty(id: number, fundingAmount: number): ContractSendMethod;
-  retractFunds(id: number, fundingIds: number[]): ContractSendMethod;
+  retractFunds(id: number, fundingId: number): ContractSendMethod;
   createPullRequest(forBountyId: number, originRepo: string, originBranch: string, originCID: string, userRepo: string, userBranch: string, cid: number): ContractSendMethod;
   cancelPullRequest(ofBounty: number, prId: number): ContractSendMethod;
   markPullRequestReadyForReview(bountyId: number, pullRequestId: number): ContractSendMethod;

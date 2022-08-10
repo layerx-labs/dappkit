@@ -92,7 +92,7 @@ describe(`Network_Registry`, () => {
         const receipt = await registry.registerNetwork(networkAddress);
         expect(receipt.transactionHash).to.exist;
         expect(await registry.getNetworkRegisteredEvents({fromBlock: receipt.blockNumber})).to.have.lengthOf(1);
-        expect(await registry.lockedTokensOfAddress(await web3Connection.getAddress())).to.be.eq(10 - (10/100) * await registry.lockFeePercentage());
+        expect(await registry.lockedTokensOfAddress(await web3Connection.getAddress())).to.be.eq(10 - (10/100) * await registry.networkCreationFeePercentage());
       });
 
       it(`Throws because one networks per user`, async () => {
