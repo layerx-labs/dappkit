@@ -2,7 +2,7 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import Network_v2Json from '@abi/Network_v2.json';
+import Network_v2Json from '@abi/NetworkV2.json';
 import {Network_v2Methods} from '@methods/network-v2';
 import * as Events from '@events/network-v2-events';
 import {XEvents, XPromiseEvent} from '@events/x-events';
@@ -33,7 +33,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   private _registry!: NetworkRegistry;
   private _DIVISOR!: number;
 
-  public Params = {
+  readonly Params = {
     councilAmount: 0,
     disputableTime: 1,
     draftTime: 2,
@@ -421,6 +421,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async updateBountyAmount(id: number, newTokenAmount: number, decimals = 18) {
     newTokenAmount = toSmartContractDecimals(newTokenAmount, decimals);
+    console.log('sending value',newTokenAmount)
     return this.sendTx(this.contract.methods.updateBountyAmount(id, newTokenAmount));
   }
 
@@ -438,8 +439,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   /**
    * enable users to retract their funding
    */
-  async retractFunds(id: number, fundingIds: number[]) {
-    return this.sendTx(this.contract.methods.retractFunds(id, fundingIds));
+  async retractFunds(id: number, fundingId: number) {
+    return this.sendTx(this.contract.methods.retractFunds(id, fundingId));
   }
 
   /**

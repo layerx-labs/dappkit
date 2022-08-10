@@ -144,6 +144,7 @@ describe(`NetworkV2`, () => {
             nativeZeroAddress, 0, 0,
             'c1', 'Title', '//', 'master', 'ghuser');
 
+          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq(1000);
           const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
 
           expect(events.length).to.be.eq(1);
@@ -156,12 +157,12 @@ describe(`NetworkV2`, () => {
         });
 
         it(`Updates bounty amount`, async () => {
-          const receipt = await network.updateBountyAmount(bountyId, 1001);
-
+          const receipt = await network.updateBountyAmount(bountyId, 500, bountyTransactional.decimals);
           const events = await network.getBountyAmountUpdatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
 
-          expect(events[0].returnValues.amount).to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
-          expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq(1001);
+          expect(events[0].returnValues.amount).to.be.eq(toSmartContractDecimals(500, bountyTransactional.decimals));
+          expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq(500);
+          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq(500);
         });
 
         it(`Oracles Changed`, async () => {
@@ -172,6 +173,7 @@ describe(`NetworkV2`, () => {
 
         it(`Cancels bounty`, async () => {
           web3Connection.switchToAccount(Admin.privateKey);
+
           const receipt = await network.cancelBounty(bountyId);
           const events = await network.getBountyCanceledEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
           expect(events.length).to.be.eq(1);

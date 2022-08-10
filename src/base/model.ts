@@ -11,8 +11,8 @@ import {ContractCallMethod} from '@methods/contract-call-method';
 import {transactionHandler} from '@utils/transaction-handler';
 import {noop} from '@utils/noop';
 
-export class Model<Methods = any> {
-  protected _contract!: Web3Contract<Methods>;
+export class Model<Methods = any, Events = any> {
+  protected _contract!: Web3Contract<Methods, Events>;
   private readonly web3Connection!: Web3Connection;
 
   /**

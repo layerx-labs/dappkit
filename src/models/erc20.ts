@@ -6,6 +6,7 @@ import {fromDecimals, fromSmartContractDecimals, toSmartContractDecimals} from '
 import {Deployable} from '@interfaces/deployable';
 import {ERC20Methods} from '@methods/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
+import {PastEventOptions} from "web3-eth-contract";
 
 export class ERC20 extends Model<ERC20Methods> implements Deployable {
   private _decimals = 0;
@@ -82,5 +83,9 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
     }
 
     return this.deploy(deployOptions, this.connection.Account);
+  }
+
+  async getTransferEvents(filter: PastEventOptions) {
+    return this.contract.self.getPastEvents(`Transfer`, filter)
   }
 }
