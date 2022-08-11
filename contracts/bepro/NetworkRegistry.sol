@@ -185,7 +185,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
             require(pointer.add(_erc20Addresses[z]) == true, "AT1");
         }
 
-        emit ChangeAllowedTokens(_erc20Addresses, "remove", transactional ? "transactional" : "reward");
+        emit ChangeAllowedTokens(_erc20Addresses, "add", transactional ? "transactional" : "reward");
     }
 
     /*
