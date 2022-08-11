@@ -28,11 +28,11 @@ contract BountyToken is ERC721, Governed {
         return tokenIds[id];
     }
 
-    function getNextId() public view returns (uint256) {
+    function getNextId() external view returns (uint256) {
         return tokenIds.length;
     }
 
-    function setDispatcher(address dispatcher_) public  onlyGovernor {
+    function setDispatcher(address dispatcher_) external onlyGovernor {
         require(dispatcher_ != dispatcher, "SD0");
         dispatcher = dispatcher_;
     }
