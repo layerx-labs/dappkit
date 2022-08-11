@@ -119,12 +119,12 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require(_proposalId <= bounties[_bountyId].proposals.length - 1, "0");
     }
 
-    function _lessThan20MoreThan1(uint256 value) internal {
+    function _lessThan20MoreThan1(uint256 value) internal pure {
         require(value <= 20 days, "1");
         require(value >= 1 minutes, "2");
     }
 
-    function _amountGT0(uint256 _amount) internal view {
+    function _amountGT0(uint256 _amount) internal pure {
         require(_amount > 0, "0");
     }
 
