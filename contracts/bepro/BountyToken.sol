@@ -27,7 +27,7 @@ contract BountyToken is ERC721, Governed {
         tokenIds.push(award);
     }
 
-    function getBountyToken(uint256 id) public view returns (INetworkV2.BountyConnector memory bountyConnector) {
+    function getBountyToken(uint256 id) external view returns (INetworkV2.BountyConnector memory bountyConnector) {
         require(id < tokenIds.length, "B0");
         return tokenIds[id];
     }

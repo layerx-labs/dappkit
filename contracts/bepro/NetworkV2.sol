@@ -257,6 +257,8 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         oracles[msg.sender].toOthers = oracles[msg.sender].toOthers.add(amount);
         oracles[toAddress].byOthers = oracles[toAddress].byOthers.add(amount);
         delegations[msg.sender].push(INetworkV2.Delegation(msg.sender, toAddress, amount));
+
+        emit OraclesTransfer(msg.sender, toAddress, amount);
     }
 
     /*
