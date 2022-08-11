@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../utils/Governed.sol";
 import "./INetworkV2.sol";
 
+/*
+ * A BountyToken is a non-transferable NFT that tracks the record of participation of a certain address on a
+ * @INetworkV2.Bounty
+ */
 contract BountyToken is ERC721, Governed {
 
     address public dispatcher = address(0);

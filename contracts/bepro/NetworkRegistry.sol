@@ -171,6 +171,11 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         emit ChangedFee(closeFeePercentage, cancelFeePercentage);
     }
 
+    /*
+     * Add allowed tokens to be used by the NetworkV2.sol contract
+     * safeguard against malicious governor by never going beyond
+     * @MAX_ALLOWED_TOKENS
+     */
     function addAllowedTokens(address[] calldata _erc20Addresses, bool transactional) onlyGovernor external {
         EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _erc20Addresses.length;
@@ -184,6 +189,11 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         emit ChangeAllowedTokens(_erc20Addresses, "remove", transactional ? "transactional" : "reward");
     }
 
+    /*
+     * Remove allowed tokens;
+     *   ! nothing will happen to dependants of this state. Those bounties will simply be completed
+     *       while new ones won't be able to use the removed tokens. !
+     */
     function removeAllowedTokens(address[] calldata _erc20Addresses, bool transactional) onlyGovernor external {
         EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _erc20Addresses.length;
@@ -202,6 +212,9 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         return (transactional ? _transactionalTokens : _rewardTokens).length();
     }
 
+    /*
+     * Bridge to the BountyToken to be awarded by the NetworkV2.sol when a bounty is closed, to a participant
+     */
     function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) nonReentrant external {
         require(openNetworks[msg.sender] == true, "A0");
         require(address(bountyToken) != address(0), "A1");
