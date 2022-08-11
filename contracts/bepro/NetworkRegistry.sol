@@ -154,7 +154,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         lockAmountForNetworkCreation = newAmount;
     }
 
-    function changeLockPercentageFee(uint256 newAmount) external onlyGovernor {
+    function changeNetworkCreationFee(uint256 newAmount) external onlyGovernor {
         _networkCreationFeeLimits(newAmount);
         networkCreationFeePercentage = newAmount;
         emit LockFeeChanged(newAmount);
@@ -200,15 +200,6 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
 
     function getAllowedTokenLen(bool transactional) external view returns (uint256) {
         return (transactional ? _transactionalTokens : _rewardTokens).length();
-    }
-
-    /*
-     * bytes32 array of all the allowed arrays to be converted on the client side
-     * should work as a alternative to @getAllowedToken() and @getAllowedTokenLen() combo
-     */
-    function getAllowedTokens() external view returns (bytes32[] memory transactional, bytes32[] memory reward) {
-        transactional = _transactionalTokens._inner._values;
-        reward = _transactionalTokens._inner._values;
     }
 
     function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) nonReentrant external {
