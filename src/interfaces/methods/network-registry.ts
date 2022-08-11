@@ -29,7 +29,7 @@ export interface Network_RegistryMethods {
 
   treasury(): ContractCallMethod<string>;
 
-  changeLockPercentageFee(newAmount: number): ContractSendMethod;
+  changeNetworkCreationFee(newAmount: number): ContractSendMethod;
 
   amountOfNetworks(): ContractCallMethod<number>;
 
@@ -44,8 +44,8 @@ export interface Network_RegistryMethods {
   addAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;
   removeAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;
 
-  getAllowedTokens(): ContractCallMethod<{ transactional: string[], reward: string[] }>;
-  allowedTokens(x: number, y: number): ContractCallMethod<string>;
+  getAllowedToken(x: number, transactional: boolean): ContractCallMethod<string>;
+  getAllowedTokenLen(transactional: boolean): ContractCallMethod<number>;
 
   DIVISOR(): ContractCallMethod<number>;
   MAX_PERCENTAGE(): ContractCallMethod<number>;
