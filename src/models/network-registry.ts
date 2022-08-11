@@ -5,7 +5,7 @@ import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
 import {XEvents, XPromiseEvent} from '@events/x-events';
 
-import Network_RegistryJson from '@abi/Network_Registry.json';
+import Network_RegistryJson from '@abi/NetworkRegistry.json';
 import { Network_RegistryMethods } from '@methods/network-registry';
 import * as Events from '@events/network-registry'
 import {PastEventOptions} from 'web3-eth-contract';
@@ -108,8 +108,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
                                      this.token.decimals);
   }
 
-  async lockFeePercentage() {
-    return +(await this.callTx(this.contract.methods.lockFeePercentage())) / this.divisor;
+  async networkCreationFeePercentage() {
+    return +(await this.callTx(this.contract.methods.networkCreationFeePercentage())) / this.divisor;
   }
 
   async treasury() {
@@ -137,8 +137,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.sendTx(this.contract.methods.changeAmountForNetworkCreation(newAmount));
   }
 
-  async changeLockPercentageFee(newAmount: number) {
-    return this.sendTx(this.contract.methods.changeLockPercentageFee(newAmount * this.divisor));
+  async changeNetworkCreationFee(newAmount: number) {
+    return this.sendTx(this.contract.methods.changeNetworkCreationFee(newAmount * this.divisor));
   }
 
   async changeGlobalFees(closeFee: number, cancelFee: number) {
@@ -153,8 +153,27 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.sendTx(this.contract.methods.removeAllowedTokens(addresses, isTransactional));
   }
 
+  async getAllowedTokenLen(): Promise<number[]> {
+    return Promise.all([
+      this.callTx(this.contract.methods.getAllowedTokenLen(true)),
+      this.callTx(this.contract.methods.getAllowedTokenLen(false)),
+    ])
+  }
+
   async getAllowedTokens() {
-    return _allowedTokens(await this.callTx(this.contract.methods.getAllowedTokens()));
+    const [t, r] = await this.getAllowedTokenLen();
+    const max = Math.max(t, r);
+    const transactional = [];
+    const reward = [];
+
+    for (let x = 0; x < max; x++) {
+      if (x < t)
+        transactional.push(await this.callTx(this.contract.methods.getAllowedToken(x, true)))
+      if (x < r)
+        reward.push(await this.callTx(this.contract.methods.getAllowedToken(x, false)))
+    }
+
+    return {transactional, reward};
   }
 
   async getGovernorTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {

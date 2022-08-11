@@ -3,8 +3,12 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../utils/Governed.sol";
-import "./INetwork_v2.sol";
+import "./INetworkV2.sol";
 
+/*
+ * A BountyToken is a non-transferable NFT that tracks the record of participation of a certain address on a
+ * @INetworkV2.Bounty
+ */
 contract BountyToken is ERC721, Governed {
 
     address public dispatcher = address(0);
@@ -13,9 +17,9 @@ contract BountyToken is ERC721, Governed {
         dispatcher = _dispatcher;
     }
 
-    INetwork_v2.BountyConnector[] tokenIds;
+    INetworkV2.BountyConnector[] tokenIds;
 
-    function awardBounty(address to, string memory uri, INetwork_v2.BountyConnector calldata award) external {
+    function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) external {
         require(msg.sender == dispatcher, "AB0");
         uint256 id = tokenIds.length;
         _safeMint(to, id);
@@ -23,21 +27,21 @@ contract BountyToken is ERC721, Governed {
         tokenIds.push(award);
     }
 
-    function getBountyToken(uint256 id) public view returns (INetwork_v2.BountyConnector memory bountyConnector) {
-        require(tokenIds.length <= id, "B0");
+    function getBountyToken(uint256 id) external view returns (INetworkV2.BountyConnector memory bountyConnector) {
+        require(id < tokenIds.length, "B0");
         return tokenIds[id];
     }
 
-    function getNextId() public view returns (uint256) {
+    function getNextId() external view returns (uint256) {
         return tokenIds.length;
     }
 
-    function setDispatcher(address dispatcher_) public  onlyGovernor {
+    function setDispatcher(address dispatcher_) external onlyGovernor {
         require(dispatcher_ != dispatcher, "SD0");
         dispatcher = dispatcher_;
     }
 
-    function transferFrom(address from, address to, uint256 tokenId) public override {}
-    function safeTransferFrom(address from, address to, uint256 tokenId) public override {}
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public override {}
+    function transferFrom(address from, address to, uint256 tokenId) public override { revert(); }
+    function safeTransferFrom(address from, address to, uint256 tokenId) public override { revert(); }
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) public override { revert(); }
 }

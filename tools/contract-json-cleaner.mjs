@@ -1,7 +1,7 @@
 import {lstatSync, readFileSync, writeFileSync, readdirSync} from "fs";
 import {resolve} from "path";
 
-const KEEP_ROOT_KEYS = ['abi', 'bytecode'];
+const KEEP_ROOT_KEYS = ['abi', 'bytecode', 'contractName'];
 
 function cleanFile(file = "") {
   const origin = JSON.parse(readFileSync(file, "utf-8"));
