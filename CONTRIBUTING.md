@@ -57,6 +57,7 @@ $ git pull --rebase master
 
 ### Build and test the solution:
 ```
+$ npm install
 $ npm run build
 $ npm run ganache:start
 $ npm run test
