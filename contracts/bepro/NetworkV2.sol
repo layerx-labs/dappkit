@@ -294,7 +294,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         string memory repoPath,
         string memory branch,
         string memory githubUser
-    ) external {
+    ) nonReentrant external {
         bountiesIndex = bountiesIndex.add(1);
 
         bounties[bountiesIndex].id = bountiesIndex;
@@ -446,7 +446,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      *   is not funded
      *   is open
      */
-    function fundBounty(uint256 id, uint256 fundingAmount) external {
+    function fundBounty(uint256 id, uint256 fundingAmount) nonReentrant external {
         _isFundingRequest(id, true);
         _isFunded(id, false);
         _isNotCanceled(id);
