@@ -564,5 +564,9 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async getOraclesChangedEvents(filter: PastEventOptions): Promise<XEvents<Events.OraclesChangedEvent>[]> {
     return this.contract.self.getPastEvents(`OraclesChanged`, filter)
   }
+  
+  async getOraclesTransferEvents(filter: PastEventOptions): Promise<XEvents<Events.OraclesTransferEvent>[]> {
+    return this.contract.self.getPastEvents(`OraclesTransfer`, filter)
+  }
 
 }
