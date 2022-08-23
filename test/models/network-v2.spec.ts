@@ -172,6 +172,15 @@ describe(`NetworkV2`, () => {
           expect(events.length).to.be.eq(1);
         });
 
+        it(`Oracles Transfer`, async () => {
+          const delegate = await network.delegateOracles(1200, Alice.address)
+          const delegateEvents = await network.getOraclesTransferEvents({fromBlock: delegate.blockNumber});
+          const takeBack = await network.takeBackOracles(1);
+          const takeBackEvents = await network.getOraclesTransferEvents({fromBlock: takeBack.blockNumber});
+          expect(delegateEvents.length).to.be.eq(1);
+          expect(takeBackEvents.length).to.be.eq(1);
+        });
+
         it(`Cancels bounty`, async () => {
           web3Connection.switchToAccount(Admin.privateKey);
           const receipt = await network.cancelBounty(bountyId);
