@@ -191,6 +191,15 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   async getUserLockedAmountChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.UserLockedAmountChangedEvent> {
     return this.contract.self.getPastEvents('UserLockedAmountChanged', filter);
   }
+  async getChangedFeeEvent(filter: PastEventOptions): XPromiseEvent<Events.ChangedFeeEvent> {
+    return this.contract.self.getPastEvents('ChangedFee', filter);
+  }
+  async getChangeAllowedTokensEvents(filter: PastEventOptions): XPromiseEvent<Events.ChangeAllowedTokensEvent> {
+    return this.contract.self.getPastEvents('ChangeAllowedTokens', filter);
+  }
+  async getLockFeeChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.LockFeeChangedEvent> {
+    return this.contract.self.getPastEvents('LockFeeChanged', filter);
+  }
 }
 
 export class NetworkRegistry extends Network_Registry {}
