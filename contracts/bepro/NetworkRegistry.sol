@@ -10,6 +10,12 @@ import "./INetworkV2.sol";
 import "../utils/Governed.sol";
 import "./BountyToken.sol";
 
+/*
+ * The NetworkRegistry acts as a registry for @INetworkV2, allowing registering and closing of new networks, by using
+ * user provided ERC20 to assure the network indexing on the ecosystem.
+ * By using a Registry, each network uses it as a Dispacther for @INetwork.BountyTokens that represent an interaction
+ * and contribution done on the network.
+ */
 contract NetworkRegistry is ReentrancyGuard, Governed {
 
     using SafeMath for uint256;

@@ -10,7 +10,11 @@ import "./BountyToken.sol";
 import "./INetworkV2.sol";
 import "./NetworkRegistry.sol";
 
-
+/*
+ * Network contract is responsible for the record-keeping of bounties, and its related information (PRs, Proposals, etc),
+ * along with the management of voting power (dubbed "Oracles") and the payment (or return, in case of cancelation) of
+ * funds upon completion
+ */
 contract NetworkV2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
