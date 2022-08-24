@@ -10,6 +10,12 @@ import "./INetworkV2.sol";
 import "../utils/Governed.sol";
 import "./BountyToken.sol";
 
+/*
+ * The NetworkRegistry acts as a registry for @INetworkV2, allowing registering and closing of new networks, by using
+ * user provided ERC20 to assure the network indexing on the ecosystem.
+ * By using a Registry, each network uses it as a Dispacther for @INetwork.BountyTokens that represent an interaction
+ * and contribution done on the network.
+ */
 contract NetworkRegistry is ReentrancyGuard, Governed {
 
     using SafeMath for uint256;
@@ -86,6 +92,9 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
 
     /*
      * Lock an amount into the smart contract to be used to register a network
+     * Assert rules,
+     *  amount is higher than zero
+     *  transfer is made successfully
      */
     function lock(uint256 _amount) nonReentrant external {
         require(_amount > 0, "L0");
@@ -99,6 +108,12 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
 
     /*
      * Unlock all tokens and close the network if one exists and can be closed, otherwise don't allow unlocking
+     * Assert rules,
+     *  user must have tokens to unlock
+     *  - if user has a network
+     *      TVL of network must be zero
+     *      All bounties must be closed or canceled
+     *  transfer is successful
      */
     function unlock() nonReentrant external {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
@@ -126,6 +141,13 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
      * Register a new network on the contract, if a treasury exists then subtract and transfer the amount
      * of @lockFeePercentage to the treasury and update both the totalLockedAmount as the amount of locked
      * tokens of the sender
+     * Assert rules,
+     *  network can't exist
+     *  locked funds of user must be at least @lockAmountForNetworkCreation
+     *  the network governor mush be the msg.sender
+     *  the network registry of the network must match address(this)
+     *  - if a treasury exists,
+     *      transfer of treasury fee must be successful
      */
     function registerNetwork(address networkAddress) nonReentrant external {
         INetworkV2 network = INetworkV2(networkAddress);
@@ -203,10 +225,16 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         emit ChangeAllowedTokens(_erc20Addresses, "remove", transactional ? "transactional" : "reward");
     }
 
+    /*
+     * Retrieve allowed token at index
+     */
     function getAllowedToken(uint256 x, bool transactional) external view returns (address) {
         return (transactional ? _transactionalTokens : _rewardTokens).at(x);
     }
 
+    /*
+     * Retrieve the length of the pool of allowed tokens
+     */
     function getAllowedTokenLen(bool transactional) external view returns (uint256) {
         return (transactional ? _transactionalTokens : _rewardTokens).length();
     }

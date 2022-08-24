@@ -10,7 +10,11 @@ import "./BountyToken.sol";
 import "./INetworkV2.sol";
 import "./NetworkRegistry.sol";
 
-
+/*
+ * Network contract is responsible for the record-keeping of bounties, and its related information (PRs, Proposals, etc),
+ * along with the management of voting power (dubbed "Oracles") and the payment (or return, in case of cancelation) of
+ * funds upon completion
+ */
 contract NetworkV2 is Governed, ReentrancyGuard {
     using SafeMath for uint256;
 
@@ -192,6 +196,35 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         return (address(0), 0, 0);
     }
 
+    /*
+     * Enables a network Governor Change a network parameter
+     * Assert rules,
+     *   _value **must** 0 or higher (because uint256)
+     *
+     *   - for councilAmount,
+     *     _value must be higher than @MIN_COUNCIL_AMOUNT and lower than @MAX_COUNCIL_AMOUNT
+     *
+     *   - for draftTime,
+     *     _value must be higher than @MIN_DRAFT_TIME and lower than @MAX_DRAFT_TIME
+     *
+     *   - for disputableTime,
+     *     _value must be higher than @MIN_DISPUTABLE_TIME and lower than @MAX_DISPUTABLE_TIME
+     *
+     *   - for percentageNeededForDispute,
+     *     _value must be lower than @MAX_PERCENTAGE_NEEDED_FOR_DISPUTE
+     *
+     *   - for mergeCreatorFeeShare,
+     *     _value must be lower than @MAX_MERGE_CREATOR_FEE_SHARE
+     *
+     *   - for proposerFeeShare,
+     *     _value must be lower than @MAX_PROPOSER_FEE_SHARE
+     *
+     *   - for oracleExchangeRate,
+     *     TVL must be 0
+     *
+     *   - for cancelableTime,
+     *     _value must be higher than @MIN_CANCELABLE_TIME
+     */
     function changeNetworkParameter(uint256 _parameter, uint256 _value) external onlyGovernor {
         if (_parameter == uint256(INetworkV2.Params.councilAmount)) {
             require(_value >= MIN_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "1");
@@ -204,16 +237,15 @@ contract NetworkV2 is Governed, ReentrancyGuard {
             require(_value >= MIN_DISPUTABLE_TIME && _value <= MAX_DISPUTABLE_TIME, "4");
             disputableTime = _value;
         } else if (_parameter == uint256(INetworkV2.Params.percentageNeededForDispute)) {
-            require(_value >= 0 && _value <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "5");
+            require(_value <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "5");
             percentageNeededForDispute = _value;
         } else if (_parameter == uint256(INetworkV2.Params.mergeCreatorFeeShare)) {
-            require(_value >= 0 && _value <= MAX_MERGE_CREATOR_FEE_SHARE, "6");
+            require(_value <= MAX_MERGE_CREATOR_FEE_SHARE, "6");
             mergeCreatorFeeShare = _value;
         } else if (_parameter == uint256(INetworkV2.Params.proposerFeeShare)) {
-            require(_value >= 0 && _value <= MAX_PROPOSER_FEE_SHARE);
+            require(_value <= MAX_PROPOSER_FEE_SHARE);
             proposerFeeShare = _value;
         } else if (_parameter == uint256(INetworkV2.Params.oracleExchangeRate)) {
-            require(_value >= 0, "0");
             require(totalNetworkToken == 0, "1");
             oracleExchangeRate = _value;
         } else if (_parameter == uint256(INetworkV2.Params.cancelableTime)) {
@@ -752,6 +784,15 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         emit BountyClosed(id, proposalId);
     }
 
+    /*
+     * Enable benefactor to withdraw the reward for a funding entry
+     * Assert rules,
+     *   bounty exists
+     *   bounty has a reward token
+     *   bounty is closed
+     *   fundingId is within bounds
+     *   reward transfer is successful
+     */
     function withdrawFundingReward(uint256 id, uint256 fundingId) external {
         _bountyExists(id);
         require(bounties[id].rewardToken != address(0), "W0");

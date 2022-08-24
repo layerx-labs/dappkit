@@ -19,6 +19,12 @@ contract BountyToken is ERC721, Governed {
 
     INetworkV2.BountyConnector[] tokenIds;
 
+    /*
+     * Alias to safeMint
+     *
+     * Assert rules,
+     *  msg.sender must be dispatcher
+     */
     function awardBounty(address to, string memory uri, INetworkV2.BountyConnector calldata award) external {
         require(msg.sender == dispatcher, "AB0");
         uint256 id = tokenIds.length;
@@ -27,6 +33,11 @@ contract BountyToken is ERC721, Governed {
         tokenIds.push(award);
     }
 
+    /*
+     * Get the underlying NFT information that correlates to a bounty
+     * Assert rules,
+     *   id must be withing bounds
+     */
     function getBountyToken(uint256 id) external view returns (INetworkV2.BountyConnector memory bountyConnector) {
         require(id < tokenIds.length, "B0");
         return tokenIds[id];
@@ -36,6 +47,11 @@ contract BountyToken is ERC721, Governed {
         return tokenIds.length;
     }
 
+    /*
+     * Allow governor to change dispatcher
+     * Assert rules,
+     *   dispatcher can't be equal to previous dispatcher address
+     */
     function setDispatcher(address dispatcher_) external onlyGovernor {
         require(dispatcher_ != dispatcher, "SD0");
         dispatcher = dispatcher_;
