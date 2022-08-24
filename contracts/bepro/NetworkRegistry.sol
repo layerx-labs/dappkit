@@ -203,10 +203,16 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         emit ChangeAllowedTokens(_erc20Addresses, "remove", transactional ? "transactional" : "reward");
     }
 
+    /*
+     * Retrieve allowed token at index
+     */
     function getAllowedToken(uint256 x, bool transactional) external view returns (address) {
         return (transactional ? _transactionalTokens : _rewardTokens).at(x);
     }
 
+    /*
+     * Retrieve the length of the pool of allowed tokens
+     */
     function getAllowedTokenLen(bool transactional) external view returns (uint256) {
         return (transactional ? _transactionalTokens : _rewardTokens).length();
     }
