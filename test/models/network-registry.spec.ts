@@ -74,7 +74,8 @@ describe(`Network_Registry`, () => {
       it(`Changes amount needed for network creation`, async () => {
         await hasTxBlockNumber(registry.changeAmountForNetworkCreation(10));
         const newLockAmount = await registry.lockAmountForNetworkCreation();
-        expect(newLockAmount).to.eq(10)
+
+        expect(newLockAmount).to.eq("10");
       });
 
       it(`Approves, Locks and Unlocks`, async () => {
@@ -92,7 +93,7 @@ describe(`Network_Registry`, () => {
         const receipt = await registry.registerNetwork(networkAddress);
         expect(receipt.transactionHash).to.exist;
         expect(await registry.getNetworkRegisteredEvents({fromBlock: receipt.blockNumber})).to.have.lengthOf(1);
-        expect(await registry.lockedTokensOfAddress(await web3Connection.getAddress())).to.be.eq(10 - (10/100) * await registry.networkCreationFeePercentage());
+        expect(+(await registry.lockedTokensOfAddress(await web3Connection.getAddress()))).to.be.eq(10 - (10/100) * await registry.networkCreationFeePercentage());
       });
 
       it(`Throws because one networks per user`, async () => {

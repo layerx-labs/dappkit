@@ -66,7 +66,7 @@ describe(`NetworkV2`, () => {
     describe(`Owner`, () => {
       it(`changeCouncilAmount()`, async () => {
         await hasTxBlockNumber(network.changeCouncilAmount(newCouncilAmount));
-        expect(await network.councilAmount()).to.eq(newCouncilAmount);
+        expect(await network.councilAmount()).to.eq(newCouncilAmount.toString());
       });
 
       it(`changeDraftTime()`, async () => {
@@ -115,25 +115,25 @@ describe(`NetworkV2`, () => {
         it(`Locks NT and receives Network Stake Token`, async () => {
           await hasTxBlockNumber(networkToken.approve(network.contractAddress!, AMOUNT_1M));
           await hasTxBlockNumber(network.lock(205000));
-          expect(await network.getOraclesOf(Admin.address)).to.be.eq(205000 * 2); // we made a 1:2
+          expect(await network.getOraclesOf(Admin.address)).to.be.eq((205000 * 2).toString()); // we made a 1:2
           expect(await networkToken.getTokenAmount(Admin.address)).to.be.eq(AMOUNT_1M - 205000);
         });
 
         it(`Delegates to Alice`, async () => {
           await hasTxBlockNumber(network.delegateOracles(103000, Alice.address));
-          expect(await network.getOraclesOf(Admin.address)).to.be.eq((205000 * 2) - 103000);
-          expect(await network.getOraclesOf(Alice.address)).to.be.eq(103000);
+          expect(await network.getOraclesOf(Admin.address)).to.be.eq(((205000 * 2) - 103000).toString());
+          expect(await network.getOraclesOf(Alice.address)).to.be.eq("103000");
         });
 
         it(`Takes back from Alice`, async () => {
           await hasTxBlockNumber(network.takeBackOracles(0));
-          expect(await network.getOraclesOf(Alice.address)).to.be.eq(0);
-          expect(await network.getOraclesOf(Admin.address)).to.be.eq(205000 * 2);
+          expect(await network.getOraclesOf(Alice.address)).to.be.eq("0");
+          expect(await network.getOraclesOf(Admin.address)).to.be.eq((205000 * 2).toString());
         })
 
         it(`Unlocks NST and receives Network Token`, async () => {
           await hasTxBlockNumber(network.unlock(200000)); // because 2:1
-          expect(await network.getOraclesOf(Admin.address)).to.be.eq((105000 * 2));
+          expect(await network.getOraclesOf(Admin.address)).to.be.eq((105000 * 2).toString());
           expect(await networkToken.getTokenAmount(Admin.address)).to.be.eq(AMOUNT_1M - 105000);
         });
       });
