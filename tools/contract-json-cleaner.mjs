@@ -17,10 +17,9 @@ try {
   else
     readdirSync(jsonOrPath)
       .filter(file => file.endsWith(".json"))
-      .forEach(file => {
-        const pathToFile = resolve(jsonOrPath, file);
-        writeFileSync(pathToFile, cleanFile(pathToFile), "utf-8")
-      });
+      .map(file => resolve(jsonOrPath, file))
+      .forEach(pathToFile => writeFileSync(pathToFile, cleanFile(pathToFile), "utf-8"));
+
 } catch (e) {
   console.error('Error', e);
   process.exit(1);

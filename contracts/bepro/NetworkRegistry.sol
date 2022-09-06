@@ -123,10 +123,11 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
             require(network.totalNetworkToken() == 0, "UL1");
             require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
 
-            openNetworks[networkOfAddress[msg.sender]] = false;
+            address closedNetworkAddress = networkOfAddress[msg.sender];
+            openNetworks[closedNetworkAddress] = false;
             networkOfAddress[msg.sender] = address(0);
 
-            emit NetworkClosed(networkOfAddress[msg.sender]);
+            emit NetworkClosed(closedNetworkAddress);
         }
 
         require(erc20.transfer(msg.sender, lockedTokensOfAddress[msg.sender]), "UL3");

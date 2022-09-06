@@ -99,8 +99,7 @@ export class Model<Methods = any> {
    * Interact with, or change a value of, a property on the contract
    */
   async sendTx(method: ContractSendMethod,
-               value?: any,
-               debug = this.web3Connection?.options?.debug): Promise<TransactionReceipt> {
+               value?: any): Promise<TransactionReceipt> {
     if (this.account)
       return this.contract.sendSignedTx(this.account,
                                         method.encodeABI(),
@@ -108,22 +107,31 @@ export class Model<Methods = any> {
                                         await this.contract.txOptions(method,
                                                                       value,
                                                                       await this.connection.getAddress()),
-                                        debug);
+                                        this.connection.options);
 
-    else return this.sendUnsignedTx(method, value, debug);
+    else return this.sendUnsignedTx(method, value, this.connection.options);
   }
 
   /* eslint-disable no-async-promise-executor */
   /**
    * Send unsigned transaction
    */
-  async sendUnsignedTx(method: ContractSendMethod, value?: any, debug?: boolean): Promise<TransactionReceipt> {
+  async sendUnsignedTx(method: ContractSendMethod,
+                       value?: any, {
+                         debug,
+                         customTransactionHandler: cb
+                       }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
     const from = (await this.web3.eth.getAccounts())[0];
 
     return new Promise(async (resolve, reject) => {
       try {
         const options = await this.contract.txOptions(method, value, from);
-        await transactionHandler(method.send({from, value, ...options}, noop), resolve, reject, debug)
+        const sendMethod = () => method.send({from, value, ...options}, noop);
+
+        if (cb)
+          cb(sendMethod(), resolve, reject, debug)
+        else
+          transactionHandler(sendMethod(), resolve, reject, debug)
       } catch (e) {
         if (debug)
           console.error(e);

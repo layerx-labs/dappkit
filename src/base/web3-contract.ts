@@ -5,6 +5,7 @@ import {Account, TransactionConfig} from 'web3-core';
 import {TransactionReceipt} from '@interfaces/web3-core';
 import {Errors} from '@interfaces/error-enum';
 import {transactionHandler} from '@utils/transaction-handler';
+import {Web3ConnectionOptions} from "@interfaces/web3-connection-options";
 
 const DEFAULT_CONFIRMATIONS_NEEDED = 1;
 
@@ -130,10 +131,12 @@ export class Web3Contract<Methods = any, Events = any> {
    * Sends a signed transaction with the provided account
    */
   sendSignedTx(account: Account,
-                     data: string,
-                     value = ``,
-                     txOptions: Partial<TransactionConfig>,
-                     debug?: boolean): Promise<TransactionReceipt> {
+               data: string,
+               value = ``,
+               txOptions: Partial<TransactionConfig>, {
+                 debug,
+                 customTransactionHandler: cb
+               }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
     /* eslint-disable no-async-promise-executor */
     return new Promise(async (resolve, reject) => {
       try {
@@ -141,8 +144,12 @@ export class Web3Contract<Methods = any, Events = any> {
         const from = account.address;
         const to = this.address;
         const signedTx = await account.signTransaction({from, to, data, value, ...txOptions});
+        const sendMethod = () => this.web3.eth.sendSignedTransaction(signedTx.rawTransaction!);
 
-        await transactionHandler(this.web3.eth.sendSignedTransaction(signedTx.rawTransaction!), resolve, reject, debug);
+        if (cb)
+          cb(sendMethod(), resolve, reject, debug);
+        else
+          transactionHandler(sendMethod(), resolve, reject, debug);
 
       } catch (e) {
         console.error(e);
