@@ -29,7 +29,7 @@ export class Sablier extends Model<SablierMethods> implements Deployable {
   }
 
   async fee() {
-    return +fromDecimals(await this.callTx(this.contract.methods.fee()));
+    return fromDecimals(await this.callTx(this.contract.methods.fee()));
   }
 
   async initialize(sender: string) {
@@ -83,8 +83,8 @@ export class Sablier extends Model<SablierMethods> implements Deployable {
   }
 
   async balanceOf(streamId: number, who: string) {
-    return +fromDecimals(await this.callTx(this.contract.methods.balanceOf(streamId, who)),
-                         await this.getTokenDecimalsFromStream(streamId));
+    return fromDecimals(await this.callTx(this.contract.methods.balanceOf(streamId, who)),
+                        await this.getTokenDecimalsFromStream(streamId));
   }
 
   async isCompoundingStream(streamId: number) {
@@ -102,17 +102,21 @@ export class Sablier extends Model<SablierMethods> implements Deployable {
   }
 
   async getEarnings(tokenAddress: string) {
-    return +fromDecimals(await this.callTx(this.contract.methods.getEarnings(tokenAddress)),
-                         await this.getTokenDecimals(tokenAddress));
+    return fromDecimals(await this.callTx(this.contract.methods.getEarnings(tokenAddress)),
+                        await this.getTokenDecimals(tokenAddress));
   }
 
-  async createStream(recipient: string, deposit: number, tokenAddress: string, startTime: number, stopTime: number) {
+  async createStream(recipient: string, 
+                     deposit: string | number, 
+                     tokenAddress: string, 
+                     startTime: number, 
+                     stopTime: number) {
     deposit = toSmartContractDecimals(deposit, await this.getTokenDecimals(tokenAddress));
     return this.sendTx(this.contract.methods.createStream(recipient, deposit, tokenAddress, startTime, stopTime));
   }
 
   async createCompoundingStream(recipient: string,
-                                deposit: number,
+                                deposit: string | number,
                                 tokenAddress: string,
                                 startTime: number,
                                 stopTime: number,
@@ -130,7 +134,7 @@ export class Sablier extends Model<SablierMethods> implements Deployable {
                                                     recipientSharePercentage));
   }
 
-  async withdrawFromStream(streamId: number, amount: number) {
+  async withdrawFromStream(streamId: number, amount: string | number) {
     amount = toSmartContractDecimals(amount, await this.getTokenDecimalsFromStream(streamId));
     return this.sendTx(this.contract.methods.withdrawFromStream(streamId, amount));
   }

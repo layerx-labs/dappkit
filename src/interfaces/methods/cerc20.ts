@@ -2,7 +2,7 @@ import {ContractCallMethod} from '@methods/contract-call-method';
 
 export interface CERC20Methods {
   allowance(owner: string, spender: string) :ContractCallMethod<number>;
-  approve(spender: string, value: number) :ContractCallMethod<boolean>;
+  approve(spender: string, value: string | number) :ContractCallMethod<boolean>;
   balanceOf(owner: string) :ContractCallMethod<number>;
   decimals() :ContractCallMethod<number>;
   decreaseAllowance(spender: string, subtractedValue: number) :ContractCallMethod<boolean>;

@@ -13,7 +13,7 @@ export interface SablierMethods {
   transferOwnership(newOwner: string) :ContractSendMethod;
   unpause() :ContractSendMethod;
   updateFee(feePercentage: number) :ContractSendMethod;
-  takeEarnings(tokenAddress: string, amount: number) :ContractSendMethod;
+  takeEarnings(tokenAddress: string, amount: string | number) :ContractSendMethod;
   getStream(streamId: number) :ContractCallMethod<{'0': string; '1': string; '2': number; '3': string; '4': number; '5': number; '6': number; '7': number}>;
   deltaOf(streamId: number) :ContractCallMethod<number>;
   balanceOf(streamId: number, who: string) :ContractCallMethod<number>;
@@ -21,9 +21,9 @@ export interface SablierMethods {
   getCompoundingStream(streamId: number) :ContractCallMethod<{'0': string; '1': string; '2': number; '3': string; '4': number; '5': number; '6': number; '7': number; '8': number; '9': number; '10': number}>;
   interestOf(streamId: number, amount: number) :ContractCallMethod<{'0': number; '1': number; '2': number}>;
   getEarnings(tokenAddress: string) :ContractCallMethod<number>;
-  createStream(recipient: string, deposit: number, tokenAddress: string, startTime: number, stopTime: number) :ContractCallMethod<number>;
-  createCompoundingStream(recipient: string, deposit: number, tokenAddress: string, startTime: number, stopTime: number, senderSharePercentage: number, recipientSharePercentage: number) :ContractCallMethod<number>;
-  withdrawFromStream(streamId: number, amount: number) :ContractCallMethod<boolean>;
+  createStream(recipient: string, deposit: string | number, tokenAddress: string, startTime: number, stopTime: number) :ContractCallMethod<number>;
+  createCompoundingStream(recipient: string, deposit: string | number, tokenAddress: string, startTime: number, stopTime: number, senderSharePercentage: number, recipientSharePercentage: number) :ContractCallMethod<number>;
+  withdrawFromStream(streamId: number, amount: string | number) :ContractCallMethod<boolean>;
   cancelStream(streamId: number) :ContractCallMethod<boolean>;
   getTokenDecimalsFromStream(streamId: number) :ContractCallMethod<undefined>;
   getTokenDecimals(tokenAddress: string) :ContractCallMethod<undefined>;

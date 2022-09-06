@@ -33,7 +33,7 @@ export interface ERC721CollectiblesMethods {
   setApprovalForAll(operator: string, approved: boolean) :ContractSendMethod;
   setFeeAddress(feeAddress: string) :ContractSendMethod;
   setOtherAddress(otherAddress: string) :ContractSendMethod;
-  setPricePerPack(newPrice: number) :ContractSendMethod;
+  setPricePerPack(newPrice: string | number) :ContractSendMethod;
   setPurchaseTokenAddress(purchaseToken: string) :ContractSendMethod;
   setShares(feeShare: number, otherShare: number) :ContractSendMethod;
   supportsInterface(interfaceId: string) :ContractCallMethod<boolean>;

@@ -11,9 +11,9 @@ export interface ERC20TokenLockMethods {
   totalAmountStaked(): ContractCallMethod<number>;
   transferOwnership(newOwner: string): ContractSendMethod;
   admin(): ContractCallMethod<string>;
-  setMaxAmountToLock(tokenAmount: number): ContractCallMethod<boolean>;
-  setMinAmountToLock(tokenAmount: number): ContractCallMethod<boolean>;
-  lock(amount: number, endDate: number): ContractCallMethod<boolean>;
+  setMaxAmountToLock(tokenAmount: string | number): ContractCallMethod<boolean>;
+  setMinAmountToLock(tokenAmount: string | number): ContractCallMethod<boolean>;
+  lock(amount: string | number, endDate: number): ContractCallMethod<boolean>;
   release(): ContractCallMethod<boolean>;
   canRelease(user: string): ContractCallMethod<boolean>;
   getLockedTokens(user: string): ContractCallMethod<number>;

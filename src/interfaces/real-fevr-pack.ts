@@ -1,7 +1,7 @@
 export interface RealFevrPack {
   packId: number;
   initialNFTID: number;
-  price: number;
+  price: string | number;
   serie: string;
   drop: string;
   packType: string;

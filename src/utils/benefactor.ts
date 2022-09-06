@@ -9,7 +9,7 @@ export function benefactor({
 } : Benefactor, transactionalTokenDecimals = 18): Benefactor {
   return {
     benefactor,
-    amount: +fromDecimals(amount, transactionalTokenDecimals),
+    amount: fromDecimals(amount, transactionalTokenDecimals),
     creationDate: +creationDate * Thousand
   };
 } 

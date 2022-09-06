@@ -33,13 +33,13 @@ export interface Network_RegistryMethods {
 
   amountOfNetworks(): ContractCallMethod<number>;
 
-  lock(_amount: number): ContractSendMethod;
+  lock(_amount: string | number): ContractSendMethod;
 
   unlock(): ContractSendMethod;
 
   registerNetwork(networkAddress: string): ContractSendMethod;
 
-  changeAmountForNetworkCreation(newAmount: number): ContractSendMethod;
+  changeAmountForNetworkCreation(newAmount: string | number): ContractSendMethod;
   changeGlobalFees(closeFee: number, cancelFee: number): ContractSendMethod;
   addAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;
   removeAllowedTokens(tokens: string[], isTransactional: boolean): ContractSendMethod;

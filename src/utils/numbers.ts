@@ -5,27 +5,27 @@ import BigNumber from 'bignumber.js';
  * to ERC20 token correct number
  * @param {string|number} value
  * @param {number} decimals
- * @return {number}
+ * @return {string}
  */
 export function toSmartContractDecimals(value: string|number, decimals = 18) {
-  return new BigNumber(value).shiftedBy(+decimals).toFixed() as any as number;
+  return new BigNumber(value).shiftedBy(+decimals).toFixed();
 }
 
 /**
  * convert a ERC20 token value into javascript number
  * @param {string|number|BigNumber} value
  * @param {number} decimals
- * @return {number}
+ * @return {string}
  */
 export function fromSmartContractDecimals(value: string|number|BigNumber, decimals = 18) {
-  return new BigNumber(value).shiftedBy(-(+decimals)).toString() as any as number;
+  return new BigNumber(value).shiftedBy(-(+decimals)).toString();
 }
 
 /**
  * @alias fromSmartContractDecimals
  * @param {string|number} value
  * @param {number} decimals
- * @return {number}
+ * @return {string}
  */
 export function fromDecimals(value: string|number, decimals = 18) {
   return fromSmartContractDecimals(value, decimals);

@@ -29,7 +29,7 @@ export default function realFevrPack({
   return {
     packId,
     initialNFTID,
-    price: +fromDecimals(price, decimals),
+    price: fromDecimals(price, decimals),
     serie,
     drop,
     packType,

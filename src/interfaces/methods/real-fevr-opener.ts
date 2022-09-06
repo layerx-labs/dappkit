@@ -44,9 +44,9 @@ export interface RealFevrOpenerMethods {
   buyPacks(packIds: number[]) :ContractSendMethod;
   openPack(packId: number) :ContractSendMethod;
   openPacks(packIds: number[]) :ContractSendMethod;
-  createPack(nftAmount: number, price: number, serie: string, packType: string, drop: string, saleStart: number, saleDistributionAddresses: string[], saleDistributionAmounts: number[], marketplaceDistributionAddresses: string[], marketplaceDistributionAmounts: number[]) :ContractSendMethod;
+  createPack(nftAmount: number, price: string | number, serie: string, packType: string, drop: string, saleStart: number, saleDistributionAddresses: string[], saleDistributionAmounts: number[], marketplaceDistributionAddresses: string[], marketplaceDistributionAmounts: number[]) :ContractSendMethod;
   offerPack(packId: number, receivingAddress: string) :ContractSendMethod;
-  editPackInfo(_packId: number, _saleStart: number, serie: string, packType: string, drop: string, price: number) :ContractSendMethod;
+  editPackInfo(_packId: number, _saleStart: number, serie: string, packType: string, drop: string, price: string | number) :ContractSendMethod;
   deletePackById(packId: number) :ContractSendMethod;
   mint(tokenIdToMint: number) :ContractSendMethod;
   setPurchaseTokenAddress(purchaseToken: string) :ContractSendMethod;

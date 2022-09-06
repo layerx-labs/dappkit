@@ -9,8 +9,8 @@ export default function sablierInterest({
                                           2: sablierInterest
                                         }: Params, decimals = 18): SablierInterest {
   return {
-    spenderInterest: +fromDecimals(spenderInterest, decimals),
-    recipientInterest: +fromDecimals(recipientInterest, decimals),
-    sablierInterest: +fromDecimals(sablierInterest, decimals)
+    spenderInterest: fromDecimals(spenderInterest, decimals),
+    recipientInterest: fromDecimals(recipientInterest, decimals),
+    sablierInterest: fromDecimals(sablierInterest, decimals)
   }
 }

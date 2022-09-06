@@ -74,16 +74,16 @@ describe(`NetworkFactory`, () => {
 
     it(`Approves, locks and unlocks settler`, async () => {
       await networkFactory.approveSettlerERC20Token();
-      const tx = await networkFactory.lock(+fromDecimals(cap));
+      const tx = await networkFactory.lock(fromDecimals(cap));
       expect(tx.blockHash, `lock action`).to.not.be.empty;
-      expect(await networkFactory.getBEPROLocked(), `locked total`).to.eq(+fromDecimals(cap));
+      expect(await networkFactory.getBEPROLocked(), `locked total`).to.eq(fromDecimals(cap));
       await hasTxBlockNumber(networkFactory.unlock())
       expect(await networkFactory.getBEPROLocked(), `locked total`).to.eq(0);
     });
 
     it(`Should lock and create a new network`, async () => {
       await networkFactory.approveSettlerERC20Token();
-      await hasTxBlockNumber(networkFactory.lock(+fromDecimals(cap)));
+      await hasTxBlockNumber(networkFactory.lock(fromDecimals(cap)));
       const tx = await networkFactory.createNetwork(networkToken!, networkToken!);
       expect(await networkFactory.getAmountOfNetworksForked(), `Amount of networks`).to.eq(1);
 
@@ -137,7 +137,7 @@ describe(`NetworkFactory`, () => {
 
       it(`Creates a new network because we have already unlocked`, async () => {
         await networkFactory.approveSettlerERC20Token();
-        await networkFactory.lock(+fromDecimals(cap))
+        await networkFactory.lock(fromDecimals(cap));
         await hasTxBlockNumber(networkFactory.createNetwork(settlerToken!, settlerToken!), `Should have created network`)
       })
     })

@@ -61,7 +61,7 @@ export class CERC20 extends Model<CERC20Methods> implements Deployable {
   /**
    * Approve the passed address to spend the specified amount of tokens on behalf of msg.sender. Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
    */
-  async approve(address: string, amount: number): Promise<TransactionReceipt> {
+  async approve(address: string, amount: string | number): Promise<TransactionReceipt> {
     return this.sendTx(this.contract.methods.approve(address,
                                                      toSmartContractDecimals(amount, this.erc20.decimals)));
   }

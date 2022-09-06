@@ -105,7 +105,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   }
 
   async lpTokensPerBlock() {
-    return +fromDecimals(await this.callTx(this.contract.methods.lpTokensPerBlock()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.lpTokensPerBlock()), this.erc20.decimals);
   }
 
   async owner() {
@@ -180,7 +180,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   }
 
   async getPoolReward(pid: number) {
-    return +fromDecimals(await this.callTx(this.contract.methods.getPoolReward(pid)), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.getPoolReward(pid)), this.erc20.decimals);
   }
 
   async getBlockTimestamp() {

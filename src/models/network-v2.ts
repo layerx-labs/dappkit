@@ -226,10 +226,10 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const oraclesDistributed = await this.oraclesDistributed();
     const percentageNeededForDispute = await this.percentageNeededForDispute();
 
-    return disputeWeight >= (percentageNeededForDispute * oraclesDistributed / 100);
+    return disputeWeight >= (percentageNeededForDispute * +oraclesDistributed / 100);
   }
 
-  async changeCouncilAmount(newAmount: number) {
+  async changeCouncilAmount(newAmount: string | number) {
     newAmount = toSmartContractDecimals(newAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.councilAmount, newAmount));
   }
@@ -312,7 +312,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   /**
    * Lock given amount into the oracle mapping
    */
-  async lock(tokenAmount: number) {
+  async lock(tokenAmount: string | number) {
     tokenAmount = toSmartContractDecimals(tokenAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.manageOracles(true, tokenAmount));
   }
@@ -320,7 +320,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   /**
    * Unlock from the oracle mapping
    */
-  async unlock(tokenAmount: number) {
+  async unlock(tokenAmount: string | number) {
     tokenAmount = toSmartContractDecimals(tokenAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.manageOracles(false, tokenAmount));
   }
@@ -328,7 +328,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   /**
    * Gives oracles from msg.sender to recipient
    */
-  async delegateOracles(tokenAmount: number, recipient: string) {
+  async delegateOracles(tokenAmount: string | number, recipient: string) {
     tokenAmount = toSmartContractDecimals(tokenAmount, this.networkToken.decimals);
     return this.sendTx(this.contract.methods.delegateOracles(tokenAmount, recipient));
   }
@@ -355,18 +355,18 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param {string} branch branch inside the provided repo path
    * @param {string} githubUser
    */
-  async openBounty(tokenAmount = 0,
+  async openBounty(tokenAmount = 0 as string | number,
                    transactional = nativeZeroAddress,
                    rewardToken = nativeZeroAddress,
-                   rewardAmount = 0,
-                   fundingAmount = 0,
+                   rewardAmount = 0 as string | number,
+                   fundingAmount = 0 as string | number,
                    cid: string,
                    title: string,
                    repoPath: string,
                    branch: string,
                    githubUser: string) {
 
-    let _rewardAmount = 0;
+    let _rewardAmount = 0 as string | number;
     const _transactional = new ERC20(this.connection, transactional);
     await _transactional.loadContract();
     const _tokenAmount = toSmartContractDecimals(fundingAmount > 0 ? 0 : tokenAmount, _transactional.decimals)
@@ -419,7 +419,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param {number} newTokenAmount
    * @param {number} decimals decimals of the transactional for this bounty
    */
-  async updateBountyAmount(id: number, newTokenAmount: number, decimals = 18) {
+  async updateBountyAmount(id: number, newTokenAmount: string | number, decimals = 18) {
     newTokenAmount = toSmartContractDecimals(newTokenAmount, decimals);
     return this.sendTx(this.contract.methods.updateBountyAmount(id, newTokenAmount));
   }
@@ -430,7 +430,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param {number} fundingAmount
    * @param {number} decimals decimals of the transactional for this bounty
    */
-  async fundBounty(id: number, fundingAmount: number, decimals = 18) {
+  async fundBounty(id: number, fundingAmount: string | number, decimals = 18) {
     fundingAmount = toSmartContractDecimals(fundingAmount, decimals);
     return this.sendTx(this.contract.methods.fundBounty(id, fundingAmount));
   }

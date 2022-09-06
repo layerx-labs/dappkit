@@ -24,18 +24,18 @@ export interface NetworkMethods {
   settlerToken(): ContractCallMethod<string>;
   totalStaked(): ContractCallMethod<number>;
   transactionToken(): ContractCallMethod<string>;
-  lock(_tokenAmount: number): ContractSendMethod;
-  unlock(_tokenAmount: number, _from: string): ContractSendMethod;
-  delegateOracles(_tokenAmount: number, _delegatedTo: string): ContractSendMethod;
+  lock(_tokenAmount: string | number): ContractSendMethod;
+  unlock(_tokenAmount: string | number, _from: string): ContractSendMethod;
+  delegateOracles(_tokenAmount: string | number, _delegatedTo: string): ContractSendMethod;
   disputeMerge(_issueID: number, _mergeID: number): ContractSendMethod;
   isIssueInDraft(_issueID: number): ContractCallMethod<boolean>;
   isMergeInDraft(_issueID: number, _mergeID: number): ContractCallMethod<boolean>;
   isMergeDisputed(_issueID: number, _mergeID: number): ContractCallMethod<boolean>;
-  openIssue(_cid: string, _tokenAmount: number): ContractSendMethod;
+  openIssue(_cid: string, _tokenAmount: string | number): ContractSendMethod;
   recognizeAsFinished(_issueId: number): ContractSendMethod;
   redeemIssue(_issueId: number): ContractSendMethod;
-  updateIssue(_issueId: number, _newTokenAmount: number): ContractSendMethod;
-  proposeIssueMerge(_issueID: number, _prAddresses: string[], _prAmounts: number[]): ContractSendMethod;
+  updateIssue(_issueId: number, _newTokenAmount: string | number): ContractSendMethod;
+  proposeIssueMerge(_issueID: number, _prAddresses: string[], _prAmounts: string[] | number[]): ContractSendMethod;
   closeIssue(_issueID: number, _mergeID: number): ContractSendMethod;
   getIssuesByAddress(_address: string): ContractCallMethod<number[]>;
   getOraclesByAddress(_address: string): ContractCallMethod<number>;
@@ -47,5 +47,5 @@ export interface NetworkMethods {
   changePercentageNeededForDispute(_percentageNeededForDispute: number): ContractSendMethod;
   changeDisputableTime(_disputableTime: number): ContractSendMethod;
   changeRedeemTime(_redeemTime: number): ContractSendMethod;
-  changeCOUNCIL_AMOUNT(_COUNCIL_AMOUNT: number): ContractSendMethod;
+  changeCOUNCIL_AMOUNT(_COUNCIL_AMOUNT: string | number): ContractSendMethod;
 }

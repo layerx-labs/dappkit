@@ -96,7 +96,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
   }
 
   async pricePerPack() {
-    return +fromDecimals(await this.callTx(this.contract.methods._pricePerPack(), this.erc20.decimals));
+    return fromDecimals(await this.callTx(this.contract.methods._pricePerPack(), this.erc20.decimals));
   }
 
   async purchaseToken() {
@@ -175,7 +175,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
     return this.sendTx(this.contract.methods.setOtherAddress(otherAddress));
   }
 
-  async setPricePerPack(newPrice: number) {
+  async setPricePerPack(newPrice: string | number) {
     newPrice = toSmartContractDecimals(newPrice, this.erc20.decimals);
     return this.sendTx(this.contract.methods.setPricePerPack(newPrice));
     // return this.sendTx(this.contract.methods.setPricePerPack(newPrice));

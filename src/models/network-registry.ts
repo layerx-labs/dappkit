@@ -120,7 +120,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.callTx(this.contract.methods.amountOfNetworks());
   }
 
-  async lock(_amount: number) { 
+  async lock(_amount: string | number) { 
     return this.sendTx(this.contract.methods.lock(toSmartContractDecimals(_amount, this.token.decimals)));
   }
 
@@ -132,7 +132,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.sendTx(this.contract.methods.registerNetwork(networkAddress));
   }
 
-  async changeAmountForNetworkCreation(newAmount: number) {
+  async changeAmountForNetworkCreation(newAmount: string | number) {
     newAmount = toSmartContractDecimals(newAmount, this.token.decimals);
     return this.sendTx(this.contract.methods.changeAmountForNetworkCreation(newAmount));
   }

@@ -75,7 +75,7 @@ describe(`Network_Registry`, () => {
         await hasTxBlockNumber(registry.changeAmountForNetworkCreation(10));
         const newLockAmount = await registry.lockAmountForNetworkCreation();
 
-        expect(newLockAmount).to.eq("10");
+        expect(newLockAmount).to.eq((10).toString());
       });
 
       it(`Approves, Locks and Unlocks`, async () => {

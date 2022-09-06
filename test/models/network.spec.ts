@@ -154,7 +154,7 @@ describe(`Network`, () => {
 
         it (`asserts take back`, async () => {
           const summary = await network.getOraclesSummary(receiver);
-          expect(summary.oraclesDelegatedByOthers).to.eq(delegated.oraclesDelegatedByOthers - 1);
+          expect(+summary.oraclesDelegatedByOthers).to.eq(+delegated.oraclesDelegatedByOthers - 1);
         });
 
       });

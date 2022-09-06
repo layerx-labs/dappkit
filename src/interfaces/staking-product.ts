@@ -3,10 +3,10 @@ export interface StakingProduct {
   createdAt: number;
   startDate: number;
   endDate:  number;
-  totalMaxAmount:  number;
-  individualMinimumAmount:  number;
-  individualMaxAmount:  number;
-  currentAmount:  number;
+  totalMaxAmount: string | number;
+  individualMinimumAmount: string | number;
+  individualMaxAmount: string | number;
+  currentAmount: string | number;
   APR: number;
   lockedUntilFinalization: boolean;
   subscribers: string[];

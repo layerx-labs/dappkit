@@ -1,5 +1,5 @@
 export interface Benefactor {
     benefactor: string;
-    amount: number;
+    amount: string | number;
     creationDate: number;
 }

@@ -116,25 +116,25 @@ describe(`NetworkV2`, () => {
           await hasTxBlockNumber(networkToken.approve(network.contractAddress!, AMOUNT_1M));
           await hasTxBlockNumber(network.lock(205000));
           expect(await network.getOraclesOf(Admin.address)).to.be.eq((205000 * 2).toString()); // we made a 1:2
-          expect(await networkToken.getTokenAmount(Admin.address)).to.be.eq(AMOUNT_1M - 205000);
+          expect(await networkToken.getTokenAmount(Admin.address)).to.be.eq((AMOUNT_1M - 205000).toString());
         });
 
         it(`Delegates to Alice`, async () => {
           await hasTxBlockNumber(network.delegateOracles(103000, Alice.address));
           expect(await network.getOraclesOf(Admin.address)).to.be.eq(((205000 * 2) - 103000).toString());
-          expect(await network.getOraclesOf(Alice.address)).to.be.eq("103000");
+          expect(await network.getOraclesOf(Alice.address)).to.be.eq((103000).toString());
         });
 
         it(`Takes back from Alice`, async () => {
           await hasTxBlockNumber(network.takeBackOracles(0));
-          expect(await network.getOraclesOf(Alice.address)).to.be.eq("0");
+          expect(await network.getOraclesOf(Alice.address)).to.be.eq((0).toString());
           expect(await network.getOraclesOf(Admin.address)).to.be.eq((205000 * 2).toString());
         })
 
         it(`Unlocks NST and receives Network Token`, async () => {
           await hasTxBlockNumber(network.unlock(200000)); // because 2:1
           expect(await network.getOraclesOf(Admin.address)).to.be.eq((105000 * 2).toString());
-          expect(await networkToken.getTokenAmount(Admin.address)).to.be.eq(AMOUNT_1M - 105000);
+          expect(await networkToken.getTokenAmount(Admin.address)).to.be.eq((AMOUNT_1M - 105000).toString());
         });
       });
 
@@ -146,7 +146,7 @@ describe(`NetworkV2`, () => {
 
           const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
 
-          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq(1000);
+          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq((1000).toString());
           expect(events.length).to.be.eq(1);
           expect(events[0].returnValues.cid).to.be.eq('c1');
           expect((await network.getBountiesOfAddress(Admin.address)).length).to.be.eq(1);
@@ -162,8 +162,8 @@ describe(`NetworkV2`, () => {
           const events = await network.getBountyAmountUpdatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
 
           expect(events[0].returnValues.amount).to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
-          expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq(1001);
-          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq(1001);
+          expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq((1001).toString());
+          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq((1001).toString());
         });
 
         it(`Oracles Changed`, async () => {
@@ -187,7 +187,7 @@ describe(`NetworkV2`, () => {
           const events = await network.getBountyCanceledEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
           expect(events.length).to.be.eq(1);
           expect(await network.openBounties()).to.be.eq(0);
-          expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(10000)
+          expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq((10000).toString())
         });
 
         describe(`Hard cancels a bounty`,() => {
@@ -232,7 +232,7 @@ describe(`NetworkV2`, () => {
 
           const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
           bountyId = events[0].returnValues.id;
-          expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue)
+          expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue.toString())
         });
 
         it(`Opens Request Funding and Reward`, async () => {
@@ -270,8 +270,8 @@ describe(`NetworkV2`, () => {
         it(`Cancels funding`, async () => {
           web3Connection.switchToAccount(Admin.privateKey);
           await hasTxBlockNumber(network.cancelFundRequest(bountyId));
-          expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(10000);
-          expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq(10000);
+          expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq((10000).toString());
+          expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq((10000).toString());
         })
       });
 
@@ -362,7 +362,7 @@ describe(`NetworkV2`, () => {
 
           await hasTxBlockNumber(network.closeBounty(bountyId, 2), `Should have closed bounty`);
 
-          const bountyTokenAmount = bounty.tokenAmount;
+          const bountyTokenAmount = +bounty.tokenAmount;
           const mergerAmount = bountyTokenAmount / 100 * await network.mergeCreatorFeeShare();
           const proposerAmount = (bountyTokenAmount - mergerAmount) / 100 * await network.proposerFeeShare();
           const bountyAmount = bountyTokenAmount - mergerAmount - proposerAmount;
@@ -370,13 +370,13 @@ describe(`NetworkV2`, () => {
           const BobAmount = bountyAmount / 100 * 49;
 
           expect(await network.openBounties()).to.be.eq(1);
-          expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(+Number(AliceAmount).toFixed(2));
-          expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq(+Number(BobAmount + 10000).toFixed(2));
+          expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(Number(AliceAmount).toFixed(2));
+          expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq(Number(BobAmount + 10000).toFixed(2));
         });
 
         it(`Alice withdraws from bounty`, async () => {
           await hasTxBlockNumber(network.withdrawFundingReward(bountyId, 0));
-          expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq(1000);
+          expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq((1000).toString());
         });
       });
     });

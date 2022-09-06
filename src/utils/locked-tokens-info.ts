@@ -8,6 +8,6 @@ export function lockedTokensInfo(tokensInfo: Params, decimals = 18): LockedToken
   return {
     startDate: startDate * 1000,
     endDate: endDate * 1000,
-    amount: +fromDecimals(amount, decimals)
+    amount: fromDecimals(amount, decimals)
   }
 }

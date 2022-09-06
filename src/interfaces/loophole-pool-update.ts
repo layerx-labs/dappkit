@@ -1,5 +1,5 @@
 export interface LoopholePoolUpdate {
   blockNumber: number;
-  lpTokensReward: number;
+  lpTokensReward: string | number;
   accLPtokensPerShare: number;
 }

@@ -25,10 +25,10 @@ export default function sablierStream({
                                         7: ratePerSecond
                                       }: Params, decimals = 18): SablierStream {
   return {
-    sender, recipient, deposit: +fromDecimals(deposit, decimals), tokenAddress,
+    sender, recipient, deposit: fromDecimals(deposit, decimals), tokenAddress,
     startTime: fromSmartContractDate(startTime),
     stopTime: fromSmartContractDate(stopTime),
-    remainingBalance: +fromDecimals(remainingBalance, decimals),
-    ratePerSecond: +fromDecimals(ratePerSecond, decimals)
+    remainingBalance: fromDecimals(remainingBalance, decimals),
+    ratePerSecond: fromDecimals(ratePerSecond, decimals)
   }
 }
