@@ -32,7 +32,7 @@
     "lint-fix": "npm run eslint -- --quiet --fix",
     "tsc": "tsc",
     "tscpaths": "tscpaths",
-    "dk-transpile": "dk-transpile -j dk-config.json"
+    "dk-transpile": "dlt -j dk-config.json"
   },
   "dependencies": {
     "bignumber.js": "^9.0.2",
@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@openzeppelin/contracts": "^3.4.2",
-    "@taikai/dappkit-launchpad": "^0.0.7",
+    "@taikai/dappkit-launchpad": "^0.0.19",
     "@truffle/workflow-compile": "4.0.21",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.0.0",

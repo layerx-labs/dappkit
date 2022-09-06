@@ -36,7 +36,7 @@ export class Web3Connection {
   }
 
   /**
-   * Request user to connect web3 plugin with our contract (and assign window.web3)
+   * Request user to connect web3 plugin with the provider (and assign window.web3)
    */
   async connect(): Promise<boolean> {
     if (typeof window === 'undefined')
@@ -49,6 +49,7 @@ export class Web3Connection {
     this.web3 = new Web3((window as any).ethereum)
 
     this.web3.eth.handleRevert = false;
+    this.web3.eth.transactionBlockTimeout = 200;
 
     if (!this.options.skipWindowAssignment)
       (window as any).web3 = this.web3;
@@ -67,7 +68,7 @@ export class Web3Connection {
 
   /* eslint-disable complexity */
   /**
-   * Start this connection (and load an account if {@link Web3ConnectionOptions.privateKey} was provided)
+   * Start a connection (and load an account if {@link Web3ConnectionOptions.privateKey} was provided) to the provider
    */
   start(restart = false): void {
     if (this.started && !restart)

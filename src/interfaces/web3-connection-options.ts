@@ -1,5 +1,6 @@
 import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
-import {provider as Provider} from 'web3-core';
+import {PromiEvent, provider as Provider, TransactionReceipt} from 'web3-core';
+import {Contract} from "web3-eth-contract";
 
 export interface Web3ConnectionOptions {
   /**
@@ -34,4 +35,8 @@ export interface Web3ConnectionOptions {
    * @default false
    */
   debug?: boolean;
+
+  customTransactionHandler?: (event: PromiEvent<TransactionReceipt | Contract>,
+                              resolve: (data: any) => void,
+                              reject: (e: unknown) => void, debug?: boolean) => void;
 }
