@@ -15,8 +15,8 @@ export interface VotableMethods {
   getPollInfoForVoter(_pollID: number, _voter: string) :ContractCallMethod<{'0': number; '1': number}>;
   userHasVoted(_pollID: number, _user: string) :ContractCallMethod<boolean>;
   castVote(_pollID: number, _voteId: number) :ContractSendMethod;
-  stakeVotingTokens(_numTokens: number) :ContractSendMethod;
-  withdrawTokens(_numTokens: number) :ContractSendMethod;
+  stakeVotingTokens(_numTokens: string | number) :ContractSendMethod;
+  withdrawTokens(_numTokens: string | number) :ContractSendMethod;
   getLockedAmount(_voter: string) :ContractCallMethod<number>;
   getTokenStake(_voter: string) :ContractCallMethod<number>;
 }

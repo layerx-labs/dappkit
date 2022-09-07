@@ -17,8 +17,8 @@ export function proposal({
   return {
     id: +id,
     creationDate: creationDate * Thousand,
-    oracles: +fromDecimals(oracles, decimals),
-    disputeWeight: +fromDecimals(disputeWeight, decimals),
+    oracles: fromDecimals(oracles, decimals),
+    disputeWeight: fromDecimals(disputeWeight, decimals),
     prId: +prId,
     refusedByBountyOwner,
     creator,

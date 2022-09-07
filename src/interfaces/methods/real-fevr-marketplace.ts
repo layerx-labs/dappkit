@@ -17,7 +17,7 @@ export interface RealFevrMarketplaceMethods {
   getERC721TokenAddress() :ContractCallMethod<string>;
   getFeeAddress() :ContractCallMethod<string>;
   isETHTransaction() :string;
-  putERC721OnSale(tokenId: number, price: number) :ContractSendMethod;
+  putERC721OnSale(tokenId: number, price: string | number) :ContractSendMethod;
   removeERC721FromSale(tokenId: number) :ContractSendMethod;
   setFixedFees(feeAddress: string, feePercentage: number) :ContractSendMethod;
 }

@@ -2,12 +2,12 @@ export interface SablierCompoundingStream {
   sender: string;
   recipient: string;
   tokenAddress: string;
-  deposit: number;
+  deposit: string | number;
   startTime: number;
   stopTime: number;
-  remainingBalance: number;
-  ratePerSecond: number;
-  exchangeRateInitial: number;
-  senderSharePercentage: number;
-  recipientSharePercentage: number;
+  remainingBalance: string | number;
+  ratePerSecond: string | number;
+  exchangeRateInitial: string | number;
+  senderSharePercentage: string | number;
+  recipientSharePercentage: string | number;
 }

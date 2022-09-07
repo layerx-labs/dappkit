@@ -20,8 +20,8 @@ export default function stakeSubscription({0: _id, 1: productId, 2: startDate, 3
     _id, productId,
     startDate: fromSmartContractDate(startDate),
     endDate: fromSmartContractDate(endDate),
-    amount: +fromDecimals(amount, decimals),
+    amount: fromDecimals(amount, decimals),
     subscriberAddress, APR, finalized,
-    withdrawAmount: +fromDecimals(withdrawAmount, decimals)
+    withdrawAmount: fromDecimals(withdrawAmount, decimals)
   }
 }

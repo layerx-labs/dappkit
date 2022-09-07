@@ -13,9 +13,9 @@ export interface StakingContractMethods {
   heldTokens() :ContractCallMethod<number>;
   futureLockedTokens() :ContractCallMethod<number>;
   availableTokens() :ContractCallMethod<number>;
-  subscribeProduct(_product_id: number, _amount: number) :ContractSendMethod;
-  createProduct(_startDate: number, _endDate: number, _totalMaxAmount: number, _individualMinimumAmount: number, _individualMaximumAmount: number, _APR: number, _lockedUntilFinalization: boolean) :ContractSendMethod;
-  getAPRAmount(_APR: number, _startDate: number, _endDate: number, _amount: number) :ContractCallMethod<number>;
+  subscribeProduct(_product_id: number, _amount: string | number) :ContractSendMethod;
+  createProduct(_startDate: number, _endDate: number, _totalMaxAmount: string | number, _individualMinimumAmount: string | number, _individualMaximumAmount: string | number, _APR: number, _lockedUntilFinalization: boolean) :ContractSendMethod;
+  getAPRAmount(_APR: number, _startDate: number, _endDate: number, _amount: string | number) :ContractCallMethod<number>;
   getProductIds() :ContractCallMethod<number[]>;
   getMySubscriptions(_address: string) :ContractCallMethod<number[]>;
   withdrawSubscription(_product_id: number, _subscription_id: number) :ContractSendMethod;

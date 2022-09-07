@@ -27,11 +27,11 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
   get erc20() { return this._erc20; }
 
   async getMaxLock() {
-    return +fromDecimals(await this.callTx(this.contract.methods.maxAmountToLock()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.maxAmountToLock()), this.erc20.decimals);
   }
 
   async getMinLock() {
-    return +fromDecimals(await this.callTx(this.contract.methods.minAmountToLock()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.minAmountToLock()), this.erc20.decimals);
   }
 
   async getERC20TokenAddress() {
@@ -39,7 +39,7 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
   }
 
   async totalAmountStaked() {
-    return +fromDecimals(await this.callTx(this.contract.methods.totalAmountStaked()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.totalAmountStaked()), this.erc20.decimals);
   }
 
   async canRelease(address: string) {
@@ -47,7 +47,7 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
   }
 
   async getLockedTokens(address: string) {
-    return +fromDecimals(await this.callTx(this.contract.methods.getLockedTokens(address)), this.erc20.decimals)
+    return fromDecimals(await this.callTx(this.contract.methods.getLockedTokens(address)), this.erc20.decimals);
   }
 
   async getLockedTokensInfo(address: string) {
@@ -70,7 +70,7 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
     return this.erc20.approve(this.contractAddress!, await this.erc20.totalSupply());
   }
 
-  async lock(amount: number, endDate: number) {
+  async lock(amount: string | number, endDate: number) {
     await this.pausable.whenNotPaused();
 
     if (amount > (await this.getMaxLock()) || amount < (await this.getMinLock()))

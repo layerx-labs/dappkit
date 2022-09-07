@@ -107,7 +107,7 @@ export class Votable extends Model<VotableMethods> implements Deployable {
   }
 
   async getLockedAmount(_voter: string) {
-    return +fromDecimals(await this.callTx(this.contract.methods.getLockedAmount(_voter)), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.getLockedAmount(_voter)), this.erc20.decimals);
   }
 
   async getTokenStake(_voter: string) {

@@ -5,13 +5,13 @@ import { PullRequest } from "@interfaces/pull-request";
 export interface Bounty {
     id: number;
     creationDate: number;
-    tokenAmount: number;
+    tokenAmount: string | number;
 
     creator: string;
     transactional: string;
     rewardToken: string;
-    rewardAmount: number;
-    fundingAmount: number;
+    rewardAmount: string | number;
+    fundingAmount: string | number;
 
     closed: boolean;
     canceled: boolean;

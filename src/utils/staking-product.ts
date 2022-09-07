@@ -25,10 +25,10 @@ export default function stakingProduct({
     createdAt: fromSmartContractDate(createdAt),
     startDate: fromSmartContractDate(startDate),
     endDate: fromSmartContractDate(endDate),
-    totalMaxAmount: +fromDecimals(totalMaxAmount, decimals),
-    individualMinimumAmount: +fromDecimals(individualMinimumAmount, decimals),
-    individualMaxAmount: +fromDecimals(individualMaxAmount, decimals),
-    currentAmount: +fromDecimals(currentAmount, decimals),
+    totalMaxAmount: fromDecimals(totalMaxAmount, decimals),
+    individualMinimumAmount: fromDecimals(individualMinimumAmount, decimals),
+    individualMaxAmount: fromDecimals(individualMaxAmount, decimals),
+    currentAmount: fromDecimals(currentAmount, decimals),
     APR, lockedUntilFinalization, subscribers, subscriptionIds,
   }
 }

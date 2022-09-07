@@ -1,5 +1,5 @@
 export interface SablierInterest {
-  spenderInterest: number;
-  recipientInterest: number;
-  sablierInterest: number;
+  spenderInterest: string | number;
+  recipientInterest: string | number;
+  sablierInterest: string | number;
 }

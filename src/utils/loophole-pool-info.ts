@@ -24,9 +24,9 @@ export default function lhPoolInfo({0: address,
     address,
     allocPoint,
     lastRewardBlock,
-    totalPool: +fromDecimals(totalPool, decimals),
-    entryStakeTotal: +fromDecimals(entryStakeTotal, decimals),
-    totalDistributedPenalty: +fromDecimals(totalDistributedPenalty, decimals),
+    totalPool: fromDecimals(totalPool, decimals),
+    entryStakeTotal: fromDecimals(entryStakeTotal, decimals),
+    totalDistributedPenalty: fromDecimals(totalDistributedPenalty, decimals),
     accLPtokensPerShare: Web3.utils.toBN(accLPtokensPerShare).div(Web3.utils.toBN(multiplier)).toNumber()
   }
 }

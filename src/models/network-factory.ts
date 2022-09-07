@@ -30,15 +30,15 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
   }
 
   async getBEPROLocked() {
-    return +fromDecimals(await this.callTx(this.contract.methods.tokensLockedTotal()), this.erc20.decimals)
+    return fromDecimals(await this.callTx(this.contract.methods.tokensLockedTotal()), this.erc20.decimals)
   }
 
   async getLockedStakedByAddress(address: string) {
-    return this.callTx(this.contract.methods.tokensLocked(address))
+    return fromDecimals(await this.callTx(this.contract.methods.tokensLocked(address)), this.erc20.decimals);
   }
 
   async OPERATOR_AMOUNT() {
-    return +fromDecimals(await this.callTx(this.contract.methods.OPERATOR_AMOUNT()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.OPERATOR_AMOUNT()), this.erc20.decimals);
   }
 
   async isOperator(address: string) {
@@ -57,7 +57,7 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
     return this.callTx(this.contract.methods.beproAddress());
   }
 
-  async lock(amount: number) {
+  async lock(amount: string | number) {
     if (amount <= 0)
       throw new Error(Errors.AmountNeedsToBeHigherThanZero);
 

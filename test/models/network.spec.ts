@@ -124,7 +124,7 @@ describe(`Network`, () => {
         })
 
         it(`Check bepro staked`, async () => {
-          expect(await network.getBEPROStaked(), `bepro staked`).to.be.greaterThan(0);
+          expect(+(await network.getBEPROStaked()), `bepro staked`).to.be.greaterThan(0);
         });
 
       });
@@ -144,7 +144,7 @@ describe(`Network`, () => {
 
         it(`asserts delegation`, async () => {
           delegated = await network.getOraclesSummary(receiver);
-          expect(delegated.oraclesDelegatedByOthers).to.eq(1);
+          expect(delegated.oraclesDelegatedByOthers).to.eq((1).toString());
         })
 
         it(`Takes back the oracles`, async () => {
@@ -154,7 +154,7 @@ describe(`Network`, () => {
 
         it (`asserts take back`, async () => {
           const summary = await network.getOraclesSummary(receiver);
-          expect(summary.oraclesDelegatedByOthers).to.eq(delegated.oraclesDelegatedByOthers - 1);
+          expect(+summary.oraclesDelegatedByOthers).to.eq(+delegated.oraclesDelegatedByOthers - 1);
         });
 
       });
@@ -196,7 +196,7 @@ describe(`Network`, () => {
           expect(updateIssue.blockHash, `update issue hash`).to.not.be.empty;
 
           issue = await network.getIssueById(issue._id);
-          expect(issue.tokensStaked, `issue tokens staked`).to.eq(2);
+          expect(issue.tokensStaked, `issue tokens staked`).to.eq((2).toString());
         })
 
         it(`Redeems issue`, async () => {

@@ -1,8 +1,8 @@
 import { Delegation } from "./delegation";
 
 export interface OraclesResume {
-    locked: number;
-    delegatedToOthers: number;
-    delegatedByOthers: number;
+    locked: string | number;
+    delegatedToOthers: string | number;
+    delegatedByOthers: string | number;
     delegations: Delegation[];
 }

@@ -19,9 +19,9 @@ export function bounty({
   return {
     ...rest,
     creationDate: +creationDate * Thousand,
-    tokenAmount: +fromDecimals(tokenAmount, transactionalTokenDecimals),
-    rewardAmount: +fromDecimals(rewardAmount, rewardTokenDecimals),
-    fundingAmount: +fromDecimals(fundingAmount, transactionalTokenDecimals),
+    tokenAmount: fromDecimals(tokenAmount, transactionalTokenDecimals),
+    rewardAmount: fromDecimals(rewardAmount, rewardTokenDecimals),
+    fundingAmount: fromDecimals(fundingAmount, transactionalTokenDecimals),
     closedDate: +closedDate * Thousand,
     pullRequests: pullRequests.map(pullRequest),
     proposals: proposals.map(bountyProposal => proposal(bountyProposal, networkTokenDecimals)),

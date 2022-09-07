@@ -1,5 +1,5 @@
 export interface LockedTokensInfo {
   startDate: number;
   endDate: number;
-  amount: number;
+  amount: string | number;
 }

@@ -8,6 +8,7 @@ import {
 import {toSmartContractDecimals} from '../../src/utils/numbers';
 import {addMinutes, differenceInSeconds} from 'date-fns'
 import {expect} from 'chai';
+import BigNumber from 'bignumber.js';
 
 describe(`StakingContract`, () => {
   let contract: StakingContract;
@@ -30,7 +31,7 @@ describe(`StakingContract`, () => {
   const individualMinAmount = 10;
   const individualMaxAmount = 30;
 
-  const calculateApr = (_amount: number, time: number) => ((((APR / 365 / 24 / 60) * time) / 60) * _amount) / 100;
+  const calculateApr = (_amount: string | number, time: number) => ((((APR / 365 / 24 / 60) * time) / 60) * +_amount) / 100;
   // const userDepositNeeded = calculateApr(individualMinAmount);
 
 
@@ -101,13 +102,15 @@ describe(`StakingContract`, () => {
     });
 
     it(`Checks held tokens`, async () => {
-      expect(await contract.heldTokens())
+      expect(+(await contract.heldTokens()))
         .to.be.greaterThanOrEqual(individualMinAmount + totalNeededAPR) // there's some seconds we can't account for
     });
 
     it(`Checks future locked tokens`, async () => {
-      expect(await contract.futureLockedTokens())
-        .to.eq(product.individualMinimumAmount + calculateApr(product.individualMinimumAmount, differenceInSeconds(subscription.endDate, subscription.startDate)))
+      const apr = calculateApr(product.individualMinimumAmount, differenceInSeconds(subscription.endDate, subscription.startDate));
+      const futureLockedTokens = new BigNumber(apr).plus(product.individualMinimumAmount).toFixed(18, 1);
+
+      expect(await contract.futureLockedTokens()).to.eq(futureLockedTokens);
     });
 
     it(`Withdraws subscription`, async () => {
@@ -118,9 +121,11 @@ describe(`StakingContract`, () => {
 
       await hasTxBlockNumber(contract.withdrawSubscription(product._id, subscription._id));
       const {finalized, withdrawAmount, amount} = await contract.getSubscription(subscription._id, product._id);
-      const aprAmount = await contract.getAPRAmount(APR, subscription.startDate, subscription.endDate, amount)
+      const aprAmount = await contract.getAPRAmount(APR, subscription.startDate, subscription.endDate, amount);
+      const expectedWithdraw = new BigNumber(aprAmount).plus(product.individualMinimumAmount).toFixed(18, 1);
+
       expect(finalized).to.be.true;
-      expect(withdrawAmount).to.eq(aprAmount + product.individualMinimumAmount);
+      expect(withdrawAmount).to.eq(expectedWithdraw);
     });
 
   });

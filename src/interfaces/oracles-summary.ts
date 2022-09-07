@@ -1,6 +1,6 @@
 export interface OraclesSummary {
-  oraclesDelegatedByOthers: number;
-  amounts: number[];
+  oraclesDelegatedByOthers: string | number;
+  amounts: string[] | number[];
   addresses: string[];
-  tokensLocked: number;
+  tokensLocked: string | number;
 }

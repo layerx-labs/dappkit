@@ -7,10 +7,10 @@ export default function networkMerge({'0': _id, '1': votes, '2': disputes, '3': 
                                      decimals = 18): NetworkMerge {
   return {
     _id: _id.toString(),
-    votes: +fromDecimals(votes, decimals),
-    disputes: +fromDecimals(disputes, decimals),
+    votes: fromDecimals(votes, decimals),
+    disputes: fromDecimals(disputes, decimals),
     prAddresses,
-    prAmounts: prAmounts.map((amount: number) => +fromDecimals(amount, decimals)),
+    prAmounts: prAmounts.map((amount: number) => fromDecimals(amount, decimals)),
     proposalAddress,
   }
 }

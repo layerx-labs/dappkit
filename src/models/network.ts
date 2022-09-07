@@ -49,7 +49,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
   }
 
   async getOraclesByAddress(address: string) {
-    return +fromDecimals(await this.callTx(await this.contract
+    return fromDecimals(await this.callTx(await this.contract
                                                      .methods
                                                      .getOraclesByAddress(address)), this.settlerToken.decimals);
   }
@@ -62,10 +62,10 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     const decimals = this.settlerToken.decimals;
 
     return {
-      oraclesDelegatedByOthers: +fromDecimals(oraclesDelegatedByOthers, this.settlerToken.decimals),
-      amounts: amounts.map((amount: number) => +fromDecimals(amount, decimals)),
+      oraclesDelegatedByOthers: fromDecimals(oraclesDelegatedByOthers, this.settlerToken.decimals),
+      amounts: amounts.map((amount: number) => fromDecimals(amount, decimals)),
       addresses,
-      tokensLocked: +fromDecimals(tokensLocked, decimals),
+      tokensLocked: fromDecimals(tokensLocked, decimals),
     }
   }
 
@@ -104,16 +104,16 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     return +(await this.callTx(this.contract.methods.redeemTime()))
   }
 
-  async getTokensStaked(): Promise<number> {
-    return +fromDecimals(await this.callTx(this.contract.methods.totalStaked()), this.transactionToken.decimals);
+  async getTokensStaked() {
+    return fromDecimals(await this.callTx(this.contract.methods.totalStaked()), this.transactionToken.decimals);
   }
 
-  async getBEPROStaked(): Promise<number> {
-    return +fromDecimals(await this.callTx(this.contract.methods.oraclesStaked()), this.settlerToken.decimals)
+  async getBEPROStaked() {
+    return fromDecimals(await this.callTx(this.contract.methods.oraclesStaked()), this.settlerToken.decimals)
   }
 
-  async COUNCIL_AMOUNT(): Promise<number> {
-    return +fromDecimals(await this.callTx(this.contract.methods.COUNCIL_AMOUNT()), this.settlerToken.decimals);
+  async COUNCIL_AMOUNT() {
+    return fromDecimals(await this.callTx(this.contract.methods.COUNCIL_AMOUNT()), this.settlerToken.decimals);
   }
 
   async isCouncil(address: string): Promise<boolean> {
@@ -122,7 +122,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
 
   async changeCouncilAmount(value: string) {
     const amount = toSmartContractDecimals(value, this.settlerToken.decimals);
-    return this.sendTx(this.contract.methods.changeCOUNCIL_AMOUNT(amount as number));
+    return this.sendTx(this.contract.methods.changeCOUNCIL_AMOUNT(amount));
   }
 
   async changeRedeemTime(amount: number) {
@@ -159,14 +159,14 @@ export class Network extends Model<NetworkMethods> implements Deployable {
                                               .methods.getMergeById(issueId, mergeId)), this.transactionToken.decimals)
   }
 
-  async approveSettlerERC20Token(amount?: number, address = this.contractAddress!) {
+  async approveSettlerERC20Token(amount?: string | number, address = this.contractAddress!) {
     if (!amount)
       amount = await this.settlerToken.totalSupply();
 
     return this.settlerToken.approve(address, amount);
   }
 
-  async approveTransactionalERC20Token(amount?: number, address = this.contractAddress!) {
+  async approveTransactionalERC20Token(amount?: string | number, address = this.contractAddress!) {
     if (!amount)
       amount = await this.transactionToken.totalSupply();
 
@@ -181,7 +181,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     return this.transactionToken.isApproved(address, amount)
   }
 
-  async lock(amount: number): Promise<TransactionReceipt> {
+  async lock(amount: string | number): Promise<TransactionReceipt> {
     if (amount <= 0)
       throw new Error(Errors.AmountNeedsToBeHigherThanZero);
 
@@ -189,7 +189,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     return this.sendTx(this.contract.methods.lock(amount))
   }
 
-  async unlock(amount: number, from: string) {
+  async unlock(amount: string | number, from: string) {
     if (amount <= 0)
       throw new Error(Errors.AmountNeedsToBeHigherThanZero);
 
@@ -197,7 +197,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     return this.sendTx(this.contract.methods.unlock(amount, from))
   }
 
-  async delegateOracles(amount: number, delegateTo: string) {
+  async delegateOracles(amount: string | number, delegateTo: string) {
     if (amount <= 0)
       throw new Error(Errors.AmountNeedsToBeHigherThanZero);
 
@@ -205,7 +205,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     return this.sendTx(this.contract.methods.delegateOracles(amount, delegateTo))
   }
 
-  async openIssue(cid: string, amount: number) {
+  async openIssue(cid: string, amount: string | number) {
     if (amount <= 0)
       throw new Error(Errors.AmountNeedsToBeHigherThanZero);
 
@@ -213,7 +213,7 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     return this.sendTx(this.contract.methods.openIssue(cid, amount))
   }
 
-  async updateIssue(id: number, amount: number) {
+  async updateIssue(id: number, amount: string | number) {
     amount = toSmartContractDecimals(amount, this.settlerToken.decimals);
     return this.sendTx(this.contract.methods.updateIssue(id, amount))
   }

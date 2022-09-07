@@ -31,13 +31,13 @@ export default function sablierCompoundingStream({
                                                  }: Params, decimals = 18): SablierCompoundingStream {
   return {
     sender, recipient, tokenAddress,
-    deposit: +fromDecimals(deposit, decimals),
+    deposit: fromDecimals(deposit, decimals),
     startTime: fromSmartContractDate(startTime),
     stopTime: fromSmartContractDate(stopTime),
-    remainingBalance: +fromDecimals(remainingBalance, decimals),
-    ratePerSecond: +fromDecimals(ratePerSecond, decimals),
-    exchangeRateInitial: +fromDecimals(exchangeRateInitial, decimals),
-    senderSharePercentage: +fromDecimals(senderSharePercentage, decimals),
-    recipientSharePercentage: +fromDecimals(recipientSharePercentage, decimals)
+    remainingBalance: fromDecimals(remainingBalance, decimals),
+    ratePerSecond: fromDecimals(ratePerSecond, decimals),
+    exchangeRateInitial: fromDecimals(exchangeRateInitial, decimals),
+    senderSharePercentage: fromDecimals(senderSharePercentage, decimals),
+    recipientSharePercentage: fromDecimals(recipientSharePercentage, decimals)
   }
 }

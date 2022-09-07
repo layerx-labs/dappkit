@@ -79,18 +79,18 @@ export class StakingContract extends Model<StakingContractMethods> implements De
   }
 
   async heldTokens() {
-    return +fromDecimals(await this.callTx(this.contract.methods.heldTokens()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.heldTokens()), this.erc20.decimals);
   }
 
   async futureLockedTokens() {
-    return +fromDecimals(await this.callTx(this.contract.methods.futureLockedTokens()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.futureLockedTokens()), this.erc20.decimals);
   }
 
   async availableTokens() {
-    return +fromDecimals(await this.callTx(this.contract.methods.availableTokens()), this.erc20.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.availableTokens()), this.erc20.decimals);
   }
 
-  async subscribeProduct(_product_id: number, _amount: number) {
+  async subscribeProduct(_product_id: number, _amount: string | number) {
     await this.pausable.whenNotPaused();
 
     if (!(await this.erc20.isApproved(this.contractAddress, _amount)))
@@ -104,9 +104,9 @@ export class StakingContract extends Model<StakingContractMethods> implements De
 
   async createProduct(_startDate: number,
                       _endDate: number,
-                      _totalMaxAmount: number,
-                      _individualMinimumAmount: number,
-                      _individualMaximumAmount: number,
+                      _totalMaxAmount: string | number,
+                      _individualMinimumAmount: string | number,
+                      _individualMaximumAmount: string | number,
                       _APR: number,
                       _lockedUntilFinalization: boolean) {
     _totalMaxAmount = toSmartContractDecimals(_totalMaxAmount, this.erc20.decimals);
@@ -123,11 +123,11 @@ export class StakingContract extends Model<StakingContractMethods> implements De
                                           _lockedUntilFinalization));
   }
 
-  async getAPRAmount(_APR: number, _startDate: number, _endDate: number, _amount: number) {
+  async getAPRAmount(_APR: number, _startDate: number, _endDate: number, _amount: string | number) {
     _startDate = toSmartContractDate(_startDate);
     _endDate = toSmartContractDate(_endDate);
     _amount = toSmartContractDecimals(_amount, this.erc20.decimals);
-    return +fromDecimals(await this.callTx(this.contract
+    return fromDecimals(await this.callTx(this.contract
                                                .methods
                                                .getAPRAmount(_APR, _startDate, _endDate, _amount)), this.erc20.decimals)
   }
@@ -138,7 +138,7 @@ export class StakingContract extends Model<StakingContractMethods> implements De
 
   async getMySubscriptions(_address: string) {
     const subscriptions = await this.callTx(this.contract.methods.getMySubscriptions(_address));
-    return subscriptions.map(subscription => +fromDecimals(subscription, this.erc20.decimals))
+    return subscriptions.map(subscription => fromDecimals(subscription, this.erc20.decimals))
   }
 
   async withdrawSubscription(_product_id: number, _subscription_id: number) {
@@ -158,7 +158,7 @@ export class StakingContract extends Model<StakingContractMethods> implements De
     return this.erc20.approve(this.contractAddress!, await this.erc20.totalSupply());
   }
 
-  async depositAPRTokens(amount: number) {
+  async depositAPRTokens(amount: string | number) {
     return this.erc20.transferTokenAmount(this.contractAddress!, amount);
   }
 
@@ -176,9 +176,9 @@ export class StakingContract extends Model<StakingContractMethods> implements De
     let aprAmount = 0;
     const products = await this.getAllProducts();
     for (const {APR, startDate, endDate, totalMaxAmount} of products)
-      aprAmount += await this.getAPRAmount(APR, startDate, endDate, totalMaxAmount);
+      aprAmount += +(await this.getAPRAmount(APR, startDate, endDate, totalMaxAmount));
 
-    return aprAmount;
+    return aprAmount.toString();
   }
 
   async getAllSubscriptions() {

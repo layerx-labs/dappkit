@@ -35,38 +35,38 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
     return this.callTx(this.contract.methods.symbol());
   }
 
-  async totalSupply(): Promise<number> {
-    return +fromDecimals(await this.callTx(this.contract.methods.totalSupply()), this.decimals);
+  async totalSupply() {
+    return fromDecimals(await this.callTx(this.contract.methods.totalSupply()), this.decimals);
   }
 
-  async getTokenAmount(address: string): Promise<number> {
-    return +fromSmartContractDecimals(await this.callTx(this.contract.methods.balanceOf(address)), this.decimals);
+  async getTokenAmount(address: string) {
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.balanceOf(address)), this.decimals);
   }
 
-  async transferTokenAmount(toAddress: string, amount: number) {
+  async transferTokenAmount(toAddress: string, amount: string | number) {
     const tokenAmount = toSmartContractDecimals(amount, this.decimals);
     return this.sendTx(this.contract.methods.transfer(toAddress, tokenAmount));
   }
 
-  async transferFrom(owner: string, receiver: string, amount: number) {
+  async transferFrom(owner: string, receiver: string, amount: string | number) {
     amount = toSmartContractDecimals(amount, this.decimals);
     return this.sendTx(this.contract.methods.transferFrom(owner, receiver, amount));
   }
 
-  async increaseAllowance(address: string, amount: number) {
+  async increaseAllowance(address: string, amount: string | number) {
     amount = toSmartContractDecimals(amount, this.decimals);
     return this.sendTx(this.contract.methods.increaseAllowance(address, amount));
   }
 
   async allowance(owner: string, spender: string) {
-    return +fromDecimals(await this.callTx(this.contract.methods.allowance(owner, spender)), this.decimals);
+    return fromDecimals(await this.callTx(this.contract.methods.allowance(owner, spender)), this.decimals);
   }
 
-  async isApproved(spenderAddress = this.contractAddress!, amount: number): Promise<boolean> {
+  async isApproved(spenderAddress = this.contractAddress!, amount: string | number): Promise<boolean> {
     return await this.allowance(await this.connection.getAddress(), spenderAddress) >= amount;
   }
 
-  async approve(address: string, amount: number): Promise<TransactionReceipt> {
+  async approve(address: string, amount: string | number): Promise<TransactionReceipt> {
     return this.sendTx(this.contract
                            .methods
                            .approve(address, toSmartContractDecimals(amount, this.decimals) ));
@@ -74,7 +74,7 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
 
   async deployJsonAbi(name: string,
                       symbol: string,
-                      cap: number,
+                      cap: string | number,
                       distributionAddress: string): Promise<TransactionReceipt> {
     const deployOptions = {
       data: Json.bytecode,

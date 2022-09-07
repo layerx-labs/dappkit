@@ -1,10 +1,10 @@
 export interface SablierStream {
   sender: string;
   recipient: string;
-  deposit: number;
+  deposit: string | number;
   tokenAddress: string;
   startTime: number;
   stopTime: number;
-  remainingBalance: number;
-  ratePerSecond: number;
+  remainingBalance: string | number;
+  ratePerSecond: string | number;
 }

@@ -10,7 +10,7 @@ export interface NetworkFactoryMethods {
   networksByAddress(v1: string): ContractCallMethod<string>;
   tokensLocked(v1: string): ContractCallMethod<number>;
   tokensLockedTotal(): ContractCallMethod<number>;
-  lock(_tokenAmount: number): ContractSendMethod;
+  lock(_tokenAmount: string | number): ContractSendMethod;
   createNetwork(_settlerToken: string, _transactionToken: string): ContractSendMethod;
   unlock(): ContractSendMethod;
   getTokensLocked(_address: string): ContractCallMethod<number>;

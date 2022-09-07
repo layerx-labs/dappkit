@@ -3,9 +3,9 @@ export interface StakingSubscription {
   productId: number;
   startDate: number;
   endDate: number;
-  amount: number;
+  amount: string | number;
   subscriberAddress: string;
   APR: number;
   finalized: boolean;
-  withdrawAmount: number;
+  withdrawAmount: string | number;
 }

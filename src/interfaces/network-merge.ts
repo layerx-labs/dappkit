@@ -1,8 +1,8 @@
 export interface NetworkMerge {
   _id: string;
-  votes: number;
-  disputes: number;
+  votes: string | number;
+  disputes: string | number;
   prAddresses: string[];
-  prAmounts: number[];
+  prAmounts: string[] | number[];
   proposalAddress: string;
 }

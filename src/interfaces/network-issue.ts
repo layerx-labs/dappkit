@@ -3,7 +3,7 @@ export interface NetworkIssue {
   cid: string;
   issueGenerator: string;
   creationDate: number;
-  tokensStaked: number;
+  tokensStaked: string | number;
   mergeProposalAmount: number;
   finalized: boolean;
   canceled: boolean;

@@ -14,7 +14,7 @@ export default function lhPoolUpdate({0: blockNumber,
                                      decimals = 18, multiplier = 1): LoopholePoolUpdate {
   return {
     blockNumber,
-    lpTokensReward: +fromDecimals(lpTokensReward, decimals),
+    lpTokensReward: fromDecimals(lpTokensReward, decimals),
     accLPtokensPerShare: Web3.utils.toBN(accLPtokensPerShare).div(Web3.utils.toBN(multiplier)).toNumber()
   }
 }

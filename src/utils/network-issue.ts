@@ -14,7 +14,7 @@ export default function networkIssue({'0': _id, '1': cid, '2': creationDate, '3'
   return {
     _id, cid, issueGenerator, finalized, canceled, recognizedAsFinished,
     creationDate: creationDate * 1000,
-    tokensStaked: +fromDecimals(tokensStaked, decimals),
+    tokensStaked: fromDecimals(tokensStaked, decimals),
     mergeProposalAmount: mergeProposalsAmount,
   }
 }
