@@ -79,7 +79,7 @@ describe(`Sablier`, () => {
 
     it(`Updates fee`, async () => {
       await hasTxBlockNumber(sablier.updateFee(+STANDARD_SABLIER_FEE));
-      expect(await sablier.fee()).to.eq(+STANDARD_SABLIER_FEE/100);
+      expect(await sablier.fee()).to.eq((+STANDARD_SABLIER_FEE/100).toString());
     });
 
     it(`Creates a compounding stream`, async () => {
@@ -112,7 +112,7 @@ describe(`Sablier`, () => {
       await hasTxBlockNumber(sablier.withdrawFromStream(streamId, SALARY / 2));
       const newBalance = await erc20.getTokenAmount(Bob.address);
 
-      expect(newBalance).to.be.eq(balance + (SALARY / 2));
+      expect(newBalance).to.be.eq((+balance + (SALARY / 2)).toString());
     });
 
   })

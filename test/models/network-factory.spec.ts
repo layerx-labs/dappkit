@@ -78,7 +78,7 @@ describe(`NetworkFactory`, () => {
       expect(tx.blockHash, `lock action`).to.not.be.empty;
       expect(await networkFactory.getBEPROLocked(), `locked total`).to.eq(fromDecimals(cap));
       await hasTxBlockNumber(networkFactory.unlock())
-      expect(await networkFactory.getBEPROLocked(), `locked total`).to.eq(0);
+      expect(await networkFactory.getBEPROLocked(), `locked total`).to.eq((0).toString());
     });
 
     it(`Should lock and create a new network`, async () => {

@@ -17,5 +17,5 @@ export interface ERC20DistributionMethods {
   safeGuardAllTokens(_address: string) :ContractSendMethod;
   setTGEDate(_time: number) :ContractSendMethod;
   triggerTokenSend() :ContractSendMethod;
-  setInitialDistribution(_address: string, _tokenAmount: number, _unlockDays: number) :ContractSendMethod;
+  setInitialDistribution(_address: string, _tokenAmount: string | number, _unlockDays: number) :ContractSendMethod;
 }
