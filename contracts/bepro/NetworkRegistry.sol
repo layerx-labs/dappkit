@@ -51,7 +51,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
     event NetworkClosed(address indexed network);
     event UserLockedAmountChanged(address indexed user, uint256 indexed newAmount);
     event ChangedFee(uint256 indexed closeFee, uint256 indexed cancelFee);
-    event ChangeAllowedTokens(address[] indexed tokens, string operation, string kind);
+    event ChangeAllowedTokens(address[] tokens, string operation, string kind);
     event LockFeeChanged(uint256 indexed lockFee);
 
     function _closeAndCancelFeesLimits(uint256 _cancelFee, uint256 _closeFee) internal view {
