@@ -135,11 +135,13 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     function _cancelFundingRequest(uint256 id) internal {
         INetworkV2.Bounty storage bounty = bounties[id];
 
-        for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
-            INetworkV2.Benefactor storage x = bounty.funding[i];
-            if (x.amount > 0) {
-                require(ERC20(bounty.transactional).transfer(x.benefactor, x.amount), "4");
-                x.amount = 0;
+        if (bounty.funding.length > 0) {
+            for (uint256 i = 0; i <= bounty.funding.length - 1; i++) {
+                INetworkV2.Benefactor storage x = bounty.funding[i];
+                if (x.amount > 0) {
+                    require(ERC20(bounty.transactional).transfer(x.benefactor, x.amount), "4");
+                    x.amount = 0;
+                }
             }
         }
 
