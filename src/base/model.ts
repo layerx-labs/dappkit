@@ -90,9 +90,8 @@ export class Model<Methods = any> {
   /**
    * Return a property value from the contract
    */
-  async callTx<ReturnData = any>(method: ContractCallMethod<ReturnData>, value?: any) {
-    const from = await this.connection.getAddress() || undefined;
-    return method.call({ ... from ? {from} : {}, ...await this.contract.txOptions(method, value, from)});
+  async callTx<ReturnData = any>(method: ContractCallMethod<ReturnData>) {
+    return method.call();
   }
 
   /**
