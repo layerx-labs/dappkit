@@ -96,7 +96,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
   }
 
   async pricePerPack() {
-    return fromDecimals(await this.callTx(this.contract.methods._pricePerPack(), this.erc20.decimals));
+    return fromDecimals(await this.callTx(this.contract.methods._pricePerPack()), this.erc20.decimals);
   }
 
   async purchaseToken() {
