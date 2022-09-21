@@ -17,7 +17,7 @@ import {toSmartContractDate, toSmartContractDecimals} from '../../src';
 import {addSeconds} from 'date-fns'
 import {expect} from 'chai';
 
-describe(`Sablier`, () => {
+describe.skip(`Sablier`, () => {
   let web3Connection: Web3Connection;
 
   let Alice: Account;
