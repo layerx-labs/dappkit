@@ -235,6 +235,22 @@ describe(`NetworkV2`, () => {
           expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue.toString())
         });
 
+        it(`Cancel funding`, async () => {
+
+          web3Connection.switchToAccount(Alice.privateKey);
+          await bountyTransactional.approve(network.contractAddress!, AMOUNT_1M);
+          await hasTxBlockNumber(network.fundBounty(bountyId, 500));
+
+          web3Connection.switchToAccount(Bob.privateKey);
+          await bountyTransactional.approve(network.contractAddress!, AMOUNT_1M);
+          await hasTxBlockNumber(network.fundBounty(bountyId, 400));
+
+          web3Connection.switchToAccount(Admin.privateKey);
+          await hasTxBlockNumber(network.cancelFundRequest(bountyId));
+          expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq((10000).toString());
+          expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq((10000).toString());
+        })
+
         it(`Opens Request Funding and Reward`, async () => {
           await hasTxBlockNumber(rewardToken.approve(network.contractAddress!, AMOUNT_1M), 'Should have approved rewardToken');
 
@@ -267,7 +283,7 @@ describe(`NetworkV2`, () => {
           expect((await network.getBounty(bountyId)).funded).to.be.false;
         });
 
-        it(`Cancels funding`, async () => {
+        it(`Cancel funding with reward token`, async () => {
           web3Connection.switchToAccount(Admin.privateKey);
           await hasTxBlockNumber(network.cancelFundRequest(bountyId));
           expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq((10000).toString());
@@ -284,7 +300,7 @@ describe(`NetworkV2`, () => {
             'c3', 'Title 3', '//', 'master', 'ghuser');
 
           bountyId = await network.cidBountyId('c3');
-          expect(await network.openBounties()).to.be.eq(2);
+          expect(await network.openBounties()).to.be.eq(1);
 
           web3Connection.switchToAccount(Alice.privateKey);
           await bountyTransactional.approve(network.contractAddress!, AMOUNT_1M);
@@ -369,7 +385,7 @@ describe(`NetworkV2`, () => {
           const AliceAmount = bountyAmount / 100 * 51;
           const BobAmount = bountyAmount / 100 * 49;
 
-          expect(await network.openBounties()).to.be.eq(1);
+          expect(await network.openBounties()).to.be.eq(0);
           expect(await bountyTransactional.getTokenAmount(Alice.address)).to.be.eq(Number(AliceAmount).toFixed(2));
           expect(await bountyTransactional.getTokenAmount(Bob.address)).to.be.eq(Number(BobAmount + 10000).toFixed(2));
         });
