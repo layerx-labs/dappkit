@@ -149,7 +149,9 @@ contract NetworkV2 is Governed, ReentrancyGuard {
 
         canceledBounties = canceledBounties.add(1);
 
-        require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "5");
+        if (bounty.rewardAmount > 0) {
+            require(ERC20(bounty.rewardToken).transfer(msg.sender, bounty.rewardAmount), "5");
+        }
 
         emit BountyCanceled(id);
     }
