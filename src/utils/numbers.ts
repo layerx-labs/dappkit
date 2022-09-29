@@ -18,7 +18,7 @@ export function toSmartContractDecimals(value: string|number, decimals = 18) {
  * @return {string}
  */
 export function fromSmartContractDecimals(value: string|number|BigNumber, decimals = 18) {
-  return new BigNumber(value).shiftedBy(-(+decimals)).toString();
+  return new BigNumber(value).shiftedBy(-(+decimals)).toFixed();
 }
 
 /**
