@@ -333,7 +333,6 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         string memory branch,
         string memory githubUser
     ) nonReentrant external {
-        require(tokenAmount > 100 || fundingAmount > 100, "1");
         bountiesIndex = bountiesIndex.add(1);
 
         bounties[bountiesIndex].id = bountiesIndex;
