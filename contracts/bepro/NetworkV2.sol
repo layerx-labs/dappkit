@@ -804,7 +804,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         require(bounties[id].funding.length > fundingId, "W2");
         _amountGT0(bounties[id].funding[fundingId].amount);
 
-        uint256 rewardAmount = bounties[id].funding[fundingId].amount.div(bounties[id].fundingAmount).mul(bounties[id].rewardAmount);
+        uint256 rewardAmount = bounties[id].funding[fundingId].amount.mul(bounties[id].rewardAmount).div(bounties[id].fundingAmount);
 
         bounties[id].funding[fundingId].amount = 0;
 
