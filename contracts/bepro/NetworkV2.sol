@@ -768,7 +768,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         for (uint256 i = 0; i <= proposal.details.length - 1; i++) {
             INetworkV2.ProposalDetail memory detail = proposal.details[i];
             INetworkV2.BountyConnector memory award = INetworkV2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
-            require(erc20.transfer(detail.recipient, proposalAmount.div(100).mul(detail.percentage)), "5");
+            require(erc20.transfer(detail.recipient, proposalAmount.mul(detail.percentage).div(100)), "5");
 
             if (address(registry) != address(0)) {
                 if (address(registry.bountyToken()) != address(0)) {

@@ -304,7 +304,8 @@ describe(`NetworkV2`, () => {
 
           web3Connection.switchToAccount(Alice.privateKey);
           await bountyTransactional.approve(network.contractAddress!, AMOUNT_1M);
-          await hasTxBlockNumber(network.fundBounty(bountyId, 10000));
+          await hasTxBlockNumber(network.fundBounty(bountyId, 10000/2));
+          await hasTxBlockNumber(network.fundBounty(bountyId, 10000/2));
 
           web3Connection.switchToAccount(Admin.privateKey);
           await increaseTime(62, web3Connection.Web3);
@@ -392,6 +393,8 @@ describe(`NetworkV2`, () => {
 
         it(`Alice withdraws from bounty`, async () => {
           await hasTxBlockNumber(network.withdrawFundingReward(bountyId, 0));
+          expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq((500).toString());
+          await hasTxBlockNumber(network.withdrawFundingReward(bountyId, 1));
           expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq((1000).toString());
         });
       });
