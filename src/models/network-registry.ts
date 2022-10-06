@@ -50,6 +50,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     this._DIVISOR = await this.getDivisor();
 
     await this._token.loadContract();
+    await this._bountyToken.loadContract();
   }
 
   async deployJsonAbi(_erc20: string,
