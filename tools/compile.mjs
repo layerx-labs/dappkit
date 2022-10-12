@@ -1,5 +1,4 @@
 import Contracts from '@truffle/workflow-compile';
-const {default: {compileAndSave}} = Contracts; // truffle being truffle
 
 const config = {
   contracts_directory: "./contracts/",
@@ -17,7 +16,8 @@ const config = {
   }
 }
 
-compileAndSave(config)
+// truffle being truffle
+Contracts.default.compileAndSave(config)
   .catch(e => {
     console.error(`Error`, e);
     process.exit(1)
