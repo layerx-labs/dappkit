@@ -45,7 +45,7 @@
   "devDependencies": {
     "@openzeppelin/contracts": "^3.4.2",
     "@taikai/dappkit-launchpad": "^0.0.19",
-    "@truffle/workflow-compile": "^4.0.35",
+    "@truffle/workflow-compile": "4.0.35",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^10.0.0",
     "@types/yargs": "^17.0.7",
