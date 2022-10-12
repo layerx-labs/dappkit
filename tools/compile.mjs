@@ -17,7 +17,7 @@ const config = {
 }
 
 // truffle being truffle..
-Contracts.default.compile(config)
+Contracts.default.compileAndSave(config)
   .catch(e => {
     console.error(`Error`, e);
     process.exit(1)
