@@ -112,6 +112,14 @@ describe(`NetworkV2`, () => {
       });
 
       describe(`Oracle actions`, () => {
+
+        it(`Asserts that locked amount matches conversion`, async () => {
+          await hasTxBlockNumber(networkToken.approve(network.contractAddress!, AMOUNT_1M));
+          await hasTxBlockNumber(network.lock(`104999.999999999999999`));
+          expect(await network.getOraclesOf(Admin.address)).to.be.eq(`209999.999999999999998`); // * 2 rate
+          await hasTxBlockNumber(network.unlock(`209999.999999999999998`));
+        })
+
         it(`Locks NT and receives Network Stake Token`, async () => {
           await hasTxBlockNumber(networkToken.approve(network.contractAddress!, AMOUNT_1M));
           await hasTxBlockNumber(network.lock(205000));

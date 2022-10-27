@@ -20,6 +20,7 @@ import { bounty } from '@utils/bounty';
 import { treasuryInfo } from '@utils/treasury-info';
 import {delegationEntry} from "@utils/delegation";
 import {NetworkRegistry} from "@models/network-registry";
+import BigNumber from "bignumber.js";
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
@@ -296,7 +297,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async getOraclesOf(_address: string) {
     const oracles = await this.callTx(this.contract.methods.oracles(_address));
-    return fromSmartContractDecimals(+oracles.locked + +oracles.byOthers, this.networkToken.decimals);
+    const value = BigNumber(oracles.locked).plus(BigNumber(oracles.byOthers));
+    return fromSmartContractDecimals(value, this.networkToken.decimals);
   }
 
   /**
