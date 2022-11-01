@@ -25,22 +25,6 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
-     */
-    // function _tryGetAssetDecimals(IERC20 asset_) private returns (bool, uint8) {
-    //     (bool success, bytes memory enecodedDecimals) = address(asset_).call(
-    //         abi.encodedWithSelector(IERC20Metadata.decimals.selector)
-    //     );
-    //     if (success && encodedDecimals.length >= 32) {
-    //         uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
-    //         if (returnedDecimals <= type(uint8).max) {
-    //             return (true, uint8(returnedDecimals));
-    //         }
-    //     }
-    //     return (false, 0);
-    // }
-
-    /**
      * @dev Decimals are read from the underlying asset in the constructor and cached. If this fails (e.g., the asset
      * has not been created yet), the cached value is set to a default obtained by `super.decimals()` (which depends on
      * inheritance but is most likely 18). Override this function in order to set a guaranteed hardcoded value.
