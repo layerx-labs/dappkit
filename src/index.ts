@@ -1,6 +1,7 @@
 export * from '@models/cerc20';
 export * from '@models/erc20';
 export * from '@models/erc20-token-lock';
+export * from '@models/erc4626';
 export * from '@models/erc721-collectibles';
 export * from '@models/erc721-standard';
 export * from '@models/erc1155-ownable';
