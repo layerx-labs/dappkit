@@ -1,9 +1,9 @@
 node_modules/
+build
 .env
 package-lock.json
 .idea
 xunit.xml
-build/
 docs/
 dist/
 .DS_Store
