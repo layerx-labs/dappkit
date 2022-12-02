@@ -32,7 +32,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
 
     uint256 constant MIN_CANCELABLE_TIME = 180 days;
 
-    uint256 constant MAX_COUNCIL_AMOUNT = 50000000;
+    uint256 constant MAX_COUNCIL_AMOUNT = 100000000000; // 100B
     uint256 constant MIN_COUNCIL_AMOUNT = 1;
 
     uint256 constant MAX_CONTRIBUTORS_LENGTH = 20;
