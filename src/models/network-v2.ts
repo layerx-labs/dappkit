@@ -76,15 +76,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const transactionalTokenAddress = await this.networkTokenAddress();
     const registryAddress = await this.registryAddress();
 
+    this._governed = new Governed(this);
     this._networkToken = new ERC20(this.connection, transactionalTokenAddress);
+    await this._networkToken.loadContract();
 
-    if (nftAddress) {
+    if (nftAddress && nftAddress !== nativeZeroAddress) {
       this._nftToken = new BountyToken(this.connection, nftAddress);
       await this._nftToken.loadContract();
     }
-
-    this._governed = new Governed(this);
-    await this._networkToken.loadContract();
 
     if (registryAddress !== nativeZeroAddress) {
       this._registry = new NetworkRegistry(this.connection, registryAddress);

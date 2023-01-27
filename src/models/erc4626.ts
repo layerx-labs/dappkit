@@ -24,14 +24,12 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
     const deployOptions = {
       data: ERC4626Json.bytecode,
       arguments: [
-        erc20Address
+        erc20Address,
+        'ERC4026 Vault',
+        'Vault'
       ]
     }
     return this.deploy(deployOptions, this.connection.Account);
-  }
-
-  async allowance(owner: string, spender: string) {
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.allowance(owner, spender)), this._decimals);
   }
 
   async loadContract() {
@@ -39,6 +37,10 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
 
     this._decimals = await this.decimals();
     this._asset = new ERC20(this.connection, await this.assetAddress());
+  }
+
+  async allowance(owner: string, spender: string) {
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.allowance(owner, spender)), this._decimals);
   }
 
   async approve(spender: string, amount: number) { 
