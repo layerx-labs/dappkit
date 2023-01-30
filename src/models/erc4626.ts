@@ -20,13 +20,12 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
     super(web3Connection, ERC4626Json.abi as AbiItem[], contractAddress);
   }
 
-  async deployJsonAbi(erc20Address: string) {
+  async deployJsonAbi(erc20Address: string, name: string, symbol: string) {
     const deployOptions = {
       data: ERC4626Json.bytecode,
       arguments: [
         erc20Address,
-        'ERC4026 Vault',
-        'Vault'
+        name, symbol,
       ]
     }
     return this.deploy(deployOptions, this.connection.Account);
@@ -92,8 +91,8 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
     return this.callTx(this.contract.methods.asset());
   }
 
-  async totalAssets() { 
-    return this.callTx(this.contract.methods.totalAssets());
+  async totalAssets() {
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalAssets()), await this.decimals());
   }
 
   async convertToShares(assets: number) { 
@@ -105,14 +104,14 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
   }
 
   async maxDeposit(arg1: string) { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.maxDeposit(arg1)), this._decimals);
+    return await this.callTx(this.contract.methods.maxDeposit(arg1));
   }
 
   async maxMint(arg1: string) { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.maxMint(arg1)), this._decimals);
+    return await this.callTx(this.contract.methods.maxMint(arg1));
   }
 
-  async maxWithdraw(owner: string) { 
+  async maxWithdraw(owner: string) {
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.maxWithdraw(owner)), this._decimals);
   }
 
@@ -125,7 +124,7 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
   }
 
   async previewMint(shares: number) { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewMint(toSmartContractDecimals(shares, this._decimals))), this._decimals);
+    return await this.callTx(this.contract.methods.previewMint(shares.toString()));
   }
 
   async previewRedeem(shares: number) { 
@@ -140,7 +139,7 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
     return this.sendTx(this.contract.methods.deposit(toSmartContractDecimals(assets, this._decimals), receiver));
   }
 
-  async mint(shares: number, receiver: string) { 
+  async mint(shares: number, receiver: string) {
     return this.sendTx(this.contract.methods.mint(toSmartContractDecimals(shares, this._decimals), receiver));
   }
 

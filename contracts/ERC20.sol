@@ -22,12 +22,28 @@ contract CappedToken is ERC20, Ownable{
 
 }
 
-contract Token is CappedToken {
+contract OwnableERC20 is ERC20, Ownable {
+    uint8 private _decimals;
+
+    constructor(string memory _name, string memory _symbol, uint8 decimals_, uint256 initialSupply) Ownable() ERC20(_name, _symbol) {
+        if (initialSupply > 0) {
+            _mint(_msgSender(), initialSupply);
+        }
+
+        _decimals = decimals_;
+    }
+
+    function mint(address receiver, uint256 amount) public onlyOwner {
+        _mint(receiver, amount);
+    }
+}
+
+contract Token is OwnableERC20 {
 
     constructor(
         string memory _name,
         string memory _symbol,
         uint256 _cap,
-        address _distributionContract) public CappedToken(_name, _symbol, _cap, _distributionContract) {
+        address _distributionContract) public OwnableERC20(_name, _symbol, 18, _cap) {
     }
 }

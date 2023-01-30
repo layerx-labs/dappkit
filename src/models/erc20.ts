@@ -6,9 +6,12 @@ import {fromDecimals, fromSmartContractDecimals, toSmartContractDecimals} from '
 import {Deployable} from '@interfaces/deployable';
 import {ERC20Methods} from '@methods/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
+import {Ownable} from "@base/ownable";
 
 export class ERC20 extends Model<ERC20Methods> implements Deployable {
   private _decimals = 0;
+  private _ownable!: Ownable;
+
   get decimals(): number { return this._decimals; }
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
@@ -23,6 +26,8 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
   async loadContract() {
     if (!this.contract)
       super.loadContract();
+
+    this._ownable = new Ownable(this);
 
     this._decimals = await this.callTx(this.contract.methods.decimals()) || 18;
   }
@@ -82,5 +87,10 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
     }
 
     return this.deploy(deployOptions, this.connection.Account);
+  }
+
+  async mint(receiver: string, amount: number) {
+    await this._ownable.onlyOwner();
+    return this.sendTx(this.contract.methods.mint(receiver, toSmartContractDecimals(amount, this._decimals)));
   }
 }

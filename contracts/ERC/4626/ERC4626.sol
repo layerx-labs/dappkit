@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/math/Math.sol";
 import "./IERC4626.sol";
 import "../../math/SaferMath.sol";
 import "../../ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../IERC20View.sol";
 
 
@@ -186,7 +187,7 @@ contract ERC4626 is ERC20 {
         // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
         // assets are transferred and before the shares are minted, which is a valid state.
         // slither-disable-next-line reentrancy-no-eth
-        Token(_asset).transferFrom(caller, address(_asset), assets);
+        Token(_asset).transferFrom(caller, address(this), assets);
         _mint(receiver, shares);
 
         emit Deposit(caller, receiver, assets, shares);

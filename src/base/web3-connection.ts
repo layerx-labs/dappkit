@@ -60,9 +60,10 @@ export class Web3Connection {
   /**
    * change the privateKey prop of {@link Web3ConnectionOptions} and start a new connection
    */
-  switchToAccount(privateKey: string) {
-    if (this.options.privateKey !== privateKey)
-      this.options.privateKey = privateKey;
+  switchToAccount(account: string|Account) {
+    const pvtKey = typeof account === "string" ? account : account.privateKey;
+    if (this.options.privateKey !== pvtKey)
+      this.options.privateKey = pvtKey;
     return this.start(true)
   }
 
