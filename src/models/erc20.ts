@@ -9,14 +9,15 @@ import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Ownable} from "@base/ownable";
 
 export class ERC20 extends Model<ERC20Methods> implements Deployable {
+  constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
+    super(web3Connection, Json.abi as any, contractAddress);
+  }
+
   private _decimals = 0;
   private _ownable!: Ownable;
 
   get decimals(): number { return this._decimals; }
-
-  constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, Json.abi as any, contractAddress);
-  }
+  get ownable() { return this._ownable }
 
   async start() {
     await super.start();

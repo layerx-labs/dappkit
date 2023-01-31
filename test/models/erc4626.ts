@@ -41,7 +41,6 @@ describe(`ERC4626`, () => {
   });
 
   it(`Deploys`, async () => {
-    // the used ERC20 is an 18 decimal one, so conversion is 1:1
     erc4626Address =
       (await modelExtensionDeployer(web3Connection, ERC4626, [erc20.contractAddress, `NAME Vault`, `$symbol V`]))?.contractAddress!;
   })
@@ -126,9 +125,7 @@ describe(`ERC4626`, () => {
         // NOTE: Alice's vault assets got rounded up
         web3Connection.switchToAccount(Bob);
         expect(await erc4626.mint(2000, Bob.address));
-
         expect(await erc4626.balanceOf(Bob.address)).to.eq('6000');
-
         expect(await erc4626.convertToAssets(+(await erc4626.balanceOf(Alice.address)))).to.be.eq('4999');
         expect(await erc4626.convertToAssets(+(await erc4626.balanceOf(Bob.address)))).to.be.eq('9000');
         expect(await erc4626.totalSupply()).to.be.eq('9333');
@@ -191,9 +188,6 @@ describe(`ERC4626`, () => {
         expect(await erc4626.totalSupply()).to.be.eq('0');
         expect(await erc4626.totalAssets()).to.be.eq('0');
       })
-
     });
   });
-
-
 })
