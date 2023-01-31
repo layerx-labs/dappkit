@@ -49,12 +49,13 @@ describe(`ERC4626`, () => {
     let erc4626: ERC4626;
 
     it(`Loads contracts`,async () => {
-      erc4626 = new ERC4626(web3Connection, erc4626Address);
+      erc4626 = new ERC4626(web3Connection, erc4626Address);-
       await erc4626.loadContract();
     });
 
     it(`Asserts underlying ERC20`, () => {
       expect(erc4626.asset).to.not.be.null;
+      expect(erc4626.asset).to.not.be.eq(0);
     });
 
     it(`Asserts underlying decimals`, async () => {
