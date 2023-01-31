@@ -80,7 +80,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     this._networkToken = new ERC20(this.connection, transactionalTokenAddress);
     await this._networkToken.loadContract();
 
-    if (nftAddress && nftAddress !== nativeZeroAddress) {
+    if (nftAddress !== nativeZeroAddress) {
       this._nftToken = new BountyToken(this.connection, nftAddress);
       await this._nftToken.loadContract();
     }
