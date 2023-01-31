@@ -63,16 +63,21 @@ describe(`ERC4626`, () => {
     });
 
     describe(`Simulates usage`, async () => {
-      it (`Give 4000 tokens to Alice and 7001 to Bob`, async () => {
+      before(`Give tokens To Alice and Bob`, async () => {
+        web3Connection.switchToAccount(Owner);
         await hasTxBlockNumber(erc20.mint(Alice.address, 4000));
         await hasTxBlockNumber(erc20.mint(Bob.address, 7001));
-
-        web3Connection.switchToAccount(Alice.privateKey);
-        await hasTxBlockNumber(erc20.approve(erc4626Address, 4000));
-
-        web3Connection.switchToAccount(Bob.privateKey);
-        await hasTxBlockNumber(erc20.approve(erc4626Address, 7001));
       })
+
+      it(`Alice approves usage`, async () => {
+        web3Connection.switchToAccount(Alice);
+        await hasTxBlockNumber(erc20.approve(erc4626Address, 4000));
+      });
+
+      it(`Bob approves usage`, async () => {
+        web3Connection.switchToAccount(Bob);
+        await hasTxBlockNumber(erc20.approve(erc4626Address, 7001));
+      });
 
       it (`Alice mints 2000 shares (costs 2000 erc20)`, async () => {
         web3Connection.switchToAccount(Alice.privateKey);
