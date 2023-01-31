@@ -262,7 +262,7 @@ contract ERC4626 is ERC20 {
         // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
         // shares are burned and after the assets are transferred, which is a valid state.
         _burn(owner, shares);
-        Token(_asset).transferFrom(address(_asset), receiver, assets);
+        Token(_asset).transfer(receiver, assets);
 
         emit Withdraw(caller, receiver, owner, assets, shares);
     }

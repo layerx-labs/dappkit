@@ -30,9 +30,9 @@ export interface ERC4626Methods {
 
   totalAssets(): ContractCallMethod<number>;
 
-  convertToShares(assets: string): ContractCallMethod<{ 'shares': number; }>;
+  convertToShares(assets: string): ContractCallMethod<number>;
 
-  convertToAssets(shares: string): ContractCallMethod<{ 'assets': number; }>;
+  convertToAssets(shares: string): ContractCallMethod<number>;
 
   maxDeposit(arg1: string): ContractCallMethod<number>;
 

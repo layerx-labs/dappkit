@@ -46,8 +46,8 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
     return this.sendTx(this.contract.methods.approve(spender, toSmartContractDecimals(amount, this._decimals)));
   }
 
-  async balanceOf(account: string) { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.balanceOf(account)), this._decimals);
+  async balanceOf(account: string) {
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.balanceOf(account)), this._decimals, 3);
   }
 
   async decreaseAllowance(spender: string, subtractedValue: number) {
@@ -67,7 +67,7 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
   }
 
   async totalSupply() { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalSupply()), this._decimals);
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalSupply()), this._decimals, 3);
   }
 
   async transfer(recipient: string, amount: number) { 
@@ -92,15 +92,15 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
   }
 
   async totalAssets() {
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalAssets()), await this.decimals());
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.totalAssets()), this._decimals, 3);
   }
 
   async convertToShares(assets: number) { 
-    return this.callTx(this.contract.methods.convertToShares(toSmartContractDecimals(assets, this._decimals)));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.convertToShares(toSmartContractDecimals(assets, this._decimals, 3))), this._decimals, 3);
   }
 
   async convertToAssets(shares: number) { 
-    return this.callTx(this.contract.methods.convertToAssets(toSmartContractDecimals(shares, this._decimals)));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.convertToAssets(toSmartContractDecimals(shares, this._decimals, 3))), this._decimals, 3);
   }
 
   async maxDeposit(arg1: string) { 
@@ -112,7 +112,7 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
   }
 
   async maxWithdraw(owner: string) {
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.maxWithdraw(owner)), this._decimals);
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.maxWithdraw(owner)), this._decimals, 3);
   }
 
   async maxRedeem(owner: string) { 
@@ -120,35 +120,35 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
   }
 
   async previewDeposit(assets: number) {
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewDeposit(toSmartContractDecimals(assets, this._decimals))), this._decimals);
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewDeposit(toSmartContractDecimals(assets, this._decimals, 3))), this._decimals, 3);
   }
 
   async previewMint(shares: number) { 
-    return await this.callTx(this.contract.methods.previewMint(shares.toString()));
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewMint(toSmartContractDecimals(shares, this._decimals, 2))), this._decimals, 2);
   }
 
   async previewRedeem(shares: number) { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewRedeem(toSmartContractDecimals(shares, this._decimals))), this._decimals);
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewRedeem(toSmartContractDecimals(shares, this._decimals, 3))), this._decimals, 3);
   }
 
   async previewWithdraw(assets: number) { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewWithdraw(toSmartContractDecimals(assets, this._decimals))), this._decimals);
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.previewWithdraw(toSmartContractDecimals(assets, this._decimals, 2))), this._decimals, 2);
   }
 
   async deposit(assets: number, receiver: string) { 
-    return this.sendTx(this.contract.methods.deposit(toSmartContractDecimals(assets, this._decimals), receiver));
+    return this.sendTx(this.contract.methods.deposit(toSmartContractDecimals(assets, this._decimals, 3), receiver));
   }
 
   async mint(shares: number, receiver: string) {
-    return this.sendTx(this.contract.methods.mint(toSmartContractDecimals(shares, this._decimals), receiver));
+    return this.sendTx(this.contract.methods.mint(toSmartContractDecimals(shares, this._decimals, 3), receiver));
   }
 
   async withdraw(assets: number, receiver: string, owner: string) { 
-    return this.sendTx(this.contract.methods.withdraw(toSmartContractDecimals(assets, this._decimals), receiver, owner));
+    return this.sendTx(this.contract.methods.withdraw(toSmartContractDecimals(assets, this._decimals, 3), receiver, owner));
   }
 
   async redeem(shares: number, receiver: string, owner: string) { 
-    return this.sendTx(this.contract.methods.redeem(toSmartContractDecimals(shares, this._decimals), receiver, owner));
+    return this.sendTx(this.contract.methods.redeem(toSmartContractDecimals(shares, this._decimals, 3), receiver, owner));
   }
 
   async getApprovalEvents(filter: PastEventOptions): XPromiseEvent<Events.ApprovalEvent> {
