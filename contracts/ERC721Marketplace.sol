@@ -3,8 +3,9 @@ pragma solidity >=0.6.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./utils/Ownable.sol";
+import "./utils/ReentrancyGuardOptimized.sol";
 
-contract ERC721Marketplace is Ownable {
+contract ERC721Marketplace is Ownable, ReentrancyGuardOptimized {
 
     using SafeMath for uint256;
 
@@ -29,8 +30,7 @@ contract ERC721Marketplace is Ownable {
         bool sold;
     }
 
-    constructor(ERC20 _erc20Address,
-    IERC721 _erc721Address) public {
+    constructor(ERC20 _erc20Address, IERC721 _erc721Address) ReentrancyGuardOptimized() public {
             erc20Address = _erc20Address;
             erc721Address = _erc721Address;
     }
@@ -71,7 +71,7 @@ contract ERC721Marketplace is Ownable {
         delete sales[_tokenId];
     }
 
-    function buyERC721(uint256 _tokenId) payable public virtual {
+    function buyERC721(uint256 _tokenId) nonReentrant payable public virtual {
         require(sales[_tokenId].tokenId == _tokenId, "NFT is not in sale");
         require(!sales[_tokenId].sold, "NFT has to be available for purchase" );
 
