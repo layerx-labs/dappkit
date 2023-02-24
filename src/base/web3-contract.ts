@@ -1,11 +1,12 @@
-import {AbiItem} from 'web3-utils';
+import {AbiItem, sha3} from 'web3-utils';
 import {Contract, ContractSendMethod, DeployOptions} from 'web3-eth-contract';
 import Web3 from 'web3';
 import {Account, TransactionConfig} from 'web3-core';
-import {TransactionReceipt} from '@interfaces/web3-core';
+import {Log, TransactionReceipt} from '@interfaces/web3-core';
 import {Errors} from '@interfaces/error-enum';
 import {transactionHandler} from '@utils/transaction-handler';
 import {Web3ConnectionOptions} from "@interfaces/web3-connection-options";
+import {ParsedTransactionReceipt} from "@interfaces/parsed-transaction-receipt";
 
 const DEFAULT_CONFIRMATIONS_NEEDED = 1;
 
@@ -128,6 +129,29 @@ export class Web3Contract<Methods = any, Events = any> {
   }
 
   /**
+   * Parses the logs of a transaction receipt using its abi events
+   */
+  parseReceiptLogs<T = any>(receipt: TransactionReceipt): ParsedTransactionReceipt<T> {
+    if (receipt.logs?.length) {
+      const _events =
+        this.abi.filter(({type}) => type === "event")
+          .map(({inputs, ...rest}) =>
+            ({inputs, ...rest, topic: sha3(`${rest.name}(${inputs?.map(i=> i.type).join(',')})`)}));
+
+      for (let log of receipt.logs) {
+        for (const _event of _events) {
+          if (_event.topic === log.topics[0] && !(log as any).event) {
+            const args = this.web3.eth.abi.decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
+            log = {...log, event: _event?.name, args} as unknown as Log & {event: string, args: T};
+          }
+        }
+      }
+    }
+
+    return receipt as ParsedTransactionReceipt<T>;
+  }
+
+  /**
    * Sends a signed transaction with the provided account
    */
   sendSignedTx(account: Account,
@@ -136,9 +160,9 @@ export class Web3Contract<Methods = any, Events = any> {
                txOptions: Partial<TransactionConfig>, {
                  debug,
                  customTransactionHandler: cb
-               }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
+               }: Partial<Web3ConnectionOptions> = {}): Promise<ParsedTransactionReceipt> {
     /* eslint-disable no-async-promise-executor */
-    return new Promise(async (resolve, reject) => {
+    return new Promise<TransactionReceipt>(async (resolve, reject) => {
       try {
 
         const from = account.address;
@@ -155,7 +179,7 @@ export class Web3Contract<Methods = any, Events = any> {
         console.error(e);
         reject(e);
       }
-    })
+    }).then((receipt) => this.parseReceiptLogs(receipt))
     /* eslint-enable no-async-promise-executor */
   }
 }
