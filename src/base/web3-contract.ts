@@ -90,12 +90,11 @@ export class Web3Contract<Methods = any, Events = any> {
   }
   /* eslint-enable complexity */
 
+  /* eslint-disable complexity */
   /**
    * Parses the logs of a transaction receipt using its abi events
    */
   parseReceiptLogs<T = any>(receipt: TransactionReceipt): TransactionReceipt<T> {
-
-    /* eslint-disable complexity */
     if (receipt.logs?.length) {
       const _events =
         this.abi.filter(({type}) => type === "event")
@@ -113,10 +112,10 @@ export class Web3Contract<Methods = any, Events = any> {
         }
       }
     }
-    /* eslint-enable complexity */
 
     return receipt as TransactionReceipt<T>;
   }
+  /* eslint-enable complexity */
 
   /**
    * Deploys the new AbiItem and returns its transaction receipt
