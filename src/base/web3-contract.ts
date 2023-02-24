@@ -101,9 +101,12 @@ export class Web3Contract<Methods = any, Events = any> {
           .map(({inputs, ...rest}) =>
             ({inputs, ...rest, topic: sha3(`${rest.name}(${inputs?.map(i=> i.type).join(',')})`)}));
 
+      const hasAddressAndEqualLog = ({address}: Log) =>
+        !this.address ? true : this.address.toLowerCase() === address.toLowerCase()
+
       for (const [i, log] of receipt.logs.entries()) {
         for (const _event of _events) {
-          if (_event.topic === log.topics[0] && log.address.toLowerCase() === this.address?.toLowerCase()) {
+          if (_event.topic === log.topics[0] && hasAddressAndEqualLog(log)) {
             const args =
               this.web3.eth.abi
                 .decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
