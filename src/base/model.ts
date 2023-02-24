@@ -10,7 +10,6 @@ import {ContractSendMethod, DeployOptions} from 'web3-eth-contract';
 import {ContractCallMethod} from '@methods/contract-call-method';
 import {transactionHandler} from '@utils/transaction-handler';
 import {noop} from '@utils/noop';
-import {ParsedTransactionReceipt} from "@interfaces/parsed-transaction-receipt";
 
 export class Model<Methods = any> {
   protected _contract!: Web3Contract<Methods>;
@@ -120,7 +119,7 @@ export class Model<Methods = any> {
                        value?: any, {
                          debug,
                          customTransactionHandler: cb
-                       }: Partial<Web3ConnectionOptions> = {}): Promise<ParsedTransactionReceipt> {
+                       }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
     const from = (await this.web3.eth.getAccounts())[0];
 
     return new Promise<TransactionReceipt>(async (resolve, reject) => {

@@ -6,7 +6,6 @@ import {Log, TransactionReceipt} from '@interfaces/web3-core';
 import {Errors} from '@interfaces/error-enum';
 import {transactionHandler} from '@utils/transaction-handler';
 import {Web3ConnectionOptions} from "@interfaces/web3-connection-options";
-import {ParsedTransactionReceipt} from "@interfaces/parsed-transaction-receipt";
 
 const DEFAULT_CONFIRMATIONS_NEEDED = 1;
 
@@ -41,6 +40,7 @@ export interface Web3ContractOptions {
 
 export class Web3Contract<Methods = any, Events = any> {
   readonly self!: Contract;
+  readonly abi: AbiItem[];
 
   /**
    * Transaction options that will be used on each transaction.
@@ -53,11 +53,12 @@ export class Web3Contract<Methods = any, Events = any> {
   readonly options: Web3ContractOptions = {auto: true}
 
   constructor(readonly web3: Web3,
-              readonly abi: AbiItem[],
+              abi: AbiItem[],
               readonly address?: string,
               options: Web3ContractOptions = {auto: true}) {
     this.self = new web3.eth.Contract(abi, address);
     this.options = options;
+    this.abi = abi;
   }
 
   get methods(): Methods { return this.self.methods; }
@@ -88,6 +89,30 @@ export class Web3Contract<Methods = any, Events = any> {
     };
   }
   /* eslint-enable complexity */
+
+  /**
+   * Parses the logs of a transaction receipt using its abi events
+   */
+  parseReceiptLogs<T = any>(receipt: TransactionReceipt): TransactionReceipt<T> {
+    if (receipt.logs?.length) {
+      const _events =
+        this.abi.filter(({type}) => type === "event")
+          .map(({inputs, ...rest}) =>
+            ({inputs, ...rest, topic: sha3(`${rest.name}(${inputs?.map(i=> i.type).join(',')})`)}));
+
+      for (const [i, log] of receipt.logs.entries()) {
+        for (const _event of _events) {
+          console.log(_event.topic === log.topics[0], (log as any).event)
+          if (_event.topic === log.topics[0] && !(log as any).event) {
+            const args = this.web3.eth.abi.decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
+            receipt.logs[i] = {...log, event: _event?.name, args} as unknown as Log & {event: string, args: T};
+          }
+        }
+      }
+    }
+
+    return receipt as TransactionReceipt<T>;
+  }
 
   /**
    * Deploys the new AbiItem and returns its transaction receipt
@@ -125,30 +150,7 @@ export class Web3Contract<Methods = any, Events = any> {
       }
     }
 
-    return new Promise<TransactionReceipt>(deployer);
-  }
-
-  /**
-   * Parses the logs of a transaction receipt using its abi events
-   */
-  parseReceiptLogs<T = any>(receipt: TransactionReceipt): ParsedTransactionReceipt<T> {
-    if (receipt.logs?.length) {
-      const _events =
-        this.abi.filter(({type}) => type === "event")
-          .map(({inputs, ...rest}) =>
-            ({inputs, ...rest, topic: sha3(`${rest.name}(${inputs?.map(i=> i.type).join(',')})`)}));
-
-      for (let log of receipt.logs) {
-        for (const _event of _events) {
-          if (_event.topic === log.topics[0] && !(log as any).event) {
-            const args = this.web3.eth.abi.decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
-            log = {...log, event: _event?.name, args} as unknown as Log & {event: string, args: T};
-          }
-        }
-      }
-    }
-
-    return receipt as ParsedTransactionReceipt<T>;
+    return new Promise<TransactionReceipt>(deployer).then(receipt => this.parseReceiptLogs(receipt));
   }
 
   /**
@@ -160,7 +162,7 @@ export class Web3Contract<Methods = any, Events = any> {
                txOptions: Partial<TransactionConfig>, {
                  debug,
                  customTransactionHandler: cb
-               }: Partial<Web3ConnectionOptions> = {}): Promise<ParsedTransactionReceipt> {
+               }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
     /* eslint-disable no-async-promise-executor */
     return new Promise<TransactionReceipt>(async (resolve, reject) => {
       try {

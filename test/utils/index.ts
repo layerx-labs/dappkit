@@ -1,10 +1,17 @@
-import {Web3ConnectionOptions, Web3Connection, ERC20, toSmartContractDecimals} from '../../src';
+import {ERC20, toSmartContractDecimals, Web3Connection, Web3ConnectionOptions} from '../../src';
 import {readFileSync} from 'fs';
 import {resolve} from 'path';
-import {expect} from 'chai';
+import {expect, use} from 'chai';
 import Web3 from 'web3';
 import {HttpProvider, WebsocketProvider} from 'web3-core';
 import {TransactionReceipt} from 'web3-eth';
+import {Log} from "../../src/interfaces/web3-core";
+import like from 'chai-like';
+import things from 'chai-things';
+
+use(like);
+use(things);
+
 
 /**
  * Returns the private key from the output provided by ganache
@@ -130,10 +137,21 @@ export async function revertChain(web3: Web3) {
  */
 export async function hasTxBlockNumber(promise: Promise<any>, message = `Should have blockNumber`) {
     const tx = await promise.catch(e => {
-      // console.error(e);
+      console.error(e);
       expect(e?.data?.reason || e?.data?.message || e?.message || `Should not have been rejected`).to.be.empty;
     });
+
     expect(tx, message).property('blockNumber').to.exist;
+
+    return tx;
+}
+
+export async function expectEvent<T = any>(promise: Promise<T>, eventName: string, params: any) {
+  const tx = await hasTxBlockNumber(promise);
+  expect(tx.logs, `Should have logs array`).to.exist;
+
+  expect(tx.logs).to.be.an('array').that.contains.something.like({event: eventName});
+  expect(tx.logs.map((l: Log) => l.args)).to.be.an('array').that.contains.something.like(params);
 }
 
 export function calculateAPR(apr = 1, start = 0,
