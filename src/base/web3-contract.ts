@@ -94,6 +94,8 @@ export class Web3Contract<Methods = any, Events = any> {
    * Parses the logs of a transaction receipt using its abi events
    */
   parseReceiptLogs<T = any>(receipt: TransactionReceipt): TransactionReceipt<T> {
+
+    /* eslint-disable complexity */
     if (receipt.logs?.length) {
       const _events =
         this.abi.filter(({type}) => type === "event")
@@ -102,14 +104,16 @@ export class Web3Contract<Methods = any, Events = any> {
 
       for (const [i, log] of receipt.logs.entries()) {
         for (const _event of _events) {
-          console.log(_event.topic === log.topics[0], (log as any).event)
-          if (_event.topic === log.topics[0] && !(log as any).event) {
-            const args = this.web3.eth.abi.decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
+          if (_event.topic === log.topics[0]) {
+            const args =
+              this.web3.eth.abi
+                .decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
             receipt.logs[i] = {...log, event: _event?.name, args} as unknown as Log & {event: string, args: T};
           }
         }
       }
     }
+    /* eslint-enable complexity */
 
     return receipt as TransactionReceipt<T>;
   }
