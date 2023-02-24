@@ -103,7 +103,7 @@ export class Web3Contract<Methods = any, Events = any> {
 
       for (const [i, log] of receipt.logs.entries()) {
         for (const _event of _events) {
-          if (_event.topic === log.topics[0]) {
+          if (_event.topic === log.topics[0] && log.address.toLowerCase() === this.address?.toLowerCase()) {
             const args =
               this.web3.eth.abi
                 .decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
