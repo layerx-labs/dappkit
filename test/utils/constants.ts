@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 
-export function bn(n: number) { return Web3.utils.toBN(n) }
+export function bn(n: number|string) { return Web3.utils.toBN(n) }
 export function pow(n: number, exp: number) { return bn(n).mul(bn(10).pow(bn(exp))) }
 
 export const AMOUNT_1M = 1000000;
@@ -8,7 +8,8 @@ export const SALARY = 3600;
 export const AMOUNT_1M_18D = pow(AMOUNT_1M, 18).toString();
 
 export const DECIMALS = bn(1e18);
-export const STANDARD_SALARY = bn(SALARY).mul(DECIMALS)
+export const STANDARD_SALARY = bn(SALARY).mul(DECIMALS);
+export const MAX_UINT256 = `115792089237316195423570985008687907853269984665640564039457584007913129639935`;
 
 export const FIVE_UNITS = bn(5).mul(DECIMALS).toString();
 export const FIVE_UNITS_CTOKEN = bn(5).mul(DECIMALS).toString();

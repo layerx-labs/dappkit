@@ -16,4 +16,5 @@ export interface ERC20Methods {
   transfer(recipient: string, amount: string | number): ContractCallMethod<boolean>;
   transferFrom(sender: string, recipient: string, amount: string | number): ContractCallMethod<boolean>;
   transferOwnership(newOwner: string): ContractSendMethod;
+  mint(receiver: string, amount: string): ContractSendMethod;
 }

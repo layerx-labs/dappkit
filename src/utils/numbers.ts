@@ -1,24 +1,29 @@
 import BigNumber from 'bignumber.js';
 
+const shiftByFixed = (value: string|number|BigNumber, shiftBy: number, rounding: number|null = null) =>
+  new BigNumber(value).shiftedBy(shiftBy).toFixed(rounding ? 0 : null as any, rounding as any)
+
 /**
  * convert a simple number into a big number representation, usually used to convert
  * to ERC20 token correct number
  * @param {string|number} value
  * @param {number} decimals
+ * @param {number} rounding
  * @return {string}
  */
-export function toSmartContractDecimals(value: string|number, decimals = 18) {
-  return new BigNumber(value).shiftedBy(+decimals).toFixed();
+export function toSmartContractDecimals(value: string|number, decimals = 18, rounding:number|null = null) {
+  return shiftByFixed(value, +decimals, rounding);
 }
 
 /**
  * convert a ERC20 token value into javascript number
  * @param {string|number|BigNumber} value
  * @param {number} decimals
+ * @param {number} rounding
  * @return {string}
  */
-export function fromSmartContractDecimals(value: string|number|BigNumber, decimals = 18) {
-  return new BigNumber(value).shiftedBy(-(+decimals)).toFixed();
+export function fromSmartContractDecimals(value: string|number|BigNumber, decimals = 18, rounding: number|null = null) {
+  return shiftByFixed(value, -(+decimals), rounding);
 }
 
 /**
