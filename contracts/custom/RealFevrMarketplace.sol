@@ -27,7 +27,7 @@ contract RealFevrMarketplace is ERC721Marketplace {
         delete sales[_tokenId];
     }
 
-    function buyERC721(uint256 _tokenId) payable public virtual override {
+    function buyERC721(uint256 _tokenId) nonReentrant payable public virtual override {
         require(sales[_tokenId].tokenId == _tokenId, "NFT is not in sale");
         require(!sales[_tokenId].sold, "NFT has to be available for purchase" );
 
