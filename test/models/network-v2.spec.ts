@@ -89,6 +89,11 @@ describe(`NetworkV2`, () => {
         expect(await network.mergeCreatorFeeShare()).to.eq(1);
       });
 
+      it(`changeProposerFeeShare()`, async () => {
+        await hasTxBlockNumber(network.changeProposerFeeShare(2));
+        expect(await network.proposerFeeShare()).to.eq(2);
+      });
+
       it(`changeOracleExchangeRate()`, async () => {
         await hasTxBlockNumber(network.changeOracleExchangeRate(2));
         expect(await network.oracleExchangeRate()).to.eq(2);
@@ -131,6 +136,10 @@ describe(`NetworkV2`, () => {
           await hasTxBlockNumber(network.delegateOracles(103000, Alice.address));
           expect(await network.getOraclesOf(Admin.address)).to.be.eq(((205000 * 2) - 103000).toString());
           expect(await network.getOraclesOf(Alice.address)).to.be.eq((103000).toString());
+
+          const aliceDelegation = (await network.getDelegationsOf(Admin.address)).find(({ to }) => to === Alice.address);
+          if (aliceDelegation)
+            expect(aliceDelegation.amount).to.be.eq((103000).toString());
         });
 
         it(`Takes back from Alice`, async () => {
@@ -223,6 +232,7 @@ describe(`NetworkV2`, () => {
             await network.lock(newCouncilAmount*3);
             const {blockNumber: fromBlock} = await network.disputeBountyProposal(id, proposalId);
             const [{returnValues: {'4': overflow}}] = await network.getBountyProposalDisputedEvents({fromBlock});
+            expect(await network.isProposalDisputed(id, proposalId)).to.be.true;
             expect(overflow).to.be.true;
             await hasTxBlockNumber(network.hardCancel(id));
             expect((await network.getBounty(id)).canceled).to.be.true;

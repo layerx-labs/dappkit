@@ -41,7 +41,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     oracleExchangeRate: 3,
     mergeCreatorFeeShare: 4,
     percentageNeededForDispute: 5,
-    cancelableTime: 7
+    cancelableTime: 7,
+    proposerFeeShare: 8
   }
 
   get nftToken() { return this._nftToken; }
@@ -226,7 +227,10 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const oraclesDistributed = await this.oraclesDistributed();
     const percentageNeededForDispute = await this.percentageNeededForDispute();
 
-    return disputeWeight >= (percentageNeededForDispute * +oraclesDistributed / 100);
+    const amountNeededForDispute = 
+      new BigNumber(oraclesDistributed).multipliedBy(percentageNeededForDispute).dividedBy(100);
+
+    return  new BigNumber(disputeWeight).gte(amountNeededForDispute);
   }
 
   async changeCouncilAmount(newAmount: string | number) {
@@ -265,6 +269,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   /**
+   * @param proposerFeeShare percentage is per 10,000; 3 = 0,0003
+   */
+  async changeProposerFeeShare(proposerFeeShare: number) {
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.proposerFeeShare, 
+                                                                    proposerFeeShare * this.divisor));
+  }
+
+  /**
    * @param oracleExchangeRate percentage is per 10,000; 3 = 0,0003
    */
   async changeOracleExchangeRate(oracleExchangeRate: number) {
@@ -296,7 +308,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async getOraclesOf(_address: string) {
     const oracles = await this.callTx(this.contract.methods.oracles(_address));
-    const value = BigNumber(oracles.locked).plus(BigNumber(oracles.byOthers));
+    const value = new BigNumber(oracles.locked).plus(oracles.byOthers);
     return fromSmartContractDecimals(value, this.networkToken.decimals);
   }
 
@@ -368,10 +380,11 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
                    githubUser: string) {
 
     let _rewardAmount = 0 as string | number;
+    const isFundingRequest = new BigNumber(fundingAmount).gt(0);
     const _transactional = new ERC20(this.connection, transactional);
     await _transactional.loadContract();
-    const _tokenAmount = toSmartContractDecimals(fundingAmount > 0 ? 0 : tokenAmount, _transactional.decimals)
-    const _fundingAmount = toSmartContractDecimals(fundingAmount, _transactional.decimals)
+    const _tokenAmount = toSmartContractDecimals(isFundingRequest ? 0 : tokenAmount, _transactional.decimals);
+    const _fundingAmount = toSmartContractDecimals(fundingAmount, _transactional.decimals);
 
     if (rewardAmount && rewardToken !== nativeZeroAddress) {
       const rewardERC20 = new ERC20(this.connection, rewardToken);
@@ -509,7 +522,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   async getDelegationsOf(address: string): Promise<Delegation[]> {
     return (await this.callTx(this.contract.methods.getDelegationsFor(address)))
       .map((d, i) => delegationEntry(d, i, this.networkToken.decimals))
-      .filter(({amount}) => amount > 0);
+      .filter(({amount}) => new BigNumber(amount).gt(0));
   }
 
   async getBountyCanceledEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCanceledEvent>[]> {
