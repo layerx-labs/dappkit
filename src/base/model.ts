@@ -120,7 +120,7 @@ export class Model<Methods = any> {
                          debug,
                          customTransactionHandler: cb
                        }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
-    const from = (await this.web3.eth.getAccounts())[0];
+    const from = (await this.web3.eth.givenProvider.request({method: 'eth_requestAccounts'}))[0];
 
     return new Promise(async (resolve, reject) => {
       try {

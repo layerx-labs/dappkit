@@ -97,7 +97,8 @@ export class Web3Contract<Methods = any, Events = any> {
       try {
         const newContract = new this.web3.eth.Contract(abi);
         const limbo = newContract.deploy(deployOptions);
-        const from = account?.address || (await this.web3.eth.getAccounts())[0];
+        const from = 
+          account?.address || (await this.web3.eth.givenProvider.request({method: 'eth_requestAccounts'}))[0];
 
         /* eslint-disable no-inner-declarations */
         function onConfirmation(number: number, receipt: any) {

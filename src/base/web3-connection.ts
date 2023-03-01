@@ -24,7 +24,8 @@ export class Web3Connection {
   get Account(): Account { return this.account; }
 
   async getAddress(): Promise<string> {
-    return this.account ? this.account.address : (await this.eth?.getAccounts() || [""])[0];
+    return this.account ? this.account.address : 
+      (await this.eth?.givenProvider.request({method: 'eth_requestAccounts'}) || [""])[0];
   }
 
   async getBalance(): Promise<string> {
