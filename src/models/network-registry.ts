@@ -86,6 +86,10 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return this.callTx(this.contract.methods.DIVISOR());
   }
 
+  async getMAX_LOCK_PERCENTAGE_FEE() {
+    return this.callTx(this.contract.methods.MAX_LOCK_PERCENTAGE_FEE());
+  }
+
   async lockAmountForNetworkCreation() { 
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.lockAmountForNetworkCreation()), 
                                      this.token.decimals);

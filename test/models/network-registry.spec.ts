@@ -71,6 +71,12 @@ describe(`Network_Registry`, () => {
     });
 
     describe(`Green Path`, () => {
+      it(`Test MAX_LOCK_PERCENTAGE_FEE should be equal to 99%`, async () => {             
+        const maxLockPercentageFee = await registry.getMAX_LOCK_PERCENTAGE_FEE();        
+
+        expect(maxLockPercentageFee).to.eq((99000000).toString());
+      });
+
       it(`Changes amount needed for network creation`, async () => {
         await hasTxBlockNumber(registry.changeAmountForNetworkCreation(10));
         const newLockAmount = await registry.lockAmountForNetworkCreation();

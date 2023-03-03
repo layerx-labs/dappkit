@@ -25,7 +25,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
     uint256 constant MAX_ALLOWED_TOKENS_LEN = 30;
 
     uint256 public DIVISOR = 1000000; // used so client can understand and send correct conversions
-    uint256 public MAX_LOCK_PERCENTAGE_FEE = 10000000; // used so client can understand and send correct conversions
+    uint256 public MAX_LOCK_PERCENTAGE_FEE = 99000000; // used so client can understand and send correct conversions
 
 
     INetworkV2[] public networksArray;

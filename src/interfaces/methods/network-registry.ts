@@ -49,5 +49,6 @@ export interface Network_RegistryMethods {
 
   DIVISOR(): ContractCallMethod<number>;
   MAX_PERCENTAGE(): ContractCallMethod<number>;
+  MAX_LOCK_PERCENTAGE_FEE(): ContractCallMethod<number>;
 
 }
