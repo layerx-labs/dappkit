@@ -114,6 +114,6 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
       arguments: [erc20ContractAddress || this.erc20.contractAddress]
     }
 
-    return this.deploy(options);
+    return this.deploy(options, this.connection.Account);
   }
 }
