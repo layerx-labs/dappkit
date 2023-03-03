@@ -18,6 +18,7 @@ export * from '@models/staking-contract';
 export * from '@models/uniswap-v3-router-bridge';
 export * from '@models/votable';
 export * from '@models/network-registry';
+export * from '@models/erc4626';
 
 export * from '@base/model';
 export * from '@base/use-model';
@@ -62,6 +63,7 @@ export * from '@interfaces/typed-data-v4';
 
 export * from '@events/x-events';
 export * from '@events/network-events';
+export * from '@events/erc4626';
 
 export * from '@methods/contract-call-method';
 export * from '@methods/erc20';
@@ -83,6 +85,7 @@ export * from '@methods/sablier';
 export * from '@methods/staking-contract';
 export * from '@methods/votable';
 export * from '@methods/uniswap-v3-router-bridge';
+export * from '@methods/erc4626';
 
 export * from '@utils/block-number-timestamp';
 export * from '@utils/locked-tokens-info';
