@@ -122,7 +122,7 @@ export class Model<Methods = any> {
                        }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
     const from = (await this.web3.eth.givenProvider.request({method: 'eth_requestAccounts'}))[0];
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise<TransactionReceipt>(async (resolve, reject) => {
       try {
         const options = await this.contract.txOptions(method, value, from);
         const sendMethod = () => method.send({from, value, ...options}, noop);
@@ -136,7 +136,7 @@ export class Model<Methods = any> {
           console.error(e);
         reject(e);
       }
-    });
+    }).then(receipt => this.contract.parseReceiptLogs(receipt));
   }
   /* eslint-enable no-async-promise-executor */
 

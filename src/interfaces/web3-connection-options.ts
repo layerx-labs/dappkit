@@ -38,5 +38,6 @@ export interface Web3ConnectionOptions {
 
   customTransactionHandler?: (event: PromiEvent<TransactionReceipt | Contract>,
                               resolve: (data: any) => void,
-                              reject: (e: unknown) => void, debug?: boolean) => void;
+                              reject: (e: unknown) => void,
+                              debug?: boolean) => void;
 }

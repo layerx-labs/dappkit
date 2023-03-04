@@ -1,4 +1,4 @@
-export interface Log {
+export interface Log<T = any> {
   blockNumber: number;
   blockHash: string;
   transactionIndex: number;
@@ -12,9 +12,12 @@ export interface Log {
 
   transactionHash: string;
   logIndex: number;
+
+  event?: string;
+  args?: T;
 }
 
-export interface TransactionReceipt {
+export interface TransactionReceipt<T = any> {
   to: string;
   from: string;
   contractAddress: string,
@@ -24,7 +27,7 @@ export interface TransactionReceipt {
   logsBloom: string,
   blockHash: string,
   transactionHash: string,
-  logs: Array<Log>,
+  logs: Array<Log<T>>,
   blockNumber: number,
   confirmations: number,
   cumulativeGasUsed: number,
