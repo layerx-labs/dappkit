@@ -27,6 +27,7 @@ export class Model<Methods = any> {
   get contractAddress() { return this._contractAddress; }
 
 
+  /* eslint-disable complexity */
   constructor(web3Connection: Web3Connection | Web3ConnectionOptions,
               readonly abi: AbiItem[],
               contractAddress?: string) {
@@ -43,6 +44,7 @@ export class Model<Methods = any> {
     if (this.web3Connection.started)
       this.loadAbi();
   }
+  /* eslint-enable complexity */
 
   /**
    * Pointer to the {@link Web3Connection} assigned to this contract class

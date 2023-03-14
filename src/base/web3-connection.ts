@@ -10,6 +10,7 @@ export class Web3Connection {
   protected web3!: Web3;
   protected account!: Account;
 
+  /* eslint-disable complexity */
   constructor(readonly options: Web3ConnectionOptions) {
     const {web3CustomProvider: provider = null, autoStart = true} =
       {restartModelOnDeploy: true, ...options} as Web3ConnectionOptions;
@@ -18,6 +19,7 @@ export class Web3Connection {
       this.start();
     }
   }
+  /* eslint-enable complexity */
 
   get started() { return !!this.web3; }
   get eth(): Eth { return this.web3?.eth; }
