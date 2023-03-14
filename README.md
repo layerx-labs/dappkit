@@ -31,6 +31,7 @@ const tx =
   );
 
 await erc20.transferTokenAmount('0xYourOtherAddress', 1); // transfer 1 token from your address to other address
+console.log(await erc20.balanceOf('0xYourOtherAddress')) // 1
 ```
 
 ### Just want to start a connection?

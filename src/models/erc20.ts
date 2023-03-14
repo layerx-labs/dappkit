@@ -45,6 +45,13 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
     return fromDecimals(await this.callTx(this.contract.methods.totalSupply()), this.decimals);
   }
 
+  async balanceOf(address: string) {
+    return fromSmartContractDecimals(await this.callTx(this.contract.methods.balanceOf(address)), this.decimals);
+  }
+
+  /**
+   * @deprecated
+   */
   async getTokenAmount(address: string) {
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.balanceOf(address)), this.decimals);
   }
