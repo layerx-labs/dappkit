@@ -13,6 +13,7 @@ describe(`Model<any>`, () => {
     web3Host: process.env.WEB3_HOST_PROVIDER || 'HTTP://127.0.0.1:8545',
     privateKey: process.env.WALLET_PRIVATE_KEY || getPrivateKeyFromFile(),
     skipWindowAssignment: true,
+    autoStart: false,
   }
 
   it(`throws because no Abi`, () => {
@@ -33,7 +34,7 @@ describe(`Model<any>`, () => {
 
   describe(`with autoStart: true`, () => {
     it(`Starts and loads the ABI automatically and re-assigns`, async () => {
-      const web3Connection = new Web3Connection({...options, autoStart: true, restartModelOnDeploy: true});
+      const web3Connection = new Web3Connection({...options, autoStart: true});
       const model = new Model(web3Connection, erc20.abi as any);
 
       const tx =
