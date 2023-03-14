@@ -31,9 +31,34 @@ const tx =
   );
 
 await erc20.transferTokenAmount('0xYourOtherAddress', 1); // transfer 1 token from your address to other address
-
 ```
-Please refer to the [`test/`](./test/models) folder to read further usage examples of the various contracts available.
+
+### Just want to start a connection?
+
+```ts
+import {Web3Connection} from '@taikai/dappkit';
+
+const web3Connection = new Web3Connection({web3Host: 'https://rpc.tld'});
+
+await web3Connection.connect();
+
+console.log(`Address`, await web3Connection.getAddress());
+```
+
+### Server side?
+
+```ts
+import {Web3Connection, Web3ConnectionOptions} from '@taikai/dappkit';
+
+const web3ConnecitonOptions: Web3ConnectionOptions = {
+  web3Host: 'https://rpc.tld',
+  privateKey: 'your-private-key', // never share your private key
+}
+
+const web3Connection = new Web3Connection(web3ConnecitonOptions);
+
+console.log(`Address`, await web3Connection.getAddress());
+```
 
 ## Documentation 
 
@@ -41,6 +66,8 @@ Please refer to the [`test/`](./test/models) folder to read further usage exampl
 * [Advanced](./how-to/readme.md)
 * [SDK Documentation](https://sdk.dappkit.dev/)
 * [Use Cases](https://docs.dappkit.dev/sdk-documentation/use-cases)
+
+Please refer to the [`test/`](./test/models) folder to read further usage examples of the various contracts available.
 
 ### How to Generate Documentation 
 
