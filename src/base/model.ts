@@ -13,6 +13,7 @@ import {noop} from '@utils/noop';
 
 export class Model<Methods = any> {
   protected _contract!: Web3Contract<Methods>;
+  protected _contractAddress?: string;
   private readonly web3Connection!: Web3Connection;
 
   /**
@@ -20,15 +21,27 @@ export class Model<Methods = any> {
    */
   get contract() { return this._contract; }
 
+  /**
+   * Returns the {@link _contractAddress} string representing this models contract address (if any)
+   */
+  get contractAddress() { return this._contractAddress; }
+
+
   constructor(web3Connection: Web3Connection | Web3ConnectionOptions,
               readonly abi: AbiItem[],
-              readonly contractAddress?: string) {
+              contractAddress?: string) {
     if (!abi || !abi.length)
       throw new Error(Errors.MissingAbiInterfaceFromArguments);
+
+    if (contractAddress)
+      this._contractAddress = contractAddress;
 
     if (web3Connection instanceof Web3Connection)
       this.web3Connection = web3Connection;
     else this.web3Connection = new Web3Connection(web3Connection);
+
+    if (this.web3Connection.started)
+      this.loadAbi();
   }
 
   /**
@@ -48,14 +61,16 @@ export class Model<Methods = any> {
   get account(): Account { return this.connection.Account; }
 
   /**
-   * Permissive way of initializing the contract, used primarily for deploys. Prefer to use {@link loadContract}
+   * Permissive way of initializing the contract, used primarily for deploys and options.autoStart = true
+   * Prefer to use {@link loadContract}
    */
   loadAbi() {
     this._contract = new Web3Contract(this.web3, this.abi, this.contractAddress);
   }
 
   /**
-   * Preferred way of initializing and loading a contract
+   * Preferred way of initializing and loading a contract, use this function to customize contract loading,
+   * initializing any other dependencies the contract might have when extending from Model
    * @throws Errors.MissingContractAddress
    */
   loadContract() {
@@ -142,9 +157,15 @@ export class Model<Methods = any> {
 
   /**
    * Deploy the loaded abi contract
-   * @protected
    */
-  protected async deploy(deployOptions: DeployOptions, account?: Account) {
+  async deploy(deployOptions: DeployOptions, account?: Account) {
     return this.contract.deploy(this.abi, deployOptions, account)
+      .then(tx => {
+        if (this.web3Connection.options.restartModelOnDeploy && tx.contractAddress) {
+          this._contractAddress = tx.contractAddress;
+          this.loadContract();
+        }
+        return tx;
+      })
   }
 }

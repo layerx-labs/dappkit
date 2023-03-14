@@ -3,6 +3,7 @@ import {PromiEvent, provider as Provider, TransactionReceipt} from 'web3-core';
 import {Contract} from "web3-eth-contract";
 
 export interface Web3ConnectionOptions {
+
   /**
    * Web3 Provider host
    */
@@ -40,4 +41,15 @@ export interface Web3ConnectionOptions {
                               resolve: (data: any) => void,
                               reject: (e: unknown) => void,
                               debug?: boolean) => void;
+
+  /**
+   * If true, web3Connection will call `.start()` on construction
+   */
+  autoStart?: boolean;
+
+  /**
+   * If true, model will call .loadContract() after being deployed with the returned contractAddress
+   * from the transaction receipt
+   */
+  restartModelOnDeploy?: boolean;
 }

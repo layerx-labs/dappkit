@@ -11,8 +11,8 @@ export class Web3Connection {
   protected account!: Account;
 
   constructor(readonly options: Web3ConnectionOptions) {
-    const {web3CustomProvider: provider = null} = options;
-    if (provider && typeof provider !== "string" && provider?.connected) {
+    const {web3CustomProvider: provider = null, autoStart} = options;
+    if (autoStart || (provider && typeof provider !== "string" && provider?.connected)) {
       this.start();
     }
   }
