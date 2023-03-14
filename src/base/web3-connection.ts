@@ -12,12 +12,14 @@ export class Web3Connection {
 
   /* eslint-disable complexity */
   constructor(readonly options: Web3ConnectionOptions) {
-    const {web3CustomProvider: provider = null, autoStart = true} =
-      {restartModelOnDeploy: true, ...options} as Web3ConnectionOptions;
+    const {web3CustomProvider: provider = null, autoStart = true} = options;
 
     if (autoStart || (provider && typeof provider !== "string" && provider?.connected)) {
       this.start();
     }
+
+    if (options.restartModelOnDeploy === undefined)
+      this.options.restartModelOnDeploy = true;
   }
   /* eslint-enable complexity */
 
