@@ -30,7 +30,7 @@ const tx =
     "0xOwnerOfErc20Address" // the owner of the total amount of the tokens (your address)
   );
 
-await erc20.transferTokenAmount('0xYourOtherAddress', 1); // transfer 1 token from your address to other address
+await erc20.transfer('0xYourOtherAddress', 1); // transfer 1 token from your address to other address
 console.log(await erc20.balanceOf('0xYourOtherAddress')) // 1
 ```
 
