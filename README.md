@@ -53,6 +53,7 @@ import {Web3Connection, Web3ConnectionOptions} from '@taikai/dappkit';
 
 const web3ConnecitonOptions: Web3ConnectionOptions = {
   web3Host: 'https://rpc.tld',
+  // no need to provide privateKey for read-only
   privateKey: 'your-private-key', // never share your private key
 }
 
