@@ -71,6 +71,11 @@ console.log(`Address`, await web3Connection.getAddress());
 
 Please refer to the [`test/`](./test/models) folder to read further usage examples of the various contracts available.
 
+## Quick start
+- [Node JS](https://stackblitz.com/edit/node-b3cgaa?file=index.js)
+- [NextJs](https://stackblitz.com/edit/nextjs-nzulwe?file=pages/index.js)
+- [Angular](https://github.com/taikai/dappkit-testflight)
+
 ### How to Generate Documentation 
 
 You can generate the documentation locally by issuing 
