@@ -39,5 +39,9 @@ describe(`Web3Connection`, () => {
     it(`get ETHNetworkId`, async () => {
       expect(await web3Connection.getETHNetworkId()).to.exist;
     });
+
+    it(`Has restartModelOnDeploy as true by default`, () => {
+      expect(web3Connection.options.restartModelOnDeploy).to.be.true;
+    })
   })
 })

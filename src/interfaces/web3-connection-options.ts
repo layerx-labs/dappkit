@@ -44,12 +44,14 @@ export interface Web3ConnectionOptions {
 
   /**
    * If true, web3Connection will call `.start()` on construction
+   * @default true
    */
   autoStart?: boolean;
 
   /**
    * If true, model will call .loadContract() after being deployed with the returned contractAddress
    * from the transaction receipt
+   * @default true
    */
   restartModelOnDeploy?: boolean;
 }

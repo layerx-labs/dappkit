@@ -30,7 +30,8 @@ export async function defaultWeb3Connection(start = false, revert = false) {
   const options: Web3ConnectionOptions = {
     web3Host: process.env.WEB3_HOST_PROVIDER || 'HTTP://127.0.0.1:8545',
     privateKey: process.env.WALLET_PRIVATE_KEY || getPrivateKeyFromFile(),
-    skipWindowAssignment: true
+    skipWindowAssignment: true,
+    restartModelOnDeploy: false,
   }
 
   const web3Connection = new Web3Connection(options);

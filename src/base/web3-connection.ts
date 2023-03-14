@@ -11,7 +11,9 @@ export class Web3Connection {
   protected account!: Account;
 
   constructor(readonly options: Web3ConnectionOptions) {
-    const {web3CustomProvider: provider = null, autoStart} = options;
+    const {web3CustomProvider: provider = null, autoStart = true} =
+      {restartModelOnDeploy: true, ...options} as Web3ConnectionOptions;
+
     if (autoStart || (provider && typeof provider !== "string" && provider?.connected)) {
       this.start();
     }
@@ -24,7 +26,7 @@ export class Web3Connection {
   get Account(): Account { return this.account; }
 
   async getAddress(): Promise<string> {
-    return this.account ? this.account.address : 
+    return this.account ? this.account.address :
       (await this.eth?.givenProvider?.request({method: 'eth_requestAccounts'}) || [""])[0];
   }
 
@@ -96,7 +98,7 @@ export class Web3Connection {
         throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
       provider = new Web3.providers.IpcProvider(web3Link, web3ProviderOptions);
     }
-  
+
     if (!provider)
       throw new Error(Errors.FailedToAssignAProvider);
 

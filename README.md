@@ -18,7 +18,7 @@ $ npm install @taikai/dappkit
 ```ts
 import {ERC20} from '@taikai/dappkit';
 
-const erc20 = new ERC20({ web3Host: process.env.WEB3_HOST_PROVIDER, autoStart: true, restartModelOnDeploy: true });
+const erc20 = new ERC20({ web3Host: process.env.WEB3_HOST_PROVIDER });
 
 await erc20.connect(); // connect web3 by asking the user to allow the connection and interact with the chain
 
