@@ -11,6 +11,7 @@ export interface Web3ConnectionOptions {
 
   /**
    * Provide a privateKey to automatically use that account when started
+   * If not provided, only read-mode will be possible
    */
   privateKey?: string;
 
