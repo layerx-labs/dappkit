@@ -82,6 +82,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     event BountyAmountUpdated(uint256 indexed id, uint256 amount);
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
     event OraclesTransfer(address indexed from, address indexed to, uint256 indexed amount);
+    event NetworkParamChanged(uint256 param, uint256 newvalue, uin256 oldvalue);
 
     constructor(address _networkToken, address _registry) Governed() ReentrancyGuard() {
         networkToken = ERC20(_networkToken);
@@ -234,27 +235,35 @@ contract NetworkV2 is Governed, ReentrancyGuard {
             require(_value >= MIN_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "1");
             require(_value <= MAX_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "2");
             councilAmount = _value;
+            emit NetworkParamChanged(_parameter, _value, councilAmount);
         } else if (_parameter == uint256(INetworkV2.Params.draftTime)) {
             require(_value >= MIN_DRAFT_TIME && _value <= MAX_DRAFT_TIME, "3");
             draftTime = _value;
+            emit NetworkParamChanged(_parameter, _value, draftTime);
         } else if (_parameter == uint256(INetworkV2.Params.disputableTime)) {
             require(_value >= MIN_DISPUTABLE_TIME && _value <= MAX_DISPUTABLE_TIME, "4");
             disputableTime = _value;
+            emit NetworkParamChanged(_parameter, _value, disputableTime);
         } else if (_parameter == uint256(INetworkV2.Params.percentageNeededForDispute)) {
             require(_value <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "5");
             percentageNeededForDispute = _value;
+            emit NetworkParamChanged(_parameter, _value, percentageNeededForDispute);
         } else if (_parameter == uint256(INetworkV2.Params.mergeCreatorFeeShare)) {
             require(_value <= MAX_MERGE_CREATOR_FEE_SHARE, "6");
             mergeCreatorFeeShare = _value;
+            emit NetworkParamChanged(_parameter, _value, mergeCreatorFeeShare);
         } else if (_parameter == uint256(INetworkV2.Params.proposerFeeShare)) {
             require(_value <= MAX_PROPOSER_FEE_SHARE);
             proposerFeeShare = _value;
+            emit NetworkParamChanged(_parameter, _value, proposerFeeShare);
         } else if (_parameter == uint256(INetworkV2.Params.oracleExchangeRate)) {
             require(totalNetworkToken == 0, "1");
             oracleExchangeRate = _value;
+            emit NetworkParamChanged(_parameter, _value, oracleExchangeRate);
         } else if (_parameter == uint256(INetworkV2.Params.cancelableTime)) {
             require(_value >= MIN_CANCELABLE_TIME, "3");
             cancelableTime = _value;
+            emit NetworkParamChanged(_parameter, _value, cancelableTime);
         }
     }
 
