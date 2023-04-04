@@ -10,12 +10,18 @@ export class Web3Connection {
   protected web3!: Web3;
   protected account!: Account;
 
+  /* eslint-disable complexity */
   constructor(readonly options: Web3ConnectionOptions) {
-    const {web3CustomProvider: provider = null} = options;
-    if (provider && typeof provider !== "string" && provider?.connected) {
+    const {web3CustomProvider: provider = null, autoStart = true} = options;
+
+    if (autoStart || (provider && typeof provider !== "string" && provider?.connected)) {
       this.start();
     }
+
+    if (options.restartModelOnDeploy === undefined)
+      this.options.restartModelOnDeploy = true;
   }
+  /* eslint-enable complexity */
 
   get started() { return !!this.web3; }
   get eth(): Eth { return this.web3?.eth; }
@@ -24,7 +30,7 @@ export class Web3Connection {
   get Account(): Account { return this.account; }
 
   async getAddress(): Promise<string> {
-    return this.account ? this.account.address : 
+    return this.account ? this.account.address :
       (await this.eth?.givenProvider?.request({method: 'eth_requestAccounts'}) || [""])[0];
   }
 
@@ -96,7 +102,7 @@ export class Web3Connection {
         throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
       provider = new Web3.providers.IpcProvider(web3Link, web3ProviderOptions);
     }
-  
+
     if (!provider)
       throw new Error(Errors.FailedToAssignAProvider);
 

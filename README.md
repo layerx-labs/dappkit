@@ -1,7 +1,7 @@
 # dappkit
 A javascript SDK for web3 projects with curated community contracts to ease development and interactions with blockchain contracts. 
 
-![Build Status](https://img.shields.io/github/workflow/status/taikai/dappkit/integration-tests)
+![Build Status](https://img.shields.io/github/actions/workflow/status/taikai/dappkit/integration-tests.yml)
 [![GitHub issues](https://img.shields.io/github/issues/taikai/dappkit)](https://GitHub.com/taikai/dappkit/issues/)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 [![License](https://img.shields.io/badge/license-ISC-blue.svg)](https://opensource.org/licenses/ISC)
@@ -16,33 +16,51 @@ $ npm install @taikai/dappkit
 ## Usage
 
 ```ts
-import {Web3Connection, ERC20} from '@taikai/dappkit';
+import {ERC20} from '@taikai/dappkit';
 
-const connection = new Web3Connection({ web3Host: process.env.WEB3_HOST_PROVIDER });
+const erc20 = new ERC20({ web3Host: process.env.WEB3_HOST_PROVIDER });
 
-await connection.start(); // start web3 connection so assignments are made
-await connection.connect(); // connect web3 by asking the user to allow the connection (this is needed for the user to _interact_ with the chain)
-
-const erc20Deployer = new ERC20(connection);
-await erc20Deployer.loadAbi(); // load abi contract is only needed for deploy actions
+await erc20.connect(); // connect web3 by asking the user to allow the connection and interact with the chain
 
 const tx =
   await erc20Deployer.deployJsonAbi(
     'Token Name', // the name of the token
     '$tokenSymbol', // the symbol of the token
     "1000000000000000000000000", // the total amount of the token (with 18 decimals; 1M = 1000000000000000000000000)
-    await erc20Deployer.connection.getAddress() // the owner of the total amount of the tokens (your address)
+    "0xOwnerOfErc20Address" // the owner of the total amount of the tokens (your address)
   );
 
-console.log(tx); // { ... , contractAddress: string} 
-
-const myToken = new ERC20(connection, tx.contractAddress);
-
-await myToken.start() // load contract and connection into the class representing your token
-await myToken.transferTokenAmount('0xYourOtherAddress', 1); // transfer 1 token from your address to other address
-
+await erc20.transfer('0xYourOtherAddress', 1); // transfer 1 token from your address to other address
+console.log(await erc20.balanceOf('0xYourOtherAddress')) // 1
 ```
-Please refer to the [`test/`](./test/models) folder to read further usage examples of the various contracts available.
+
+### Just want to start a connection?
+
+```ts
+import {Web3Connection} from '@taikai/dappkit';
+
+const web3Connection = new Web3Connection({web3Host: 'https://rpc.tld'});
+
+await web3Connection.connect();
+
+console.log(`Address`, await web3Connection.getAddress());
+```
+
+### Server side?
+
+```ts
+import {Web3Connection, Web3ConnectionOptions} from '@taikai/dappkit';
+
+const web3ConnecitonOptions: Web3ConnectionOptions = {
+  web3Host: 'https://rpc.tld',
+  // no need to provide privateKey for read-only
+  privateKey: 'your-private-key', // never share your private key
+}
+
+const web3Connection = new Web3Connection(web3ConnecitonOptions);
+
+console.log(`Address`, await web3Connection.getAddress());
+```
 
 ## Documentation 
 
@@ -50,6 +68,13 @@ Please refer to the [`test/`](./test/models) folder to read further usage exampl
 * [Advanced](./how-to/readme.md)
 * [SDK Documentation](https://sdk.dappkit.dev/)
 * [Use Cases](https://docs.dappkit.dev/sdk-documentation/use-cases)
+
+Please refer to the [`test/`](./test/models) folder to read further usage examples of the various contracts available.
+
+## Quick start
+- [Node JS](https://stackblitz.com/edit/node-b3cgaa?file=index.js)
+- [NextJs](https://stackblitz.com/edit/nextjs-nzulwe?file=pages/index.js)
+- [Angular](https://github.com/taikai/dappkit-testflight)
 
 ### How to Generate Documentation 
 

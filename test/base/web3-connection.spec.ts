@@ -7,7 +7,7 @@ import {getPrivateKeyFromFile} from '../utils/';
 
 describe(`Web3Connection`, () => {
   it(`start() fails because missing web3host`, () => {
-    const web3Connection = new Web3Connection({});
+    const web3Connection = new Web3Connection({autoStart: false});
     expect(() => web3Connection.start()).to.throw(Errors.MissingWeb3ProviderHost);
   });
 
@@ -39,5 +39,9 @@ describe(`Web3Connection`, () => {
     it(`get ETHNetworkId`, async () => {
       expect(await web3Connection.getETHNetworkId()).to.exist;
     });
+
+    it(`Has restartModelOnDeploy as true by default`, () => {
+      expect(web3Connection.options.restartModelOnDeploy).to.be.true;
+    })
   })
 })

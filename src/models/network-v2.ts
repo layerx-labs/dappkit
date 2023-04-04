@@ -23,7 +23,7 @@ import {NetworkRegistry} from "@models/network-registry";
 import BigNumber from "bignumber.js";
 
 export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
-  constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
+  constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     super(web3Connection, (Network_v2Json as any).abi as AbiItem[], contractAddress);
   }

@@ -11,7 +11,7 @@ import {AbiItem} from 'web3-utils';
 import {nativeZeroAddress} from "@utils/constants";
 
 export class BountyToken extends Model<BountyTokenMethods> implements Deployable {
-  constructor(web3Connection: Web3Connection|Web3ConnectionOptions, readonly contractAddress?: string) {
+  constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
     super(web3Connection, BountyTokenJson.abi as AbiItem[], contractAddress);
   }
 
