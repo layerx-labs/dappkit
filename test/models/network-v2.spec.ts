@@ -483,7 +483,7 @@ describe(`NetworkV2`, () => {
       })
     })
 
-    describe(`Owner`, () => {
+    describe(`changeNetworkParameter() event emitted`, () => {
       beforeEach(async () => {
         const receipt = await Network_v2.deploy(web3Connection, {
           networkTokenAddress: networkToken.contractAddress!,
