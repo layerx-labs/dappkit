@@ -483,5 +483,36 @@ describe(`NetworkV2`, () => {
       })
     })
 
+    describe(`Owner`, () => {
+      beforeEach(async () => {
+        const receipt = await Network_v2.deploy(web3Connection, {
+          networkTokenAddress: networkToken.contractAddress!,
+          councilAmount: 100,
+          requiredValidators: 5,
+          requiredStakes: 10,
+        });
+  
+        network = new Network_v2(web3Connection, receipt.contractAddress);
+  
+        await network.loadContract();
+      });
+  
+      it(`changeNetworkParameter() emits NetworkParamChanged event`, async () => {
+        const expectedOldVal = await network.councilAmount();
+        const expectedNewVal = expectedOldVal + 1;
+        const param = await network.PARAM_COUNCIL_AMOUNT();
+  
+        const result = await network.changeNetworkParameter(param, expectedNewVal);
+  
+        const event = result.events?.find((event) => event.event === 'NetworkParamChanged');
+  
+        expect(event).to.exist;
+        expect(event?.returnValues).to.exist;
+        expect(event?.returnValues?.param).to.eq(param);
+        expect(event?.returnValues?.val).to.eq(expectedNewVal.toString());
+        expect(event?.returnValues?.oldVal).to.eq(expectedOldVal.toString());
+      });
+    });
+
   })
 });
