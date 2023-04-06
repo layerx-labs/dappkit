@@ -748,54 +748,49 @@ contract NetworkV2 is Governed, ReentrancyGuard {
         _isNotCanceled(id);
         _isInDraft(id, false);
         _proposalExists(id, proposalId);
-
+    
         INetworkV2.Bounty storage bounty = bounties[id];
         ERC20 erc20 = ERC20(bounty.transactional);
         INetworkV2.Proposal storage proposal = bounty.proposals[proposalId];
-
-        require(block.timestamp >= bounty.proposals[proposalId].creationDate.add(disputableTime), "2");
+    
+        require(block.timestamp >= proposal.creationDate.add(disputableTime), "2");
         require(proposal.disputeWeight < _toPercent(oraclesDistributed, percentageNeededForDispute), "3");
-        require(proposal.refusedByBountyOwner == false, "7");
-        require(bounties[id].pullRequests[proposal.prId].canceled == false, "8");
-
-
+        require(!proposal.refusedByBountyOwner, "7");
+        require(!bounties[id].pullRequests[proposal.prId].canceled, "8");
+    
         uint256 returnAmount = bounty.tokenAmount;
-
-        if (address(registry) != address(0)) {
-            if (registry.treasury() != address(0)) {
-                uint256 treasuryAmount = _toPercent(bounty.tokenAmount, registry.closeFeePercentage());
-                returnAmount = returnAmount.sub(treasuryAmount);
-                require(erc20.transfer(registry.treasury(), treasuryAmount), "6");
-            }
+        uint256 treasuryAmount = _toPercent(bounty.tokenAmount, registry.closeFeePercentage());
+    
+        if (address(registry) != address(0) && registry.treasury() != address(0)) {
+            returnAmount = returnAmount.sub(treasuryAmount);
+            require(erc20.transfer(registry.treasury(), treasuryAmount), "6");
         }
-
+    
         uint256 mergerFee = _toPercent(returnAmount, mergeCreatorFeeShare);
-        uint256 proposerFee = _toPercent(returnAmount.sub(mergerFee), proposerFeeShare);
+        uint256 proposerFee = returnAmount.sub(mergerFee).mul(proposerFeeShare).div(100);
         uint256 proposalAmount = returnAmount.sub(mergerFee).sub(proposerFee);
-
+    
         require(erc20.transfer(msg.sender, mergerFee), "4");
         require(erc20.transfer(proposal.creator, proposerFee), "9");
-
-        for (uint256 i = 0; i <= proposal.details.length - 1; i++) {
+    
+        for (uint256 i = 0; i < proposal.details.length; i++) {
             INetworkV2.ProposalDetail memory detail = proposal.details[i];
-            INetworkV2.BountyConnector memory award = INetworkV2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
-            require(erc20.transfer(detail.recipient, proposalAmount.mul(detail.percentage).div(100)), "5");
-
-            if (address(registry) != address(0)) {
-                if (address(registry.bountyToken()) != address(0)) {
-                    registry.awardBounty(detail.recipient, ipfsUri, award);
-                }
-            } else {
-                if (address(nftToken) != address(0)) {
-                    nftToken.awardBounty(detail.recipient, ipfsUri, award);
-                }
+            uint256 awardAmount = proposalAmount.mul(detail.percentage).div(100);
+            require(erc20.transfer(detail.recipient, awardAmount), "5");
+    
+            if (address(registry) != address(0) && address(registry.bountyToken()) != address(0)) {
+                INetworkV2.BountyConnector memory award = INetworkV2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
+                registry.awardBounty(detail.recipient, ipfsUri, award);
+            } else if (address(nftToken) != address(0)) {
+                INetworkV2.BountyConnector memory award = INetworkV2.BountyConnector(address(this), bounty.id, detail.percentage, "dev");
+                nftToken.awardBounty(detail.recipient, ipfsUri, award);
             }
         }
-
+    
         bounty.closed = true;
         bounty.closedDate = block.timestamp;
-        closedBounties = closedBounties.add(1);
-
+        closedBounties += 1;
+    
         emit BountyClosed(id, proposalId);
     }
 
