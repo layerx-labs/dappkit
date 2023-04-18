@@ -74,15 +74,12 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
 
   async start() {
     await super.start();
-    await this.loadContract();
-  }
 
-  async loadContract() {
     if (!this.contract)
-      super.loadContract();
+      return;
 
     this._erc20 = new ERC20(this.connection, await this.getSettlerTokenAddress());
-    await this._erc20.loadContract();
+    await this._erc20.start();
   }
 
   deployJsonAbi(erc20ContractAddress: string): Promise<TransactionReceipt> {

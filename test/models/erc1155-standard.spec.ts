@@ -29,7 +29,7 @@ describe(`ERC1155 Standard`, () => {
   describe(`Methods`, () => {
     before(async () => {
       contract = new ERC1155Standard(web3Connection, contractAddress!);
-      await contract.loadContract();
+      await contract.start();
     });
 
     it(`Set a new URI for all tokens`, async () => {

@@ -31,12 +31,15 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
     return this.deploy(deployOptions, this.connection.Account);
   }
 
-  async loadContract() {
-    super.loadContract();
+  async start() {
+    await super.start();
+
+    if (!this.contract)
+      return;
 
     this._decimals = await this.decimals();
     this._asset = new ERC20(this.connection, await this.assetAddress());
-    await this._asset.loadContract();
+    await this._asset.start();
   }
 
   async allowance(owner: string, spender: string) {

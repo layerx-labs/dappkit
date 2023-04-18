@@ -55,7 +55,7 @@ describe(`Network`, () => {
   describe(`Methods`, () => {
     before(async () => {
       network = new Network(web3Connection, networkContractAddress);
-      await network.loadContract();
+      await network.start();
       accountAddress = web3Connection.Account.address;
     });
 

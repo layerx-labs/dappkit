@@ -69,24 +69,9 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     }
   }
 
-  // Arrays cant be queried without an argument
-  // async getAmountOfDisputers(): Promise<number> {
-  //   return (await this.sendTx(this.contract.methods.oraclersArray(), true)).length;
-  // }
-
-  // Method does not exist
-  // async percentageNeededForApprove(): Promise<number> {
-  //   return parseInt(await this.sendTx(this.contract.methods.percentageNeededForApprove(), true), 10);
-  // }
-
   async percentageNeededForDispute() {
     return +(await this.callTx(this.contract.methods.percentageNeededForDispute()));
   }
-
-  // Method does not exist
-  // async percentageNeededForMerge(): Promise<number> {
-  //   return parseInt(await this.sendTx(this.contract.methods.percentageNeededForMerge(), true), 10)
-  // }
 
   async mergeCreatorFeeShare() {
     return +(await this.callTx(this.contract.methods.mergeCreatorFeeShare()));
@@ -245,15 +230,9 @@ export class Network extends Model<NetworkMethods> implements Deployable {
 
   async start() {
     await super.start();
-    await this.loadContract();
-  }
 
-  async loadContract() {
     if (!this.contract)
-      super.loadContract();
-
-    if (!this.contractAddress)
-      throw new Error(Errors.MissingContractAddress);
+      return;
 
     const transactionAddress = await this.getTransactionTokenAddress();
     const settlerAddress = await this.getSettlerTokenAddress();
@@ -261,10 +240,10 @@ export class Network extends Model<NetworkMethods> implements Deployable {
     this._transactionToken = new ERC20(this.connection, transactionAddress);
     this._settlerToken = new ERC20(this.connection, settlerAddress);
 
-    await this._transactionToken.loadContract();
-    await this._settlerToken.loadContract();
-
+    await this._transactionToken.start();
+    await this._settlerToken.start();
   }
+
 
   deployJsonAbi(settlerAddress: string, transactionalAddress: string, governanceAddress: string) {
 

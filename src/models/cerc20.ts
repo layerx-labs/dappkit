@@ -25,21 +25,14 @@ export class CERC20 extends Model<CERC20Methods> implements Deployable {
 
   async start() {
     await super.start();
-    await this.loadContract();
-  }
 
-  async loadContract() {
-    if (!this.contract)
-      super.loadContract();
+    if (this.contractAddress) {
+      if (!this.underlyingAddress)
+        throw new Error(Errors.MissingERC20UnderlyingToken);
 
-    if (!this.contractAddress)
-      throw new Error(Errors.MissingContractAddress);
-
-    if (!this.underlyingAddress)
-      throw new Error(Errors.MissingERC20UnderlyingToken);
-
-    this._erc20 = new ERC20(this.connection, this.underlyingAddress);
-    await this._erc20.loadContract();
+      this._erc20 = new ERC20(this.connection, this.underlyingAddress);
+      await this._erc20.start();
+    }
   }
 
   async deployJsonAbi(underlying_: string, initialExchangeRate_: number, decimals_: number) {

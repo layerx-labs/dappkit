@@ -49,7 +49,7 @@ describe(`NetworkFactory`, () => {
 
     before(async () => {
       networkFactory = new NetworkFactory(web3Connection, networkFactoryContractAddress);
-      await networkFactory.loadContract();
+      await networkFactory.start();
     })
 
     it(`Matches token address`, async () => {
@@ -100,7 +100,7 @@ describe(`NetworkFactory`, () => {
 
       before(async () => {
         network = new Network(web3Connection, await networkFactory.getNetworkByAddress(accountAddress));
-        await network.loadContract();
+        await network.start();
       })
 
       it(`Asserts governor === accountAddress`, async () => {

@@ -20,11 +20,11 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
 
   async loadContract() {
     if (!this.contract)
-      super.loadContract();
+      return;
 
     const contractAddress = this._purchaseToken || await this.callTx(this.contract.methods._purchaseToken());
     this._erc20 = new ERC20(this.connection, contractAddress);
-    await this._erc20.loadContract();
+    await this._erc20.start();
   }
 
   async start() {
@@ -178,7 +178,6 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
   async setPricePerPack(newPrice: string | number) {
     newPrice = toSmartContractDecimals(newPrice, this.erc20.decimals);
     return this.sendTx(this.contract.methods.setPricePerPack(newPrice));
-    // return this.sendTx(this.contract.methods.setPricePerPack(newPrice));
   }
 
   async setPurchaseTokenAddress(purchaseToken: string) {
@@ -246,7 +245,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
   }
 
   async getRegisteredIDs(_address: string) {
-    return (await this.callTx(this.contract.methods.getRegisteredIDs(_address))).map(id => +id);
+    return (await this.callTx(this.contract.methods.getRegisteredIDs(_address)))?.map(id => +id);
   }
 
 }

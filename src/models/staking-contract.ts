@@ -37,7 +37,7 @@ export class StakingContract extends Model<StakingContractMethods> implements De
   /* eslint-disable complexity */
   async loadContract() {
     if (!this.contract)
-      super.loadContract();
+      return;
 
     this._ownable = new Ownable(this);
     this._pausable = new Pausable(this);
@@ -45,7 +45,7 @@ export class StakingContract extends Model<StakingContractMethods> implements De
     const tokenAddress = this.stakeTokenAddress || await this.callTx(this.contract.methods.erc20());
 
     this._erc20 = new ERC20(this.connection, tokenAddress);
-    await this._erc20.loadContract();
+    await this._erc20.start();
 
     const collectiblesAddress = this.collectiblesAddress || await this.callTx(this.contract.methods.erc721());
     if (collectiblesAddress) {

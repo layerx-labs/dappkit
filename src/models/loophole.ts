@@ -35,38 +35,37 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   get swap() { return this._swap; }
   get ethUtils() { return this._ethUtils; }
 
-  /* eslint-disable complexity */
-  async loadContract() {
-    if (!this.contract)
-      super.loadContract();
-
+  async loadDependencies() {
     if (!this.ethUtilsAddress)
       throw new Error(Errors.MissingEthUtilsAddressPleaseProvideOne);
 
     this._ethUtils = new ETHUtils(this.connection, this.ethUtilsAddress);
     this._ownable = new Ownable(this);
 
-    const lpTokenAddress = await this.lpToken() || this.lpTokenAddress;
+    const lpTokenAddress = await this.lpToken();
     if (!lpTokenAddress)
       throw new Error(Errors.MissingLpTokenAddressPleaseDeployUsingOne);
 
     this._erc20 = new ERC20(this.connection, lpTokenAddress);
 
-    const swapRouterAddress = await this.swapRouter() || this.swapRouterAddress;
+    const swapRouterAddress = await this.swapRouter();
     if (!swapRouterAddress)
       throw new Error(Errors.MissingSwapAddressPleaseDeployUsingOne);
 
     this._swap = new UniswapV3RouterBridge(this.connection, swapRouterAddress);
 
-    await this._swap.loadContract();
-    await this._erc20.loadContract();
-    await this._ethUtils.loadContract();
+    await this._erc20.start();
+    await this._swap.start();
+    await this._ethUtils.start();
   }
-  /* eslint-enable complexity */
 
   async start() {
     await super.start();
-    await this.loadContract();
+
+    if (!this.contractAddress)
+      return;
+
+    await this.loadDependencies()
   }
 
   async deployJsonAbi(_swapRouter: string,
@@ -77,7 +76,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
                       _exitPenaltyLP: number) {
 
     const erc20 = new ERC20(this.connection, _lpToken);
-    await erc20.loadContract();
+    await erc20.start();
     const lpTokensPerBlock = toSmartContractDecimals(_lpTokensPerBlock, erc20.decimals);
 
     const deployOptions = {
@@ -101,6 +100,8 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   }
 
   async lpToken() {
+    if (this.lpTokenAddress)
+      return this.lpTokenAddress;
     return this.callTx(this.contract.methods.lpToken());
   }
 
@@ -121,6 +122,8 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   }
 
   async swapRouter() {
+    if (this.swapRouterAddress)
+      return this.swapRouterAddress;
     return this.callTx(this.contract.methods.swapRouter());
   }
 

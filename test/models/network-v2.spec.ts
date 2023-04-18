@@ -43,24 +43,24 @@ describe(`NetworkV2`, () => {
     rewardToken = new ERC20(web3Connection, rewardReceipt.contractAddress);
     bountyToken = new BountyToken(web3Connection, nftReceipt.contractAddress);
 
-    await networkToken.loadContract();
-    await bountyTransactional.loadContract();
-    await bountyToken.loadContract();
-    await rewardToken.loadContract();
+    await networkToken.start();
+    await bountyTransactional.start();
+    await bountyToken.start();
+    await rewardToken.start();
 
-    await bountyTransactional.transferTokenAmount(Alice.address, 10000);
-    await bountyTransactional.transferTokenAmount(Bob.address, 10000);
+    await bountyTransactional.transfer(Alice.address, 10000);
+    await bountyTransactional.transfer(Bob.address, 10000);
 
   })
 
   describe(`No Registry`, () => {
     it(`Deploys Network_V2`, async () => {
       const _network = new Network_v2(web3Connection);
-      _network.loadAbi();
-      const receipt = await _network.deployJsonAbi(networkToken.contractAddress!)
-      expect(receipt.contractAddress).to.exist;
-      network = new Network_v2(web3Connection, receipt.contractAddress);
-      await network.loadContract();
+      await _network.start();
+      const tx = await hasTxBlockNumber(_network.deployJsonAbi(networkToken.contractAddress!))
+      expect(tx.contractAddress).to.exist;
+      network = new Network_v2(web3Connection, tx.contractAddress);
+      await network.start();
     });
 
     describe(`Owner`, () => {
@@ -163,7 +163,7 @@ describe(`NetworkV2`, () => {
 
           const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
 
-          expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq((1000).toString());
+          expect(await bountyTransactional.balanceOf(network.contractAddress!)).to.eq((1000).toString());
           expect(events.length).to.be.eq(1);
           expect(events[0].returnValues.cid).to.be.eq('c1');
           expect((await network.getBountiesOfAddress(Admin.address)).length).to.be.eq(1);
@@ -411,9 +411,9 @@ describe(`NetworkV2`, () => {
 
         it(`Alice withdraws from bounty`, async () => {
           await hasTxBlockNumber(network.withdrawFundingReward(bountyId, 0));
-          expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq((500).toString());
+          expect(await rewardToken.balanceOf(Alice.address)).to.be.eq((500).toString());
           await hasTxBlockNumber(network.withdrawFundingReward(bountyId, 1));
-          expect(await rewardToken.getTokenAmount(Alice.address)).to.be.eq((1000).toString());
+          expect(await rewardToken.balanceOf(Alice.address)).to.be.eq((1000).toString());
         });
       });
     });
@@ -430,7 +430,7 @@ describe(`NetworkV2`, () => {
       const networkReceipt = await modelExtensionDeployer(web3Connection, Network_v2, [networkToken.contractAddress, registryReceipt.contractAddress]);
 
       network = new Network_v2(web3Connection, networkReceipt.contractAddress);
-      await network.loadContract();
+      await network.start();
     });
 
 

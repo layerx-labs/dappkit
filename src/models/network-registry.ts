@@ -38,7 +38,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
   async loadContract() {
     if (!this.contract)
-      await super.loadContract();
+      return;
 
     const erc20Address = await this.erc20();
     const bountyTokenAddress = await this.bountyTokenAddress();
@@ -49,8 +49,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
     this._DIVISOR = await this.getDivisor();
 
-    await this._token.loadContract();
-    await this._bountyToken.loadContract();
+    await this._token.start();
+    await this._bountyToken.start();
   }
 
   async deployJsonAbi(_erc20: string,
@@ -62,7 +62,6 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
                       bountyToken = nativeZeroAddress) {
 
     const token = new ERC20(this.connection, _erc20);
-    await token.loadContract();
 
     const deployOptions = {
       data: Network_RegistryJson.bytecode,

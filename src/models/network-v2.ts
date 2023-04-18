@@ -66,12 +66,9 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
   async start() {
     await super.start();
-    await this.loadContract();
-  }
 
-  async loadContract() {
-    if (!this.contract)
-      await super.loadContract();
+    if (!this.contractAddress)
+      return;
 
     const nftAddress = await this.nftTokenAddress();
     const transactionalTokenAddress = await this.networkTokenAddress();
@@ -79,20 +76,19 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
 
     this._governed = new Governed(this);
     this._networkToken = new ERC20(this.connection, transactionalTokenAddress);
-    await this._networkToken.loadContract();
+    await this._networkToken.start();
 
     if (nftAddress !== nativeZeroAddress) {
       this._nftToken = new BountyToken(this.connection, nftAddress);
-      await this._nftToken.loadContract();
+      await this._nftToken.start();
     }
 
     if (registryAddress !== nativeZeroAddress) {
       this._registry = new NetworkRegistry(this.connection, registryAddress);
-      await this._registry.loadContract();
+      await this._registry.start();
     }
 
     this._DIVISOR = await this.getDivisor();
-
   }
 
   async deployJsonAbi(_oracleTokenAddress: string,
@@ -382,13 +378,13 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     let _rewardAmount = 0 as string | number;
     const isFundingRequest = new BigNumber(fundingAmount).gt(0);
     const _transactional = new ERC20(this.connection, transactional);
-    await _transactional.loadContract();
+    await _transactional.start();
     const _tokenAmount = toSmartContractDecimals(isFundingRequest ? 0 : tokenAmount, _transactional.decimals);
     const _fundingAmount = toSmartContractDecimals(fundingAmount, _transactional.decimals);
 
     if (rewardAmount && rewardToken !== nativeZeroAddress) {
       const rewardERC20 = new ERC20(this.connection, rewardToken);
-      await rewardERC20.loadContract();
+      await rewardERC20.start();
       _rewardAmount = toSmartContractDecimals(rewardAmount, rewardERC20.decimals);
     }
 

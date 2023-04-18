@@ -41,15 +41,15 @@ describe.skip(`Sablier`, () => {
 
     const ethUtilsTx = await modelExtensionDeployer(web3Connection, ETHUtils);
     ethUtils = new ETHUtils(web3Connection, ethUtilsTx.contractAddress);
-    await ethUtils.loadContract();
+    await ethUtils.start();
 
     const erc20Tx = await erc20Deployer(`My Sablier`, `$sablier`, toSmartContractDecimals(AMOUNT_1M), web3Connection);
     erc20 = new ERC20(web3Connection, erc20Tx.contractAddress);
-    await erc20.loadContract();
+    await erc20.start();
 
     const cercTx = await modelExtensionDeployer(web3Connection, CERC20, [erc20.contractAddress, INITIAL_EXCHANGE_RATE, 18]);
     cerc20 = new CERC20(web3Connection, cercTx.contractAddress, erc20.contractAddress!);
-    await cerc20.loadContract();
+    await cerc20.start();
 
     await web3Connection.switchToAccount(Admin.privateKey); // go back to the original account that created contracts
     await erc20.transferTokenAmount(Alice.address, SALARY);
@@ -73,7 +73,7 @@ describe.skip(`Sablier`, () => {
 
     before(async () => {
       sablier = new Sablier(web3Connection, contractAddress);
-      await sablier.loadContract();
+      await sablier.start();
       startTime = await getChainDate(web3Connection);
     });
 

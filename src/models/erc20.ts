@@ -21,16 +21,11 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
 
   async start() {
     await super.start();
-    await this.loadContract();
-  }
 
-  async loadContract() {
-    if (!this.contract)
-      super.loadContract();
-
-    this._ownable = new Ownable(this);
-
-    this._decimals = await this.callTx(this.contract.methods.decimals()) || 18;
+    if (this.contractAddress) {
+      this._ownable = new Ownable(this);
+      this._decimals = await this.callTx(this.contract.methods.decimals()) || 18;
+    }
   }
 
   async name(): Promise<string> {
@@ -62,6 +57,7 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
   }
 
   /**
+   * use {@link transfer}
    * @deprecated
    */
   async transferTokenAmount(toAddress: string, amount: string | number) {

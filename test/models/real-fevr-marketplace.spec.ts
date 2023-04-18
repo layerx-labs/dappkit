@@ -52,7 +52,7 @@ describe('Marketplace RealFevr', async () => {
   describe('Methods', () => {
     before(async () => {
       marketplaceContract = new RealFevrMarketplace(web3Connection, contractAddress!, openerAddress, tokenAddress);
-      await marketplaceContract.loadContract();
+      await marketplaceContract.start();
     });
 
     it('should create pack of NFTs', async () => {

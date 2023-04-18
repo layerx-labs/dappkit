@@ -25,27 +25,21 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
   private _erc20!: ERC20;
   get erc20() { return this._erc20; }
 
-  /* eslint-disable complexity */
-  async loadContract() {
-    if (!this.contract)
-      await super.loadContract();
-
-    const purchaseToken = await this._purchaseToken() || this.purchaseTokenAddress;
-    if (!purchaseToken)
-      throw new Error(Errors.MissingERC20AddressOnContractPleaseSetPurchaseToken);
-
-    if (purchaseToken && purchaseToken !== nativeZeroAddress) {
-      this._erc20 = new ERC20(this.connection, purchaseToken);
-      await this._erc20.loadContract();
-
-      this._decimals = this._erc20.decimals;
-    }
-  }
-  /* eslint-enable complexity */
 
   async start() {
     await super.start();
-    await this.loadContract();
+
+    if (!this.contract)
+      return;
+
+    const purchaseToken = await this._purchaseToken();
+    if (!purchaseToken)
+      throw new Error(Errors.MissingERC20AddressOnContractPleaseSetPurchaseToken);
+
+    if (purchaseToken !== nativeZeroAddress) {
+      this._erc20 = new ERC20(this.connection, purchaseToken);
+      this._decimals = this._erc20.decimals;
+    }
   }
 
   async deployJsonAbi(name: string, symbol: string, _purchaseToken: string) {
@@ -62,6 +56,8 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
   }
 
   async _purchaseToken() {
+    if (this.purchaseTokenAddress)
+      return this.purchaseTokenAddress;
     return this.callTx(this.contract.methods._purchaseToken());
   }
 

@@ -35,7 +35,7 @@ describe(`ERC20TokenLock`, () => {
     before(async () => {
       tokenLock = new Erc20TokenLock(web3Connection, contractAddress);
       accountAddress = web3Connection.Account.address;
-      await tokenLock.loadContract();
+      await tokenLock.start();
     });
 
     it(`Sets max amount to lock`, async () => {

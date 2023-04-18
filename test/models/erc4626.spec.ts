@@ -37,7 +37,7 @@ describe(`ERC4626`, () => {
     const erc20Receipt = await erc20Deployer(name, symbol, '0', web3Connection);
 
     erc20 = new ERC20(web3Connection, erc20Receipt.contractAddress);
-    await erc20.loadContract()
+    await erc20.start()
   });
 
   it(`Deploys`, async () => {
@@ -49,8 +49,8 @@ describe(`ERC4626`, () => {
     let erc4626: ERC4626;
 
     it(`Loads contracts`,async () => {
-      erc4626 = new ERC4626(web3Connection, erc4626Address);-
-      await erc4626.loadContract();
+      erc4626 = new ERC4626(web3Connection, erc4626Address);
+      await erc4626.start();
     });
 
     it(`Asserts underlying ERC20`, () => {
