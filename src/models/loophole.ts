@@ -35,25 +35,20 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   get swap() { return this._swap; }
   get ethUtils() { return this._ethUtils; }
 
-  async start() {
-    await super.start();
-
-    if (!this.contractAddress)
-      return;
-
+  async loadDependencies() {
     if (!this.ethUtilsAddress)
       throw new Error(Errors.MissingEthUtilsAddressPleaseProvideOne);
 
     this._ethUtils = new ETHUtils(this.connection, this.ethUtilsAddress);
     this._ownable = new Ownable(this);
 
-    const lpTokenAddress = await this.lpToken() || this.lpTokenAddress;
+    const lpTokenAddress = await this.lpToken();
     if (!lpTokenAddress)
       throw new Error(Errors.MissingLpTokenAddressPleaseDeployUsingOne);
 
     this._erc20 = new ERC20(this.connection, lpTokenAddress);
 
-    const swapRouterAddress = await this.swapRouter() || this.swapRouterAddress;
+    const swapRouterAddress = await this.swapRouter();
     if (!swapRouterAddress)
       throw new Error(Errors.MissingSwapAddressPleaseDeployUsingOne);
 
@@ -62,6 +57,15 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
     await this._erc20.start();
     await this._swap.start();
     await this._ethUtils.start();
+  }
+
+  async start() {
+    await super.start();
+
+    if (!this.contractAddress)
+      return;
+
+    await this.loadDependencies()
   }
 
   async deployJsonAbi(_swapRouter: string,
@@ -96,6 +100,8 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   }
 
   async lpToken() {
+    if (this.lpTokenAddress)
+      return this.lpTokenAddress;
     return this.callTx(this.contract.methods.lpToken());
   }
 
@@ -116,6 +122,8 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   }
 
   async swapRouter() {
+    if (this.swapRouterAddress)
+      return this.swapRouterAddress;
     return this.callTx(this.contract.methods.swapRouter());
   }
 

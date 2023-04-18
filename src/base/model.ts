@@ -105,12 +105,8 @@ export class Model<Methods = any> {
    * @void
    */
   async start() {
-    try {
-      await this.web3Connection.start();
-      this.loadAbi();
-    } catch (e) {
-      throw e; // throw upwards, user-land should decide what to do with the error
-    }
+    await this.web3Connection.start();
+    this.loadAbi();
   }
 
   /**

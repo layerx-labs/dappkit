@@ -19,8 +19,7 @@ export class RealFevrMarketplace extends Model<RealFevrMarketplaceMethods> imple
     super(web3Connection, RealFevrMarketplaceJson.abi as AbiItem[], contractAddress);
   }
 
-  private _isETHTransaction!: boolean;
-  get isETHTransaction() { return this._isETHTransaction; }
+  get isETHTransaction() { return this.tokenAddress === nativeZeroAddress; }
 
   private _decimals = 18;
   get decimals(): number { return this._decimals; }
@@ -32,36 +31,31 @@ export class RealFevrMarketplace extends Model<RealFevrMarketplaceMethods> imple
   get opener() { return this._opener; }
 
   /* eslint-disable complexity */
-  async loadContract() {
-
-  }
-  /* eslint-enable complexity */
-
   async start() {
     await super.start();
 
-    if (!this.contract)
+    if (!this.contractAddress)
       return;
 
-    const tokenAddress = await this.getERC20TokenAddress() || this.tokenAddress;
+    const tokenAddress = await this.getERC20TokenAddress();
     if (!tokenAddress)
       throw new Error(Errors.MissingERC20AddressOnContract);
 
-    const collectiblesAddress = await this.getERC721TokenAddress() || this.collectiblesAddress;
+    const collectiblesAddress = await this.getERC721TokenAddress();
     if (!collectiblesAddress)
       throw new Error(Errors.MissingERC721AddressOnContract);
 
-    this._isETHTransaction = tokenAddress === nativeZeroAddress;
-
-    if (!this._isETHTransaction) {
+    if (tokenAddress !== nativeZeroAddress) {
       // Set Token Address Contract for easy access
       this._erc20 = new ERC20(this.connection, tokenAddress);
+      await this._erc20.start();
       this._decimals = this._erc20.decimals;
     }
 
     this._opener = new RealFevrOpener(this.connection, collectiblesAddress);
     await this._opener.start();
   }
+  /* eslint-enable complexity */
 
   /**
    * The marketplace can be deployed on a native-transactions mode; simply assign tokenAddress to
@@ -104,10 +98,14 @@ export class RealFevrMarketplace extends Model<RealFevrMarketplaceMethods> imple
   }
 
   async getERC20TokenAddress() {
+    if (this.tokenAddress)
+      return this.tokenAddress;
     return this.callTx(this.contract.methods.erc20Address());
   }
 
   async getERC721TokenAddress() {
+    if (this.collectiblesAddress)
+      return this.collectiblesAddress;
     return this.callTx(this.contract.methods.erc721Address());
   }
 

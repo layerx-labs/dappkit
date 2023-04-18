@@ -32,11 +32,11 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
     if (!this.contract)
       return;
 
-    const purchaseToken = await this._purchaseToken() || this.purchaseTokenAddress;
+    const purchaseToken = await this._purchaseToken();
     if (!purchaseToken)
       throw new Error(Errors.MissingERC20AddressOnContractPleaseSetPurchaseToken);
 
-    if (purchaseToken && purchaseToken !== nativeZeroAddress) {
+    if (purchaseToken !== nativeZeroAddress) {
       this._erc20 = new ERC20(this.connection, purchaseToken);
       this._decimals = this._erc20.decimals;
     }
@@ -56,6 +56,8 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
   }
 
   async _purchaseToken() {
+    if (this.purchaseTokenAddress)
+      return this.purchaseTokenAddress;
     return this.callTx(this.contract.methods._purchaseToken());
   }
 

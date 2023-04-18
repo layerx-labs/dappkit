@@ -25,7 +25,7 @@ export class Erc721Standard extends Model<ERC721StandardMethods> implements Depl
     return this.sendTx(this.contract.methods.setTokenURI(tokenId, uri));
   }
 
-  async mint(to: string, tokenId: number, data: string = "0x0") {
+  async mint(to: string, tokenId: number, data = "0x0") {
     return this.sendTx(this.contract.methods.mint(to, tokenId, data))
   }
 
