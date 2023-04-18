@@ -38,7 +38,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
   async start() {
     await super.start();
 
-    if (!this.contract)
+    if (!this.contractAddress)
       return;
 
     if (!this.ethUtilsAddress)
@@ -58,6 +58,9 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
       throw new Error(Errors.MissingSwapAddressPleaseDeployUsingOne);
 
     this._swap = new UniswapV3RouterBridge(this.connection, swapRouterAddress);
+
+    await this._erc20.start();
+    await this._swap.start();
   }
 
   async deployJsonAbi(_swapRouter: string,
@@ -68,6 +71,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
                       _exitPenaltyLP: number) {
 
     const erc20 = new ERC20(this.connection, _lpToken);
+    await erc20.start();
     const lpTokensPerBlock = toSmartContractDecimals(_lpTokensPerBlock, erc20.decimals);
 
     const deployOptions = {

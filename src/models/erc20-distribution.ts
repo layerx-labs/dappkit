@@ -33,6 +33,7 @@ export class ERC20Distribution extends Model<ERC20DistributionMethods> implement
       this._pausable = new Pausable(this);
 
       this._erc20 = new ERC20(this.connection, await this.callTx(this.contract.methods.erc20()));
+      await this._erc20.start();
     }
   }
 
