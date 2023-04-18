@@ -61,6 +61,7 @@ export class Loophole extends Model<LoopholeMethods> implements Deployable, IsOw
 
     await this._erc20.start();
     await this._swap.start();
+    await this._ethUtils.start();
   }
 
   async deployJsonAbi(_swapRouter: string,
