@@ -100,10 +100,8 @@ export class Model<Methods = any> {
 
   /**
    * Alias for Web3Connection.start();
-   * Will load contract if success and `contractAddress` is present, returning false otherwise
-   * use this function to customize contract loading, initializing any other dependencies the contract might have
-   * when extending from Model.
-   * Will call {@link loadAbi}
+   * Will load contract (via {@link loadAbi}) if success; use this function to customize contract loading, initializing any other
+   * dependencies the contract might have when extending from Model.
    * @void
    */
   async start() {
