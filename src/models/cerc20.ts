@@ -31,6 +31,7 @@ export class CERC20 extends Model<CERC20Methods> implements Deployable {
         throw new Error(Errors.MissingERC20UnderlyingToken);
 
       this._erc20 = new ERC20(this.connection, this.underlyingAddress);
+      await this._erc20.start();
     }
   }
 
