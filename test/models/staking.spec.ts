@@ -53,7 +53,7 @@ describe(`StakingContract`, () => {
   describe(`Methods`, () => {
     before(async () => {
       contract = new StakingContract(web3Connection, contractAddress, stakeTokenAddress);
-      await contract.loadContract();
+      await contract.start();
     });
 
     it(`Approves transfers`, async () => {

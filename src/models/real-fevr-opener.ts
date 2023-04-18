@@ -25,10 +25,12 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
   private _erc20!: ERC20;
   get erc20() { return this._erc20; }
 
-  /* eslint-disable complexity */
-  async loadContract() {
+
+  async start() {
+    await super.start();
+
     if (!this.contract)
-      await super.loadContract();
+      return;
 
     const purchaseToken = await this._purchaseToken() || this.purchaseTokenAddress;
     if (!purchaseToken)
@@ -36,16 +38,8 @@ export class RealFevrOpener extends Model<RealFevrOpenerMethods> implements Depl
 
     if (purchaseToken && purchaseToken !== nativeZeroAddress) {
       this._erc20 = new ERC20(this.connection, purchaseToken);
-      await this._erc20.loadContract();
-
       this._decimals = this._erc20.decimals;
     }
-  }
-  /* eslint-enable complexity */
-
-  async start() {
-    await super.start();
-    await this.loadContract();
   }
 
   async deployJsonAbi(name: string, symbol: string, _purchaseToken: string) {

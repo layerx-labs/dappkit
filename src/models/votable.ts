@@ -23,11 +23,10 @@ export class Votable extends Model<VotableMethods> implements Deployable {
 
   async loadContract() {
     if (!this.contract)
-      super.loadContract();
+      return;
 
     const contractAddress = this.erc20TokenAddress || await this.callTx(this.contract.methods.erc20());
     this._erc20 = new ERC20(this.connection, contractAddress);
-    await this._erc20.loadContract();
   }
 
   async start() {

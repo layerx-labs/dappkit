@@ -42,7 +42,7 @@ export class Model<Methods = any> {
     else this.web3Connection = new Web3Connection(web3Connection);
 
     if (this.web3Connection.started)
-      this.loadAbi();
+      this.loadAbi(); // cannot call start because start is async, has to be called by user-land
   }
   /* eslint-enable complexity */
 
@@ -63,17 +63,20 @@ export class Model<Methods = any> {
   get account(): Account { return this.connection.Account; }
 
   /**
-   * Permissive way of initializing the contract, used primarily for deploys and options.autoStart = true
-   * Prefer to use {@link loadContract}
+   * Initialize the underlying web3js contract
    */
   loadAbi() {
-    this._contract = new Web3Contract(this.web3, this.abi, this.contractAddress);
+    this._contract = new Web3Contract(this.web3, this.abi, this._contractAddress);
   }
 
   /**
-   * Preferred way of initializing and loading a contract, use this function to customize contract loading,
-   * initializing any other dependencies the contract might have when extending from Model
+   * Deprecated - async capabilities on this function will affect autoStart: true option, use `start()` instead
+   * if you need async abilities.
+   *
+   * ~~Preferred~~ Alternative way of initializing and loading a contract, ~~use this function to customize contract loading,
+   * initializing any other dependencies the contract might have when extending from Model~~
    * @throws Errors.MissingContractAddress
+   * @deprecated
    */
   loadContract() {
     if (!this.contractAddress)
@@ -90,18 +93,26 @@ export class Model<Methods = any> {
     const connected = await this.web3Connection.connect();
 
     if (connected)
-      this.loadContract();
+      await this.start();
 
     return connected;
   }
 
   /**
    * Alias for Web3Connection.start();
-   * Will load contract if success
+   * Will load contract if success and `contractAddress` is present, returning false otherwise
+   * use this function to customize contract loading, initializing any other dependencies the contract might have
+   * when extending from Model.
+   * Will call {@link loadAbi}
+   * @void
    */
   async start() {
-    await this.web3Connection.start();
-    this.loadContract();
+    try {
+      await this.web3Connection.start();
+      this.loadAbi();
+    } catch (e) {
+      throw e; // throw upwards, user-land should decide what to do with the error
+    }
   }
 
   /**
@@ -137,7 +148,7 @@ export class Model<Methods = any> {
                          debug,
                          customTransactionHandler: cb
                        }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
-    const from = (await this.web3.eth.givenProvider.request({method: 'eth_requestAccounts'}))[0];
+    const from = (await this.web3.eth.givenProvider.request({method: 'eth_requestAccounts'}))?.[0];
 
     return new Promise<TransactionReceipt>(async (resolve, reject) => {
       try {
@@ -162,10 +173,10 @@ export class Model<Methods = any> {
    */
   async deploy(deployOptions: DeployOptions, account?: Account) {
     return this.contract.deploy(this.abi, deployOptions, account)
-      .then(tx => {
+      .then(async tx => {
         if (this.web3Connection.options.restartModelOnDeploy && tx.contractAddress) {
           this._contractAddress = tx.contractAddress;
-          this.loadContract();
+          await this.start();
         }
         return tx;
       })

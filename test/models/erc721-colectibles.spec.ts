@@ -38,7 +38,7 @@ describe(`ERC271Collectibles`, () => {
   describe(`Methods`, () => {
     before(async () => {
       contract = new ERC721Collectibles(web3Connection, contractAddress!, purchaseTokenAddress);
-      await contract.loadContract();
+      await contract.start();
     });
 
     it(`Asserts that created is limited`, async () => {

@@ -3,8 +3,9 @@ import {Web3Connection} from '@base/web3-connection';
 import {Model} from '@base/model';
 import {expect} from 'chai';
 import {Errors} from '@interfaces/error-enum';
-import {getPrivateKeyFromFile, shouldBeRejected} from '../utils/';
+import {getPrivateKeyFromFile, hasTxBlockNumber, shouldBeRejected} from '../utils/';
 import erc20 from "../../build/contracts/ERC20.json";
+import {ERC20} from "../../src";
 
 describe(`Model<any>`, () => {
   let deployedAddress: string;
@@ -38,7 +39,7 @@ describe(`Model<any>`, () => {
       const model = new Model(web3Connection, erc20.abi as any);
 
       const tx =
-        await model.deploy({data: erc20.bytecode, arguments: ["name", "symbol"]}, web3Connection.Account);
+        await hasTxBlockNumber(model.deploy({data: erc20.bytecode, arguments: ["name", "symbol"]}, web3Connection.Account));
 
       expect(model.contract.abi).to.exist;
       expect(tx.blockNumber).to.exist;
@@ -53,6 +54,16 @@ describe(`Model<any>`, () => {
       expect(await model.callTx(model.contract.methods.name())).to.be.eq('name');
       const AliceAddress = model.web3.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
       await shouldBeRejected(model.sendTx(model.contract.methods.transfer(AliceAddress, '10')))
+    })
+
+    it(`should await the start of a custom model after deploy`, async () => {
+      const model = new ERC20({...options, autoStart: true});
+      const BobAddress = model.web3.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(0)).address;
+      const AliceAddress = model.web3.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
+
+      await hasTxBlockNumber(model.deployJsonAbi("name", "symbol", "2000000000000000000", BobAddress));
+      await hasTxBlockNumber(model.transfer(AliceAddress, 1));
+      expect(await model.name()).to.be.eq(`name`)
     })
   })
 })

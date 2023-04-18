@@ -91,18 +91,13 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
 
   async start() {
     await super.start();
-    await this.loadContract();
-  }
 
-  async loadContract() {
-    if (!this.contract)
-      super.loadContract();
+    if (this.contract) {
+      this._ownable = new Ownable(this);
+      this._pausable = new Pausable(this);
 
-    this._ownable = new Ownable(this);
-    this._pausable = new Pausable(this);
-
-    this._erc20 = new ERC20(this.connection, await this.getERC20TokenAddress());
-    await this._erc20.loadContract();
+      this._erc20 = new ERC20(this.connection, await this.getERC20TokenAddress());
+    }
   }
 
   deployJsonAbi(erc20ContractAddress: string) {

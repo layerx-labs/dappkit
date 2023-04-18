@@ -25,20 +25,15 @@ export class ERC20Distribution extends Model<ERC20DistributionMethods> implement
   get pausable() { return this._pausable }
   get ownable() { return this._ownable }
 
-  async loadContract() {
-    if (!this.contract)
-      super.loadContract();
-
-    this._ownable = new Ownable(this);
-    this._pausable = new Pausable(this);
-
-    this._erc20 = new ERC20(this.connection, await this.callTx(this.contract.methods.erc20()));
-    await this._erc20.loadContract();
-  }
-
   async start() {
     await super.start();
-    await this.loadContract();
+
+    if (this.contract) {
+      this._ownable = new Ownable(this);
+      this._pausable = new Pausable(this);
+
+      this._erc20 = new ERC20(this.connection, await this.callTx(this.contract.methods.erc20()));
+    }
   }
 
   async deployJsonAbi() {

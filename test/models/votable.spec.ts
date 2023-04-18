@@ -34,7 +34,7 @@ describe(`Votable`, () => {
     let pollId!: number;
     before(async () => {
       contract = new Votable(web3Connection, contractAddress, tokenContractAddress);
-      await contract.loadContract();
+      await contract.start();
     });
 
     it(`Creates a poll`, async () => {

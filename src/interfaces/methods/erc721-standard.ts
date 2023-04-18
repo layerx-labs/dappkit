@@ -11,9 +11,9 @@ export interface ERC721StandardMethods {
   owner(): ContractCallMethod<string>;
   ownerOf(tokenId: number): ContractCallMethod<string>;
   safeTransferFrom(from: string, to: string, tokenId: number): ContractSendMethod;
-  safeTransferFrom(from: string, to: string, tokenId: number, _data: undefined): ContractSendMethod;
+  safeTransferFrom(from: string, to: string, tokenId: number, _data?: string): ContractSendMethod;
   setApprovalForAll(operator: string, approved: boolean): ContractSendMethod;
-  supportsInterface(interfaceId: undefined): ContractCallMethod<boolean>;
+  supportsInterface(interfaceId?: string): ContractCallMethod<boolean>;
   symbol(): ContractCallMethod<string>;
   tokenByIndex(index: number): ContractCallMethod<number>;
   tokenOfOwnerByIndex(owner: string, index: number): ContractCallMethod<number>;
