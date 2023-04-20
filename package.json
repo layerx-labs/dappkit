@@ -1,6 +1,6 @@
 {
   "name": "@taikai/dappkit",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Web3 Decentralized Application Kit",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
