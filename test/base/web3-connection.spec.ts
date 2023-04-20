@@ -43,5 +43,12 @@ describe(`Web3Connection`, () => {
     it(`Has restartModelOnDeploy as true by default`, () => {
       expect(web3Connection.options.restartModelOnDeploy).to.be.true;
     })
+
+    it(`Sends native token to another address`, async () => {
+      const AliceAddress = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1))?.address;
+      const balance = await web3Connection.getBalance(AliceAddress);
+      await web3Connection.sendNativeToken(AliceAddress, 1);
+      expect(await web3Connection.getBalance(AliceAddress)).to.be.eq((+balance+1).toString())
+    })
   })
 })
