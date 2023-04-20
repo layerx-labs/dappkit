@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import {Account, provider as Provider} from 'web3-core';
 import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
-import {Utils} from 'web3-utils';
+import {fromWei, Utils} from 'web3-utils';
 import {Eth} from 'web3-eth';
 
 export class Web3Connection {
@@ -34,8 +34,8 @@ export class Web3Connection {
       (await this.eth?.givenProvider?.request({method: 'eth_requestAccounts'}) || [""])[0];
   }
 
-  async getBalance(): Promise<string> {
-    return this.eth?.getBalance(await this.getAddress());
+  async getBalance(ofAddress?: string): Promise<string> {
+    return fromWei(await this.eth?.getBalance(ofAddress || await this.getAddress()));
   }
 
   async getETHNetworkId(): Promise<number> {
@@ -114,5 +114,9 @@ export class Web3Connection {
       this.account = this.web3.eth.accounts.privateKeyToAccount(this.options.privateKey);
   }
   /* eslint-enable complexity */
+
+  async sendNativeToken(to: string, amount: number) {
+    return this.eth.sendTransaction({from: await this.getAddress(), to, value: this.utils.toWei(amount.toString())})
+  }
 
 }
