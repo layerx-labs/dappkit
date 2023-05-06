@@ -20,11 +20,15 @@ contract Governed {
         _governor = msg.sender;
     }
 
+    function _onlyGovernor() internal view {
+        require(msg.sender == _governor);
+    }
+    
     /**
     * @dev Throws if called by any account other than the governor.
     */
     modifier onlyGovernor() {
-        require(msg.sender == _governor);
+        _onlyGovernor();
         _;
     }
 

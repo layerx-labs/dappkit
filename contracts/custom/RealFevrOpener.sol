@@ -102,7 +102,7 @@ contract RealFevrOpener is  Ownable, ERC721 {
         return (marketplaceDistributions[_tokenId].marketplaceDistributionAmounts, marketplaceDistributions[_tokenId].marketplaceDistributionAddresses);
     }
 
-    function getPackPriceInFVR(uint256 packId) public returns (uint256) {
+    function getPackPriceInFVR(uint256 packId) public view returns (uint256) {
         return packs[packId].price.mul(_realFvrTokenPriceUSD).div(10**3);
     }
 
@@ -197,7 +197,6 @@ contract RealFevrOpener is  Ownable, ERC721 {
 
      function offerPack(uint256 packId, address receivingAddress) public onlyOwner {
         require(packs[packId].packId == packId, "Pack does not exist");
-        Pack memory pack = packs[packId];
         packs[packId].buyer = receivingAddress;
 
         _openedPacks += 1;

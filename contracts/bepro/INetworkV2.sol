@@ -145,6 +145,7 @@ interface INetworkV2 {
     event BountyProposalDisputed(uint256 indexed bountyId, uint256 prId, uint256 proposalId, uint256 weight, bool overflow);
     event BountyProposalRefused(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
     event BountyAmountUpdated(uint256 indexed id, uint256 amount);
+    event NetworkParamChanged (uint256 param, uint256 newvalue, uint256 oldvalue);
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
 
     function getBounty(uint256 id) external view returns (Bounty memory);

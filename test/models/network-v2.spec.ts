@@ -65,44 +65,140 @@ describe(`NetworkV2`, () => {
 
     describe(`Owner`, () => {
       it(`changeCouncilAmount()`, async () => {
-        await hasTxBlockNumber(network.changeCouncilAmount(newCouncilAmount));
-        expect(await network.councilAmount()).to.eq(newCouncilAmount.toString());
+        await hasTxBlockNumber(network.changeCouncilAmount(103000));
+        expect(await network.councilAmount()).to.eq((103000).toString());
       });
+
+      it(`changeCouncilAmount emits event`, async () => {
+        const tx = await network.changeCouncilAmount(newCouncilAmount)
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '0',
+            newvalue: toSmartContractDecimals(newCouncilAmount).toString(),
+            oldvalue: toSmartContractDecimals(103000).toString(),
+          }
+        }])
+      })
 
       it(`changeDraftTime()`, async () => {
-        await hasTxBlockNumber(network.changeDraftTime(61));
-        expect(await network.draftTime()).to.eq(61000);
+        await hasTxBlockNumber(network.changeDraftTime(121));
+        expect(await network.draftTime()).to.eq(121000);
       });
+
+      it(`changeDraftTime() event emitted`, async () => {
+        const tx = await network.changeDraftTime(61)
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '2',
+            newvalue: '61',
+            oldvalue: '121',
+          }
+        }])
+      })
 
       it(`changeDisputableTime()`, async () => {
-        await hasTxBlockNumber(network.changeDisputableTime(61));
-        expect(await network.disputableTime()).to.eq(61000);
+        await hasTxBlockNumber(network.changeDisputableTime(122));
+        expect(await network.disputableTime()).to.eq(122000);
       });
+
+      it(`changeDisputableTime() event emitted`, async () => {
+        const tx = await network.changeDisputableTime(61)
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '1',
+            newvalue: '61',
+            oldvalue: '122',
+          }
+        }])
+      })
 
       it(`changePercentageNeededForDispute()`, async () => {
-        await hasTxBlockNumber(network.changePercentageNeededForDispute(1));
-        expect(await network.percentageNeededForDispute()).to.eq(1);
+        await hasTxBlockNumber(network.changePercentageNeededForDispute(2));
+        expect(await network.percentageNeededForDispute()).to.eq(2);
       });
+
+      it(`changePercentageNeededForDispute() event emitted`, async () => {
+        const tx = await network.changePercentageNeededForDispute(1)
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '5',
+            newvalue:  network.toPercentage(1).toString(),
+            oldvalue: network.toPercentage(2).toString(),
+          }
+        }])
+      })
 
       it(`changeMergeCreatorFeeShare()`, async () => {
-        await hasTxBlockNumber(network.changeMergeCreatorFeeShare(1));
-        expect(await network.mergeCreatorFeeShare()).to.eq(1);
+        await hasTxBlockNumber(network.changeMergeCreatorFeeShare(4));
+        expect(await network.mergeCreatorFeeShare()).to.eq(4);
       });
+
+      it(`changeMergeCreatorFeeShare() event emitted`, async () => {
+        const tx = await network.changeMergeCreatorFeeShare(1)
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '4',
+            newvalue: network.toPercentage(1).toString(),
+            oldvalue: network.toPercentage(4).toString(),
+          }
+        }])
+      })
 
       it(`changeProposerFeeShare()`, async () => {
-        await hasTxBlockNumber(network.changeProposerFeeShare(2));
-        expect(await network.proposerFeeShare()).to.eq(2);
+        await hasTxBlockNumber(network.changeProposerFeeShare(5));
+        expect(await network.proposerFeeShare()).to.eq(5);
       });
+
+      it(`changeProposerFeeShare() event emitted`, async () => {
+        const tx = await network.changeProposerFeeShare(2)
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '8',
+            newvalue: network.toPercentage(2).toString(),
+            oldvalue: network.toPercentage(5).toString(),
+          }
+        }])
+      })
 
       it(`changeOracleExchangeRate()`, async () => {
-        await hasTxBlockNumber(network.changeOracleExchangeRate(2));
-        expect(await network.oracleExchangeRate()).to.eq(2);
+        await hasTxBlockNumber(network.changeOracleExchangeRate(1));
+        expect(await network.oracleExchangeRate()).to.eq(1);
       });
 
+      it(`changeOracleExchangeRate() event emitted`, async () => {
+        const tx = await network.changeOracleExchangeRate(2)
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '3',
+            newvalue: network.toPercentage(2).toString(),
+            oldvalue: network.toPercentage(1).toString(),
+          }
+        }])
+      })
+
       it(`changeCancelableTime()`, async () => {
-        await hasTxBlockNumber(network.changeCancelableTime(15638400)); // 181 days
-        expect(await network.cancelableTime()).to.eq(15638400 * Thousand);
+        await hasTxBlockNumber(network.changeCancelableTime(17280000)); // 181 days
+        expect(await network.cancelableTime()).to.eq(17280000 * Thousand);
       });
+
+      it(`changeCancelableTime() event emitted`, async () => {
+        const tx = await network.changeCancelableTime(15638400) // 200 days
+        expect(tx.logs).to.be.like([{
+          event: 'NetworkParamChanged',
+          args: {
+            param: '7',
+            newvalue: "15638400" ,
+            oldvalue: "17280000",
+          }
+        }])
+      })
 
     });
 
