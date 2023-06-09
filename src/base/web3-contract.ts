@@ -168,7 +168,8 @@ export class Web3Contract<Methods = any, Events = any> {
                value = ``,
                txOptions: Partial<TransactionConfig>, {
                  debug,
-                 customTransactionHandler: cb
+                 customTransactionHandler,
+                 signedTxHandler = (() => {}), // eslint-disable-line @typescript-eslint/no-empty-function
                }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
     /* eslint-disable no-async-promise-executor */
     return new Promise<TransactionReceipt>(async (resolve, reject) => {
@@ -177,12 +178,13 @@ export class Web3Contract<Methods = any, Events = any> {
         const from = account.address;
         const to = this.address;
         const signedTx = await account.signTransaction({from, to, data, value, ...txOptions});
-        const sendMethod = () => this.web3.eth.sendSignedTransaction(signedTx.rawTransaction!);
+        const sendMethod = () =>
+          this.web3.eth.sendSignedTransaction(signedTx.rawTransaction!, signedTxHandler);
 
-        if (cb)
-          cb(sendMethod(), resolve, reject, debug);
+        if (customTransactionHandler)
+          customTransactionHandler(sendMethod() as any, resolve, reject, debug);
         else
-          transactionHandler(sendMethod(), resolve, reject, debug);
+          transactionHandler(sendMethod() as any, resolve, reject, debug);
 
       } catch (e) {
         console.error(e);

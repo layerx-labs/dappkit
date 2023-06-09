@@ -43,6 +43,8 @@ export interface Web3ConnectionOptions {
                               reject: (e: unknown) => void,
                               debug?: boolean) => void;
 
+  signedTxHandler?: (error: Error, hash: string) => void;
+
   /**
    * If true, web3Connection will call `.start()` on construction
    * @default true

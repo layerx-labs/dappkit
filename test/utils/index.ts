@@ -25,13 +25,15 @@ export function getPrivateKeyFromFile(index = 0) {
  * A helper function to start a web3connection from process.env files
  * @param start
  * @param revert
+ * @param _options
  */
-export async function defaultWeb3Connection(start = false, revert = false) {
+export async function defaultWeb3Connection(start = false, revert = false, _options?: Web3ConnectionOptions) {
   const options: Web3ConnectionOptions = {
     web3Host: process.env.WEB3_HOST_PROVIDER || 'HTTP://127.0.0.1:8545',
     privateKey: process.env.WALLET_PRIVATE_KEY || getPrivateKeyFromFile(),
     skipWindowAssignment: true,
     restartModelOnDeploy: false,
+    ...(_options || {})
   }
 
   const web3Connection = new Web3Connection(options);
