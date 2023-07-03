@@ -252,8 +252,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    * @param percentageNeededForDispute percentage is per 10,000; 3 = 0,0003
    */
   async changePercentageNeededForDispute(percentageNeededForDispute: number) {
-    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.percentageNeededForDispute, 
-                                                                    percentageNeededForDispute * this.divisor));
+    return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.percentageNeededForDispute,
+                                                                    this.toPercentage(percentageNeededForDispute)));
   }
 
   /**
@@ -261,7 +261,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeMergeCreatorFeeShare(mergeCreatorFeeShare: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.mergeCreatorFeeShare, 
-                                                                    mergeCreatorFeeShare * this.divisor));
+                                                                    this.toPercentage(mergeCreatorFeeShare)));
   }
 
   /**
@@ -269,7 +269,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeProposerFeeShare(proposerFeeShare: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.proposerFeeShare, 
-                                                                    proposerFeeShare * this.divisor));
+                                                                    this.toPercentage(proposerFeeShare)));
   }
 
   /**
@@ -277,7 +277,18 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
    */
   async changeOracleExchangeRate(oracleExchangeRate: number) {
     return this.sendTx(this.contract.methods.changeNetworkParameter(this.Params.oracleExchangeRate, 
-                                                                    oracleExchangeRate * this.divisor));
+                                                                    this.toPercentage(oracleExchangeRate)));
+  }
+
+  /**
+   * Transforms a number to a percentage 
+   * using the utils 'divisor' value.
+   * 
+   * @param percentage 
+   * @returns 
+   */
+  toPercentage(percentage: number) {
+    return percentage * this.divisor;
   }
 
   /**

@@ -80,6 +80,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     event BountyProposalDisputed(uint256 indexed bountyId, uint256 prId, uint256 proposalId, uint256 weight, bool overflow);
     event BountyProposalRefused(uint256 indexed bountyId, uint256 prId, uint256 proposalId);
     event BountyAmountUpdated(uint256 indexed id, uint256 amount);
+    event NetworkParamChanged (uint256 param, uint256 newvalue, uint256 oldvalue);
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
     event OraclesTransfer(address indexed from, address indexed to, uint256 indexed amount);
 
@@ -230,32 +231,43 @@ contract NetworkV2 is Governed, ReentrancyGuard {
      *     _value must be higher than @MIN_CANCELABLE_TIME
      */
     function changeNetworkParameter(uint256 _parameter, uint256 _value) external onlyGovernor {
+        uint256 oldValue;
         if (_parameter == uint256(INetworkV2.Params.councilAmount)) {
             require(_value >= MIN_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "1");
             require(_value <= MAX_COUNCIL_AMOUNT * 10 ** networkToken.decimals(), "2");
+            oldValue = councilAmount;
             councilAmount = _value;
         } else if (_parameter == uint256(INetworkV2.Params.draftTime)) {
             require(_value >= MIN_DRAFT_TIME && _value <= MAX_DRAFT_TIME, "3");
+            oldValue = draftTime;
             draftTime = _value;
         } else if (_parameter == uint256(INetworkV2.Params.disputableTime)) {
             require(_value >= MIN_DISPUTABLE_TIME && _value <= MAX_DISPUTABLE_TIME, "4");
+            oldValue = disputableTime;
             disputableTime = _value;
         } else if (_parameter == uint256(INetworkV2.Params.percentageNeededForDispute)) {
             require(_value <= MAX_PERCENTAGE_NEEDED_FOR_DISPUTE, "5");
+            oldValue = percentageNeededForDispute;
             percentageNeededForDispute = _value;
         } else if (_parameter == uint256(INetworkV2.Params.mergeCreatorFeeShare)) {
             require(_value <= MAX_MERGE_CREATOR_FEE_SHARE, "6");
+            oldValue = mergeCreatorFeeShare;
             mergeCreatorFeeShare = _value;
         } else if (_parameter == uint256(INetworkV2.Params.proposerFeeShare)) {
             require(_value <= MAX_PROPOSER_FEE_SHARE);
+            oldValue = proposerFeeShare;
             proposerFeeShare = _value;
         } else if (_parameter == uint256(INetworkV2.Params.oracleExchangeRate)) {
             require(totalNetworkToken == 0, "1");
+            oldValue = oracleExchangeRate;
             oracleExchangeRate = _value;
         } else if (_parameter == uint256(INetworkV2.Params.cancelableTime)) {
             require(_value >= MIN_CANCELABLE_TIME, "3");
+            oldValue = cancelableTime;
             cancelableTime = _value;
         }
+
+        emit NetworkParamChanged(_parameter, _value, oldValue);
     }
 
     /*
@@ -437,7 +449,7 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     function cancelFundRequest(uint256 id) nonReentrant external {
         _isBountyOwner(id);
         _isFundingRequest(id, true);
-        require(bounties[id].funded == false, "");
+        _isFunded(id, false);
         _isNotCanceled(id);
         _cancelFundingRequest(id);
     }
