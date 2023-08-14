@@ -16,7 +16,7 @@
     "README.md"
   ],
   "scripts": {
-    "compile": "node tools/compile.mjs",
+    "compile": "npx hardhat compile",
     "postcompile": "node tools/contract-json-cleaner.mjs build/contracts/",
     "prebuild": "npm run compile",
     "prepublishOnly": "npm run build",
@@ -43,7 +43,7 @@
     "web3-utils": "^1.8.2"
   },
   "devDependencies": {
-    "@openzeppelin/contracts": "^3.4.2",
+    "@openzeppelin/contracts": "^4.9.3",
     "@taikai/dappkit-launchpad": "^0.0.19",
     "@truffle/workflow-compile": "4.0.21",
     "@types/chai": "^4.3.0",
