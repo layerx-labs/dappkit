@@ -1,4 +1,4 @@
-import {readdirSync, readFileSync, writeFileSync} from "fs";
+import {lstatSync, readdirSync, readFileSync, writeFileSync} from "fs";
 import {join, resolve} from "path";
 
 const config = {
@@ -24,7 +24,7 @@ const config = {
 
   /* file will be excluded if found on include and exclude */
   exclude: [
-    /^[_I]/,
+    /^[_I]/, /\.dbg\./i
   ],
 }
 
@@ -33,17 +33,30 @@ const template = (content = "") =>
 
 async function main() {
   console.log("Reading", resolve(config.path));
-  
-  const test = (key, file) => new RegExp(key).test(file);
 
   const checkInclude = config.include.length > 0;
   const checkExclude = config.exclude.length > 0;
-  
+
+  const test = (key, file) => new RegExp(key).test(file);
+
+  const findArtifacts = (path) => {
+    const artifacts = [];
+
+    readdirSync(path)
+      .forEach(file => {
+        const filePath = join(path, file);
+        const stat= lstatSync(filePath);
+        if (stat.isFile())
+          artifacts.push(filePath);
+        else findArtifacts(filePath);
+      })
+
+    return artifacts;
+  }
+
   const files =
-    readdirSync(resolve(config.path), 'utf-8')
-      // eslint-disable-next-line complexity
+    findArtifacts(resolve(config.path))
       .filter(file =>
-        file.endsWith(".json") &&
         (!checkExclude ? true : !config.exclude.some(key => test(key, file))) &&
         (!checkInclude ? true : config.include.some(key => test(key, file))));
 
@@ -70,6 +83,8 @@ async function main() {
 
   console.log("Wrote to", resolve(config.destination));
 }
+
+
 
 main()
   .finally(() => {
