@@ -1,10 +1,9 @@
 import {UseModel} from '@base/use-model';
-import {GovernedMethods} from '@methods/governed';
-import {PastEventOptions} from 'web3-eth-contract';
 import {XEvents} from '@events/x-events';
 import * as Events from '@events/governed-events';
+import governed from '@abi/contracts/utils/Governed.sol/Governed.json'
 
-export class Governed extends UseModel<GovernedMethods> {
+export class Governed extends UseModel<governed.abi> {
   async _governor() {
     return this.model.callTx(this.model.contract.methods._governor());
   }

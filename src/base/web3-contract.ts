@@ -1,11 +1,15 @@
-import {AbiItem, sha3} from 'web3-utils';
-import {Contract, ContractSendMethod, DeployOptions} from 'web3-eth-contract';
-import Web3 from 'web3';
-import {Account, TransactionConfig} from 'web3-core';
+import {sha3} from 'web3-utils';
+import {Contract,} from 'web3-eth-contract';
+import Web3, {ContractAbi, Web3BaseWalletAccount} from 'web3';
 import {Log, TransactionReceipt} from '@interfaces/web3-core';
 import {Errors} from '@interfaces/error-enum';
 import {transactionHandler} from '@utils/transaction-handler';
 import {Web3ConnectionOptions} from "@interfaces/web3-connection-options";
+import {AbiEventFragment, AbiFragment} from "web3-types/src/eth_abi_types";
+import {Web3PromiEvent} from "web3-core/lib/types/web3_promi_event";
+import DeployOptions from "@interfaces/contract/deploy-options";
+import {NonPayableMethodObject, PayableMethodObject} from "web3-eth-contract/src/types";
+import {Transaction} from "web3-types/src/eth_types";
 
 const DEFAULT_CONFIRMATIONS_NEEDED = 1;
 
@@ -18,7 +22,7 @@ export interface Web3ContractOptions {
   /**
    * If not provided, gasPrice will be queried on the network
    */
-  gasPrice?: string;
+  gasPrice?: number;
 
   /**
    * If not provided, gasAmount will be estimated from the network
@@ -38,9 +42,9 @@ export interface Web3ContractOptions {
   auto: boolean; // default: true, auto = true will calculate needed values if none is provided.
 }
 
-export class Web3Contract<Methods = any, Events = any> {
-  readonly self!: Contract;
-  readonly abi: AbiItem[];
+export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
+  readonly self!: Contract<Abi>;
+  readonly abi: ReadonlyArray<AbiFragment>;
 
   /**
    * Transaction options that will be used on each transaction.
@@ -53,7 +57,7 @@ export class Web3Contract<Methods = any, Events = any> {
   readonly options: Web3ContractOptions = {auto: true}
 
   constructor(readonly web3: Web3,
-              abi: AbiItem[],
+              abi: ReadonlyArray<AbiFragment>,
               readonly address?: string,
               options: Web3ContractOptions = {auto: true}) {
     this.self = new web3.eth.Contract(abi, address);
@@ -61,31 +65,33 @@ export class Web3Contract<Methods = any, Events = any> {
     this.abi = abi;
   }
 
-  get methods(): Methods { return this.self.methods; }
-  get events(): Events { return this.self.events; }
+  get methods() { return this.self.methods; }
+  get events() { return this.self.events; }
 
   /* eslint-disable complexity */
-  async txOptions(method: ContractSendMethod, value?: string, from?: string) {
-    let {gas = 0, gasAmount = 0, gasPrice = ``,} = this.options || {};
-    const {gasFactor = 1, auto = true} = this.options || {};
+  async txOptions(method: Pick<PayableMethodObject|NonPayableMethodObject, 'estimateGas'>,
+                  value?: string,
+                  from?: string) {
+    let {gas = 0, gasAmount = 0, gasPrice = 0,} = this.options || {};
+    const {gasFactor = 0, auto = true} = this.options || {};
 
     if (!auto && (!gas || !gasPrice))
       throw new Error(Errors.GasAndGasPriceMustBeProvidedIfNoAutoTxOptions);
 
     if (auto) {
       if (!gasPrice)
-        gasPrice = await this.web3.eth.getGasPrice();
+        gasPrice = Number(await this.web3.eth.getGasPrice());
 
       if (!gasAmount)
-        gasAmount = await method.estimateGas({...value ? {value} : {}, ... from ? {from} : {}});
+        gasAmount = Number(await method.estimateGas({...value ? {value} : {}, ...from ? {from} : {}}));
 
       if (!gas)
-        gas = Math.round(gasAmount * gasFactor);
+        gas = Math.round(Number(gasAmount) * gasFactor);
     }
 
     return {
-      ... gas ? {gas} : {},
-      ... gasPrice ? {gasPrice} : {},
+      ... gas ? {gas: gas.toString()} : {},
+      ... gasPrice ? {gasPrice: gasPrice.toString()} : {},
     };
   }
   /* eslint-enable complexity */
@@ -94,10 +100,10 @@ export class Web3Contract<Methods = any, Events = any> {
   /**
    * Parses the logs of a transaction receipt using its abi events
    */
-  parseReceiptLogs<T = any>(receipt: TransactionReceipt): TransactionReceipt<T> {
+  parseReceiptLogs<T = unknown>(receipt: TransactionReceipt): TransactionReceipt<T> {
     if (receipt.logs?.length) {
       const _events =
-        this.abi.filter(({type}) => type === "event")
+        (this.abi.filter(({type}) => type === "event") as AbiEventFragment[])
           .map(({inputs, ...rest}) =>
             ({inputs, ...rest, topic: sha3(`${rest.name}(${inputs?.map(i=> i.type).join(',')})`)}));
 
@@ -109,7 +115,7 @@ export class Web3Contract<Methods = any, Events = any> {
           if (_event.topic === log.topics[0] && hasAddressAndEqualLog(log)) {
             const args =
               this.web3.eth.abi
-                .decodeLog(_event.inputs || [], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
+                .decodeLog([..._event.inputs ?? []], log.data, _event.anonymous ? log.topics : log.topics.slice(1))
             receipt.logs[i] = {...log, event: _event?.name, args} as unknown as Log & {event: string, args: T};
           }
         }
@@ -123,50 +129,55 @@ export class Web3Contract<Methods = any, Events = any> {
   /**
    * Deploys the new AbiItem and returns its transaction receipt
    */
-  async deploy(abi: AbiItem[], deployOptions: DeployOptions, account?: Account): Promise<TransactionReceipt> {
+  async deploy(abi: AbiFragment[],
+               deployOptions: DeployOptions<never>,
+               account?: Web3BaseWalletAccount): Promise<TransactionReceipt> {
 
-    const deployer = async (resolve: (receipt: TransactionReceipt) => void, reject: (error: Error) => void) => {
+    // eslint-disable-next-line no-unused-vars
+    const deployer = async (resolve: (tx: TransactionReceipt) => void, reject: (error: Error) => void) => {
       try {
         const newContract = new this.web3.eth.Contract(abi);
         const limbo = newContract.deploy(deployOptions);
         const from = 
-          account?.address || (await this.web3.eth.givenProvider.request({method: 'eth_requestAccounts'}))[0];
+          account?.address || (await this.web3.eth.personal.getAccounts())[0];
 
         /* eslint-disable no-inner-declarations */
-        function onConfirmation(number: number, receipt: any) {
+        function onConfirmation(number: bigint, receipt: unknown) {
           if (DEFAULT_CONFIRMATIONS_NEEDED >= number)
-            resolve(receipt as unknown as TransactionReceipt);
+            resolve(receipt as TransactionReceipt);
         }
 
-        function onError(error: any) { reject(error); }
+        function onError(error: Error) { reject(error); }
         /* eslint-enable no-inner-declarations */
 
         if (account) {
           const data = limbo.encodeABI();
-          const signedTx = await account.signTransaction({data, from, ...await this.txOptions(limbo, undefined, from)});
-          this.web3.eth.sendSignedTransaction(signedTx.rawTransaction!)
-              .on(`confirmation`, onConfirmation)
+          const {rawTransaction} =
+            await account.signTransaction({data, from, ...await this.txOptions(limbo, undefined, from)});
+          this.web3.eth.sendSignedTransaction(rawTransaction)
+              .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
               .on(`error`, onError);
         } else
           limbo.send({from, ...await this.txOptions(limbo, undefined, from)})
-               .on(`confirmation`, onConfirmation)
+               .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
                .on(`error`, onError);
 
-      } catch (e: any) {
-        reject(e);
+      } catch (e: unknown) {
+        reject(e as Error);
       }
     }
 
-    return new Promise<TransactionReceipt>(deployer).then(receipt => this.parseReceiptLogs(receipt));
+    return new Promise<TransactionReceipt>(deployer)
+      .then(receipt => this.parseReceiptLogs(receipt));
   }
 
   /**
    * Sends a signed transaction with the provided account
    */
-  sendSignedTx(account: Account,
+  sendSignedTx(account: Web3BaseWalletAccount,
                data: string,
-               value = ``,
-               txOptions: Partial<TransactionConfig>, {
+               value = "",
+               txOptions: Partial<Transaction>, {
                  debug,
                  customTransactionHandler: cb
                }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
@@ -177,7 +188,8 @@ export class Web3Contract<Methods = any, Events = any> {
         const from = account.address;
         const to = this.address;
         const signedTx = await account.signTransaction({from, to, data, value, ...txOptions});
-        const sendMethod = () => this.web3.eth.sendSignedTransaction(signedTx.rawTransaction!);
+        const sendMethod = () =>
+          this.web3.eth.sendSignedTransaction(signedTx.rawTransaction) as unknown as Web3PromiEvent<never, never>;
 
         if (cb)
           cb(sendMethod(), resolve, reject, debug);

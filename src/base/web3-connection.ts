@@ -1,44 +1,47 @@
+import Web3, {type Web3BaseWalletAccount} from 'web3';
 import {Errors} from '@interfaces/error-enum';
-import Web3 from 'web3';
-import {Account, provider as Provider} from 'web3-core';
-import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
-import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
-import {fromWei, Utils} from 'web3-utils';
-import {Eth} from 'web3-eth';
+import {type Web3ConnectionOptions} from '@interfaces/web3-connection-options';
+import {type SupportedProviders} from "web3-types/src/web3_base_provider";
 
 export class Web3Connection {
   protected web3!: Web3;
-  protected account!: Account;
+
+  /* account should be used when dealing with privateKey accounts */
+  protected account!: Web3BaseWalletAccount;
+  get Account() { return this.account; }
 
   /* eslint-disable complexity */
   constructor(readonly options: Web3ConnectionOptions) {
-    const {web3CustomProvider: provider = null, autoStart = true} = options;
+    const {web3CustomProvider: provider = null, autoStart = true, restartModelOnDeploy} = options;
 
-    if (options.restartModelOnDeploy === undefined)
+    if (restartModelOnDeploy === undefined)
       this.options.restartModelOnDeploy = true;
 
-    if (autoStart || (provider && typeof provider !== "string" && provider?.connected)) {
+    const providerConnected = provider &&
+      typeof provider !== "string" && provider.hasOwnProperty('connected') && (provider as any).connected;
+
+    if (autoStart || providerConnected)
       this.start();
-    }
   }
   /* eslint-enable complexity */
 
   get started() { return !!this.web3; }
-  get eth(): Eth { return this.web3?.eth; }
-  get utils(): Utils { return this.web3?.utils; }
-  get Web3(): Web3 { return this.web3; }
-  get Account(): Account { return this.account; }
+  get eth() { return this.web3?.eth; }
+  get utils() { return this.web3?.utils; }
+  get Web3() { return this.web3; }
+
+  /* Account should be used when dealing with browser-accounts */
+  get Personal() { return this.web3.eth.personal; }
 
   async getAddress(): Promise<string> {
-    return this.account ? this.account.address :
-      (await this.eth?.givenProvider?.request({method: 'eth_requestAccounts'}) || [""])[0];
+    return this.account ? this.account.address : ((await this.Personal.getAccounts()) || [""])[0];
   }
 
-  async getBalance(ofAddress?: string): Promise<string> {
-    return fromWei(await this.eth?.getBalance(ofAddress || await this.getAddress()));
+  async getBalance(ofAddress?: string): Promise<bigint> {
+    return this.eth?.getBalance(ofAddress || await this.getAddress());
   }
 
-  async getETHNetworkId(): Promise<number> {
+  async getETHNetworkId(): Promise<bigint> {
     return this.eth?.net.getId();
   }
 
@@ -67,7 +70,7 @@ export class Web3Connection {
   /**
    * change the privateKey prop of {@link Web3ConnectionOptions} and start a new connection
    */
-  switchToAccount(account: string|Account) {
+  switchToAccount(account: string|Web3BaseWalletAccount) {
     const pvtKey = typeof account === "string" ? account : account.privateKey;
     if (this.options.privateKey !== pvtKey)
       this.options.privateKey = pvtKey;
@@ -82,8 +85,8 @@ export class Web3Connection {
     if (this.started && !restart)
       return;
 
-    const {web3Host = ``, web3ProviderOptions = undefined, web3CustomProvider = null} = this.options;
-    let provider: Provider = web3CustomProvider;
+    const {web3Host = ``, net = undefined, web3CustomProvider = undefined} = this.options;
+    let provider: SupportedProviders<never>|undefined = web3CustomProvider;
 
     if (!web3Host && !provider)
       throw new Error(Errors.MissingWeb3ProviderHost)
@@ -92,15 +95,9 @@ export class Web3Connection {
 
     if (!provider) {
       if (web3Link.includes(`http`))
-        provider = new Web3.providers.HttpProvider(web3Link, web3ProviderOptions as HttpProviderOptions);
+        provider = new Web3.providers.HttpProvider(web3Link, net);
       else if (web3Link.includes(`ws`))
-        provider = new Web3.providers.WebsocketProvider(web3Link, web3ProviderOptions as WebsocketProviderOptions);
-    }
-
-    if (!provider) {
-      if (!this.options.web3ProviderOptions)
-        throw new Error(Errors.ProviderOptionsAreMandatoryIfIPC);
-      provider = new Web3.providers.IpcProvider(web3Link, web3ProviderOptions);
+        provider = new Web3.providers.WebsocketProvider(web3Link, net);
     }
 
     if (!provider)
@@ -116,7 +113,12 @@ export class Web3Connection {
   /* eslint-enable complexity */
 
   async sendNativeToken(to: string, amount: number) {
-    return this.eth.sendTransaction({from: await this.getAddress(), to, value: this.utils.toWei(amount.toString())})
+    const data = {
+      from: await this.getAddress(), to,
+      value: this.utils?.toWei(amount.toString(), "ether")
+    };
+
+    return this.eth?.sendTransaction(data)
   }
 
 }
