@@ -1,23 +1,20 @@
-import { Model } from '@base/model';
-import { Web3Connection } from '@base/web3-connection';
-import { Web3ConnectionOptions } from '@interfaces/web3-connection-options';
-import { Deployable } from '@interfaces/deployable';
-import { XEvents } from '@events/x-events';
-import ERC1155OwnableJson from '@abi/ERC1155Ownable.json';
-import { ERC1155OwnableMethods } from '@methods/erc1155-ownable';
-import * as Events from '@events/erc1155-ownable-events';
-import { PastEventOptions } from 'web3-eth-contract';
-import { AbiItem } from 'web3-utils';
+import {Model} from '@base/model';
+import {Web3Connection} from '@base/web3-connection';
+import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
+import {Deployable} from '@interfaces/deployable';
+import artifact from "@interfaces/generated/abi/ERC1155Ownable";
+import {ContractConstructorArgs} from "web3-types/lib/types";
+import {Filter} from "web3";
 
-export class ERC1155Ownable extends Model<ERC1155OwnableMethods> implements Deployable {
+export class ERC1155Ownable extends Model<typeof artifact.abi> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, ERC1155OwnableJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   async deployJsonAbi(uri: string) {
     const deployOptions = {
-        data: ERC1155OwnableJson.bytecode,
-        arguments: [uri]
+        data: artifact.bytecode,
+        arguments: [uri] as ContractConstructorArgs<typeof artifact.abi>
     };
 
     return this.deploy(deployOptions, this.connection.Account);
@@ -28,7 +25,7 @@ export class ERC1155Ownable extends Model<ERC1155OwnableMethods> implements Depl
   }
 
   async balanceOfBatch(accounts: string[], ids: number[]){
-    return (await this.callTx(this.contract.methods.balanceOfBatch(accounts, ids)))
+    return (await this.callTx<number[]>(this.contract.methods.balanceOfBatch(accounts, ids)))
     .map((balance) => Number(balance)); 
   }
 
@@ -76,23 +73,23 @@ export class ERC1155Ownable extends Model<ERC1155OwnableMethods> implements Depl
     return this.sendTx(this.contract.methods.mintBatch(to, tokenIds, amounts, data)); 
   }
 
-  async getApprovalForAllEvents(filter: PastEventOptions): Promise<XEvents<Events.ApprovalForAllEvent>[]> {
+  async getApprovalForAllEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`ApprovalForAll`, filter)
   }
 
-  async getOwnershipTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.OwnershipTransferredEvent>[]> {
+  async getOwnershipTransferredEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`OwnershipTransferred`, filter)
   }
 
-  async getTransferBatchEvents(filter: PastEventOptions): Promise<XEvents<Events.TransferBatchEvent>[]> {
+  async getTransferBatchEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`TransferBatch`, filter)
   }
 
-  async getTransferSingleEvents(filter: PastEventOptions): Promise<XEvents<Events.TransferSingleEvent>[]> {
+  async getTransferSingleEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`TransferSingle`, filter)
   }
 
-  async getURIEvents(filter: PastEventOptions): Promise<XEvents<Events.URIEvent>[]> {
+  async getURIEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`URI`, filter)
   }
 }

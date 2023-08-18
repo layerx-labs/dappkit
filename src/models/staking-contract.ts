@@ -2,34 +2,30 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import StakingContractJson from '@abi/StakingContract.json';
-import {StakingContractMethods} from '@methods/staking-contract';
-import {AbiItem} from 'web3-utils';
 import {ERC20} from '@models/erc20';
 import {ERC721Collectibles} from '@models/erc721-collectibles';
 import {fromDecimals, toSmartContractDate, toSmartContractDecimals} from '@utils/numbers';
 import stakingProduct from '@utils/staking-product';
-import {IsOwnable, IsPausable} from '@interfaces/modifiers';
+import {IsOwnable} from '@interfaces/modifiers';
 import {Ownable} from '@base/ownable';
-import {Pausable} from '@base/pausable';
 import stakeSubscription from '@utils/stake-subscription';
 import {Errors} from '@interfaces/error-enum';
 import {nativeZeroAddress} from '@utils/constants';
+import artifact from "@interfaces/generated/abi/StakingContract";
+import {ContractConstructorArgs} from "web3-types/lib/types";
 
-export class StakingContract extends Model<StakingContractMethods> implements Deployable, IsOwnable, IsPausable {
+export class StakingContract extends Model<typeof artifact.abi> implements Deployable, IsOwnable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions,
               contractAddress?: string,
               readonly stakeTokenAddress?: string,
               readonly collectiblesAddress?: string) {
-    super(web3Connection, StakingContractJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
-  private _pausable!: Pausable;
   private _ownable!: Ownable;
   private _erc20!: ERC20;
   private _erc721!: ERC721Collectibles;
 
-  get pausable() { return this._pausable }
   get ownable() { return this._ownable }
   get erc20() { return this._erc20; }
   get erc721() { return this._erc721; }
@@ -39,8 +35,7 @@ export class StakingContract extends Model<StakingContractMethods> implements De
     if (!this.contract)
       return;
 
-    this._ownable = new Ownable(this);
-    this._pausable = new Pausable(this);
+    this._ownable = new Ownable(this.connection, this.contractAddress);
 
     const tokenAddress = this.stakeTokenAddress || await this.callTx(this.contract.methods.erc20());
 
@@ -63,8 +58,8 @@ export class StakingContract extends Model<StakingContractMethods> implements De
 
   async deployJsonAbi(stakeTokenAddress: string, collectiblesAddress = nativeZeroAddress) {
     const deployOptions = {
-        data: StakingContractJson.bytecode,
-        arguments: [stakeTokenAddress, collectiblesAddress]
+        data: artifact.bytecode,
+        arguments: [stakeTokenAddress, collectiblesAddress] as ContractConstructorArgs<typeof artifact.abi>
     };
 
     return this.deploy(deployOptions, this.connection.Account);
@@ -91,7 +86,6 @@ export class StakingContract extends Model<StakingContractMethods> implements De
   }
 
   async subscribeProduct(_product_id: number, _amount: string | number) {
-    await this.pausable.whenNotPaused();
 
     if (!(await this.erc20.isApproved(this.contractAddress, _amount)))
       throw new Error(Errors.InteractionIsNotAvailableCallApprove);
@@ -133,11 +127,11 @@ export class StakingContract extends Model<StakingContractMethods> implements De
   }
 
   async getProductIds() {
-    return (await this.callTx(this.contract.methods.getProductIds())).map(id => +id);
+    return (await this.callTx<string[]>(this.contract.methods.getProductIds())).map(id => +id);
   }
 
   async getMySubscriptions(_address: string) {
-    const subscriptions = await this.callTx(this.contract.methods.getMySubscriptions(_address));
+    const subscriptions = await this.callTx<number[]>(this.contract.methods.getMySubscriptions(_address));
     return subscriptions.map(subscription => fromDecimals(subscription, this.erc20.decimals))
   }
 

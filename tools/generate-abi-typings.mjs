@@ -1,30 +1,31 @@
 import {lstatSync, readdirSync, readFileSync, writeFileSync} from "fs";
-import {join, resolve} from "path";
+import {basename, join, resolve} from "path";
 
 const config = {
   /* import all json files on this directory */
-  path: "build/contracts",
+  path: "artifacts/contracts",
 
   /* output abis to this directory */
   destination: "src/interfaces/generated/abi",
 
   /* implicitly include files on config.path, if it has value it will filter files from config.path */
   include: [
-    /NetworkV2/,
-    /NetworkRegistry/,
+    /Network(Registry|V2)?/,
     /BountyToken/,
     /^ERC1155Ownable/,
     /^ERC20(Ownable|Distribution|TokenLock)/,
+    /Token\.json$/,
     /^ERC4626/,
-    /^ERC721Collectibles/,
+    /^ERC721(Collectibles|Standard)/,
     /StakingContract/,
     /Votable/,
     /^(Governed|Ownable|Pausable)\.json$/,
   ],
 
-  /* file will be excluded if found on include and exclude */
+  /* file to be excluded */
   exclude: [
-    /^[_I]/, /\.dbg\./i
+    /^[_I]/,
+    /\.dbg\.json$/i
   ],
 }
 
@@ -39,17 +40,16 @@ async function main() {
 
   const test = (key, file) => new RegExp(key).test(file);
 
-  const findArtifacts = (path) => {
-    const artifacts = [];
+  const findArtifacts = (path, artifacts = []) => {
 
     readdirSync(path)
       .forEach(file => {
         const filePath = join(path, file);
         const stat= lstatSync(filePath);
         if (stat.isFile())
-          artifacts.push(filePath);
-        else findArtifacts(filePath);
-      })
+          artifacts.push(filePath.toString());
+        else findArtifacts(filePath, artifacts);
+      });
 
     return artifacts;
   }
@@ -57,12 +57,11 @@ async function main() {
   const files =
     findArtifacts(resolve(config.path))
       .filter(file =>
-        (!checkExclude ? true : !config.exclude.some(key => test(key, file))) &&
-        (!checkInclude ? true : config.include.some(key => test(key, file))));
+        (!checkExclude ? true : !config.exclude.some(key => test(key, basename(file)))) &&
+        (!checkInclude ? true : config.include.some(key => test(key, basename(file)))));
 
-  for (const [i, file] of Object.entries(files)) {
-    const _filePath = resolve(config.path, file);
-    const _exportFilePath = join(config.destination, file.replace(/\.json$/, ".ts"));
+  for (const [i, _filePath] of Object.entries(files)) {
+    const _exportFilePath = join(config.destination, basename(_filePath.replace(/\.json$/, ".ts")));
     console.log("Loading", +i+1, "of", files.length, _filePath);
     let content;
     try {

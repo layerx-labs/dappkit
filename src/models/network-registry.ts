@@ -1,22 +1,18 @@
 import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
-import { ERC20 } from '@models/erc20';
+import {ERC20} from '@models/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import {XEvents, XPromiseEvent} from '@events/x-events';
 
-import Network_RegistryJson from '@abi/NetworkRegistry.json';
-import { Network_RegistryMethods } from '@methods/network-registry';
-import * as Events from '@events/network-registry'
-import {PastEventOptions} from 'web3-eth-contract';
-import {AbiItem} from 'web3-utils';
-import { fromSmartContractDecimals, toSmartContractDecimals } from '@utils/numbers';
+import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress} from "@utils/constants";
 import {Governed} from "@base/governed";
-import {allowedTokens as _allowedTokens} from "@utils/allowed-tokens";
 import {BountyToken} from "@models/bounty-token";
+import artifact from "@interfaces/generated/abi/NetworkRegistry";
+import {Filter} from "web3";
+import {ContractConstructorArgs} from "web3-types";
 
-export class Network_Registry extends Model<Network_RegistryMethods> implements Deployable {
+export class Network_Registry extends Model<typeof artifact.abi> implements Deployable {
   private _token!: ERC20;
   private _governed!: Governed;
   private _bountyToken!: BountyToken;
@@ -28,7 +24,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   get divisor() { return this._DIVISOR; }
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, Network_RegistryJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   async start() {
@@ -45,7 +41,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
     this._token = new ERC20(this.connection, erc20Address);
     this._bountyToken = new BountyToken(this.connection, bountyTokenAddress);
-    this._governed = new Governed(this);
+    this._governed = new Governed(this.connection, this.contractAddress);
 
     this._DIVISOR = await this.getDivisor();
 
@@ -64,47 +60,47 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     const token = new ERC20(this.connection, _erc20);
 
     const deployOptions = {
-      data: Network_RegistryJson.bytecode,
+      data: artifact.bytecode,
       arguments: [
         _erc20, toSmartContractDecimals(_lockAmountForNetworkCreation, token.decimals), treasury, lockFeePercentage,
         closeFee, cancelFee, bountyToken,
-      ]
+      ] as ContractConstructorArgs<typeof artifact.abi>
     }
     return this.deploy(deployOptions, this.connection.Account);
   }
 
   async erc20() {
-    return this.callTx(this.contract.methods.erc20());
+    return this.contract.methods.erc20().call();
   }
 
   async bountyTokenAddress() {
-    return this.callTx(this.contract.methods.bountyToken());
+    return this.contract.methods.bountyToken().call()
   }
 
   async getDivisor() {
-    return this.callTx(this.contract.methods.DIVISOR());
+    return this.callTx<number>(this.contract.methods.DIVISOR());
   }
 
   async getMAX_LOCK_PERCENTAGE_FEE() {
-    return this.callTx(this.contract.methods.MAX_LOCK_PERCENTAGE_FEE());
+    return this.callTx<number>(this.contract.methods.MAX_LOCK_PERCENTAGE_FEE());
   }
 
   async lockAmountForNetworkCreation() { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.lockAmountForNetworkCreation()), 
+    return fromSmartContractDecimals(await this.callTx<number>(this.contract.methods.lockAmountForNetworkCreation()),
                                      this.token.decimals);
   }
 
   async lockedTokensOfAddress(v1: string) { 
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.lockedTokensOfAddress(v1)), 
+    return fromSmartContractDecimals(await this.callTx<number>(this.contract.methods.lockedTokensOfAddress(v1)),
                                      this.token.decimals);
   }
 
   async networkOfAddress(v1: string) { 
-    return this.callTx(this.contract.methods.networkOfAddress(v1));
+    return this.contract.methods.networkOfAddress(v1).call()
   }
 
   async networksArray(v1: number) { 
-    return this.callTx(this.contract.methods.networksArray(v1));
+    return this.contract.methods.networksArray(v1).call();
   }
 
   async totalLockedAmount() { 
@@ -113,7 +109,7 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
   }
 
   async networkCreationFeePercentage() {
-    return +(await this.callTx(this.contract.methods.networkCreationFeePercentage())) / this.divisor;
+    return +(await this.callTx<number>(this.contract.methods.networkCreationFeePercentage())) / this.divisor;
   }
 
   async treasury() {
@@ -159,9 +155,9 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
   async getAllowedTokenLen(): Promise<number[]> {
     return Promise.all([
-      this.callTx(this.contract.methods.getAllowedTokenLen(true)),
-      this.callTx(this.contract.methods.getAllowedTokenLen(false)),
-    ])
+      this.callTx<number>(this.contract.methods.getAllowedTokenLen(true)),
+      this.callTx<number>(this.contract.methods.getAllowedTokenLen(false)),
+    ]);
   }
 
   async getAllowedTokens() {
@@ -180,28 +176,28 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
     return {transactional, reward};
   }
 
-  async getGovernorTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
+  async getGovernorTransferredEvents(filter: Filter) {
     return this.contract.self.getPastEvents('GovernorTransferred', filter);
   }
 
-  async getNetworkClosedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkClosedEvent>[]> {
+  async getNetworkClosedEvents(filter: Filter) {
     return this.contract.self.getPastEvents('NetworkClosed', filter);
   }
 
-  async getNetworkRegisteredEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkRegisteredEvent>[]> {
+  async getNetworkRegisteredEvents(filter: Filter) {
     return this.contract.self.getPastEvents('NetworkRegistered', filter);
   }
 
-  async getUserLockedAmountChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.UserLockedAmountChangedEvent> {
+  async getUserLockedAmountChangedEvents(filter: Filter) {
     return this.contract.self.getPastEvents('UserLockedAmountChanged', filter);
   }
-  async getChangedFeeEvent(filter: PastEventOptions): XPromiseEvent<Events.ChangedFeeEvent> {
+  async getChangedFeeEvent(filter: Filter) {
     return this.contract.self.getPastEvents('ChangedFee', filter);
   }
-  async getChangeAllowedTokensEvents(filter: PastEventOptions): XPromiseEvent<Events.ChangeAllowedTokensEvent> {
+  async getChangeAllowedTokensEvents(filter: Filter) {
     return this.contract.self.getPastEvents('ChangeAllowedTokens', filter);
   }
-  async getLockFeeChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.LockFeeChangedEvent> {
+  async getLockFeeChangedEvents(filter: Filter) {
     return this.contract.self.getPastEvents('LockFeeChanged', filter);
   }
 }

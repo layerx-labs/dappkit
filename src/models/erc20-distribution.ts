@@ -2,35 +2,30 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import ERC20DistributionJson from '@abi/ERC20Distribution.json';
-import {ERC20DistributionMethods} from '@methods/erc20-distribution';
-import {AbiItem} from 'web3-utils';
-import {IsOwnable, IsPausable} from '@interfaces/modifiers';
+import {IsOwnable} from '@interfaces/modifiers';
 import {ERC20} from '@models/erc20';
-import {Pausable} from '@base/pausable';
 import {Ownable} from '@base/ownable';
 import {toSmartContractDate, toSmartContractDecimals} from '@utils/numbers';
+import artifact from "@interfaces/generated/abi/ERC20Distribution";
+import {ContractConstructorArgs} from "web3-types/lib/types";
 
-export class ERC20Distribution extends Model<ERC20DistributionMethods> implements Deployable, IsOwnable, IsPausable {
+export class ERC20Distribution extends Model<typeof artifact.abi> implements Deployable, IsOwnable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, ERC20DistributionJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   private _erc20!: ERC20;
   get erc20() { return this._erc20; }
 
-  private _pausable!: Pausable;
   private _ownable!: Ownable;
 
-  get pausable() { return this._pausable }
   get ownable() { return this._ownable }
 
   async start() {
     await super.start();
 
     if (this.contract) {
-      this._ownable = new Ownable(this);
-      this._pausable = new Pausable(this);
+      this._ownable = new Ownable(this.connection, this.contractAddress);
 
       this._erc20 = new ERC20(this.connection, await this.callTx(this.contract.methods.erc20()));
       await this._erc20.start();
@@ -39,8 +34,8 @@ export class ERC20Distribution extends Model<ERC20DistributionMethods> implement
 
   async deployJsonAbi() {
     const deployOptions = {
-      data: ERC20DistributionJson.bytecode,
-      arguments: []
+      data: artifact.bytecode,
+      arguments: [] as ContractConstructorArgs<typeof artifact.abi>
     };
 
     return this.deploy(deployOptions, this.connection.Account);

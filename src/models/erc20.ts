@@ -1,16 +1,16 @@
-import * as Json from '@abi/Token.json';
 import {Web3Connection} from '@base/web3-connection';
 import {Model} from '@base/model';
 import {TransactionReceipt} from '@interfaces/web3-core';
 import {fromDecimals, fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {Deployable} from '@interfaces/deployable';
-import {ERC20Methods} from '@methods/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Ownable} from "@base/ownable";
+import artifact from "@interfaces/generated/abi/Token"
+import {ContractConstructorArgs} from "web3-types/lib/types";
 
-export class ERC20 extends Model<ERC20Methods> implements Deployable {
+export class ERC20 extends Model<typeof artifact.abi> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, Json.abi as any, contractAddress);
+    super(web3Connection, artifact.abi as any, contractAddress);
   }
 
   private _decimals = 0;
@@ -23,7 +23,7 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
     await super.start();
 
     if (this.contractAddress) {
-      this._ownable = new Ownable(this);
+      this._ownable = new Ownable(this.connection, this.contractAddress);
       this._decimals = await this.callTx(this.contract.methods.decimals()) || 18;
     }
   }
@@ -91,11 +91,11 @@ export class ERC20 extends Model<ERC20Methods> implements Deployable {
 
   async deployJsonAbi(name: string,
                       symbol: string,
-                      cap: string | number,
+                      cap: string,
                       distributionAddress: string): Promise<TransactionReceipt> {
     const deployOptions = {
-      data: Json.bytecode,
-      arguments: [name, symbol, cap, distributionAddress]
+      data: artifact.bytecode,
+      arguments: [name, symbol, cap, distributionAddress] as ContractConstructorArgs<typeof artifact.abi>
     }
 
     return this.deploy(deployOptions, this.connection.Account);

@@ -44,7 +44,7 @@ export interface Web3ContractOptions {
 
 export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
   readonly self!: Contract<Abi>;
-  readonly abi: ReadonlyArray<AbiFragment>;
+  readonly abi: Abi;
 
   /**
    * Transaction options that will be used on each transaction.
@@ -57,7 +57,7 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
   readonly options: Web3ContractOptions = {auto: true}
 
   constructor(readonly web3: Web3,
-              abi: ReadonlyArray<AbiFragment>,
+              abi: Abi,
               readonly address?: string,
               options: Web3ContractOptions = {auto: true}) {
     this.self = new web3.eth.Contract(abi, address);
@@ -129,7 +129,7 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
   /**
    * Deploys the new AbiItem and returns its transaction receipt
    */
-  async deploy(abi: AbiFragment[],
+  async deploy(abi: Abi,
                deployOptions: DeployOptions<never>,
                account?: Web3BaseWalletAccount): Promise<TransactionReceipt> {
 

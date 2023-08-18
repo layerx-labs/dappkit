@@ -2,17 +2,16 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import ERC721CollectiblesJson from '@abi/ERC721Collectibles.json';
-import {ERC721CollectiblesMethods} from '@methods/erc721-collectibles';
-import {AbiItem} from 'web3-utils';
 import {ERC20} from '@models/erc20';
 import {fromDecimals, toSmartContractDecimals,} from '@utils/numbers';
+import artifact from "@interfaces/generated/abi/ERC721Collectibles";
+import {ContractConstructorArgs} from "web3-types/lib/types";
 
-export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> implements Deployable {
+export class ERC721Collectibles extends Model<typeof artifact.abi> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions,
               contractAddress?: string,
               readonly _purchaseToken?: string) {
-    super(web3Connection, ERC721CollectiblesJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   private _erc20!: ERC20;
@@ -40,8 +39,9 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
                       feeAddress: string,
                       otherAddress: string) {
     const deployOptions = {
-        data: ERC721CollectiblesJson.bytecode,
-        arguments: [name, symbol, limitedAmount, _purchaseToken, baseFeeAddress, feeAddress, otherAddress]
+        data: artifact.bytecode,
+      // eslint-disable-next-line max-len
+        arguments: [name, symbol, limitedAmount, _purchaseToken, baseFeeAddress, feeAddress, otherAddress] as ContractConstructorArgs<typeof artifact.abi>
     };
 
     return this.deploy(deployOptions, this.connection.Account);
@@ -64,7 +64,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
   }
 
   async _currentTokenId() {
-    return +(await this.callTx(this.contract.methods._currentTokenId()))
+    return +(await this.callTx<number>(this.contract.methods._currentTokenId()))
   }
 
   async _feeAddress() {
@@ -92,7 +92,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
   }
 
   async openedPacks() {
-    return +(await this.callTx(this.contract.methods._openedPacks()));
+    return +(await this.callTx<number>(this.contract.methods._openedPacks()));
   }
 
   async pricePerPack() {
@@ -159,7 +159,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
     return this.callTx(this.contract.methods.registeredIDsArray(v1, v2));
   }
 
-  async safeTransferFrom(from: string, to: string, tokenId: number, _data?: string) {
+  async safeTransferFrom(from: string, to: string, tokenId: number, _data = "0x0") {
     return this.sendTx(this.contract.methods.safeTransferFrom(from, to, tokenId, _data));
   }
 
@@ -245,7 +245,7 @@ export class ERC721Collectibles extends Model<ERC721CollectiblesMethods> impleme
   }
 
   async getRegisteredIDs(_address: string) {
-    return (await this.callTx(this.contract.methods.getRegisteredIDs(_address)))?.map(id => +id);
+    return (await this.callTx<string[]>(this.contract.methods.getRegisteredIDs(_address)))?.map(id => +id);
   }
 
 }

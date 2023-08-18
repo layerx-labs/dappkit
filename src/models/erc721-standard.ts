@@ -1,16 +1,17 @@
 import {Model} from '@base/model';
-import {ERC721StandardMethods} from '@methods/erc721-standard';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
-import ERC721Standard from '@abi/ERC721Standard.json';
-import {AbiItem} from 'web3-utils';
+
+
 import {Deployable} from '@interfaces/deployable';
 import {TransactionReceipt} from "@interfaces/web3-core";
+import artifact from "@interfaces/generated/abi/ERC721Standard";
+import {ContractConstructorArgs} from "web3-types/lib/types";
 
-export class Erc721Standard extends Model<ERC721StandardMethods> implements Deployable {
+export class Erc721Standard extends Model<typeof artifact.abi> implements Deployable {
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, ERC721Standard.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   async exists(tokenId: number) {
@@ -95,8 +96,8 @@ export class Erc721Standard extends Model<ERC721StandardMethods> implements Depl
 
   async deployJsonAbi(name: string, symbol: string) {
     const options = {
-      data: ERC721Standard.bytecode,
-      arguments: [name, symbol]
+      data: artifact.bytecode,
+      arguments: [name, symbol] as ContractConstructorArgs<typeof artifact.abi>
     }
 
     return this.deploy(options, this.connection.Account);

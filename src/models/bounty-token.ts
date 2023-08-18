@@ -2,23 +2,22 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import BountyTokenJson from '@abi/BountyToken.json';
-import {BountyTokenMethods} from '@methods/bounty-token';
-import * as Events from '@events/bounty-token-events';
-import {XEvents} from '@events/x-events';
-import {PastEventOptions} from 'web3-eth-contract';
-import {AbiItem} from 'web3-utils';
 import {nativeZeroAddress} from "@utils/constants";
+import artifact from "@interfaces/generated/abi/BountyToken";
+import {ContractConstructorArgs} from "web3-types/lib/types";
+import {Filter} from "web3";
 
-export class BountyToken extends Model<BountyTokenMethods> implements Deployable {
+type BountyTokenConnector = {originNetwork: string; bountyId: number; percentage: number; kind: string};
+
+export class BountyToken extends Model<typeof artifact.abi> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, BountyTokenJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   async deployJsonAbi(name_: string, symbol_: string, dispatcher_: string = nativeZeroAddress) {
     const deployOptions = {
-        data: BountyTokenJson.bytecode,
-        arguments: [name_, symbol_, dispatcher_]
+        data: artifact.bytecode,
+        arguments: [name_, symbol_, dispatcher_] as ContractConstructorArgs<typeof artifact.abi>
     };
 
     return this.deploy(deployOptions, this.connection.Account);
@@ -100,7 +99,7 @@ export class BountyToken extends Model<BountyTokenMethods> implements Deployable
   /**
    * See {IERC721-safeTransferFrom}.
    */
-  async safeTransferFrom(from: string, to: string, tokenId: number, _data?: string) {
+  async safeTransferFrom(from: string, to: string, tokenId: number, _data = "0x0") {
     return this.callTx(this.contract.methods.safeTransferFrom(from, to, tokenId, _data));
   }
 
@@ -160,27 +159,27 @@ export class BountyToken extends Model<BountyTokenMethods> implements Deployable
     return this.callTx(this.contract.methods.transferFrom(from, to, tokenId));
   }
 
-  async awardBounty(to: string, uri: string, bountyId: number, percentage: number) {
-    return this.sendTx(this.contract.methods.awardBounty(to, uri, bountyId, percentage));
+  async awardBounty(to: string, uri: string, options: BountyTokenConnector) {
+    return this.sendTx(this.contract.methods.awardBounty(to, uri, options));
   }
 
   async getBountyToken(id: number) {
     return this.callTx(this.contract.methods.getBountyToken(id));
   }
 
-  async getApprovalEvents(filter: PastEventOptions): Promise<XEvents<Events.ApprovalEvent>[]> {
+  async getApprovalEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`Approval`, filter)
   }
 
-  async getApprovalForAllEvents(filter: PastEventOptions): Promise<XEvents<Events.ApprovalForAllEvent>[]> {
+  async getApprovalForAllEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`ApprovalForAll`, filter)
   }
 
-  async getGovernorTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
+  async getGovernorTransferredEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`GovernorTransferred`, filter)
   }
 
-  async getTransferEvents(filter: PastEventOptions): Promise<XEvents<Events.TransferEvent>[]> {
+  async getTransferEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`Transfer`, filter)
   }
 

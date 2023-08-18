@@ -1,1 +1,3 @@
-export interface GovernorTransferredEvent { returnValues: {'previousGovernor': string;'newGovernor': string;} }
+import {CustomEvent} from "@events/x-events";
+
+export type GovernorTransferredEvent = CustomEvent<{returnValues: {'previousGovernor': string;'newGovernor': string;}}>

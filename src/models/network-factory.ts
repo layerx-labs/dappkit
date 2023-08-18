@@ -1,20 +1,19 @@
 import {Model} from '@base/model';
-import {NetworkFactoryMethods} from '@methods/network-factory';
 import {Deployable} from '@interfaces/deployable';
 import {TransactionReceipt} from '@interfaces/web3-core';
-import NetworkFactoryAbi from '@abi/NetworkFactory.json';
 import {Web3Connection} from '@base/web3-connection';
-import {AbiItem} from 'web3-utils';
 import {ERC20} from '@models/erc20';
 import {fromDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {Errors} from '@interfaces/error-enum';
+import artifact from "@interfaces/generated/abi/NetworkFactory";
+import {ContractConstructorArgs} from "web3-types";
 
-export class NetworkFactory extends Model<NetworkFactoryMethods> implements Deployable {
+export class NetworkFactory extends Model<typeof artifact.abi> implements Deployable {
   private _erc20!: ERC20;
   get erc20() { return this._erc20; }
 
   constructor(web3Connection: Web3Connection, contractAddress?: string) {
-    super(web3Connection, NetworkFactoryAbi.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   async getNetworkByAddress(address: string) {
@@ -26,7 +25,7 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
   }
 
   async getAmountOfNetworksForked() {
-    return +(await this.callTx(this.contract.methods.networksAmount()));
+    return +(await this.callTx<number>(this.contract.methods.networksAmount()));
   }
 
   async getBEPROLocked() {
@@ -54,7 +53,7 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
   }
 
   async getSettlerTokenAddress() {
-    return this.callTx(this.contract.methods.beproAddress());
+    return this.callTx<string>(this.contract.methods.beproAddress());
   }
 
   async lock(amount: string | number) {
@@ -84,8 +83,8 @@ export class NetworkFactory extends Model<NetworkFactoryMethods> implements Depl
 
   deployJsonAbi(erc20ContractAddress: string): Promise<TransactionReceipt> {
     const deployOptions = {
-      data: NetworkFactoryAbi.bytecode,
-      arguments: [erc20ContractAddress]
+      data: artifact.bytecode,
+      arguments: [erc20ContractAddress] as ContractConstructorArgs< typeof artifact.abi >
     }
 
     return this.deploy(deployOptions, this.connection.Account);

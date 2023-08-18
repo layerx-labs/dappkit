@@ -3,30 +3,28 @@ import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
 
-import ERC4626Json from '@abi/ERC4626.json';
-import { ERC4626Methods } from '@methods/erc4626';
-import * as Events from '@events/erc4626'
-import {PastEventOptions} from 'web3-eth-contract';
-import {AbiItem} from 'web3-utils';
-import {XPromiseEvent} from "@events/x-events";
 import {ERC20} from "@models/erc20";
 import {fromSmartContractDecimals, toSmartContractDecimals} from "@utils/numbers";
 
-export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
+import artifact from "@interfaces/generated/abi/ERC4626";
+import {ContractConstructorArgs} from "web3-types/lib/types";
+import {Filter} from "web3";
+
+export class ERC4626 extends Model<typeof artifact.abi> implements Deployable {
   private _decimals = -1;
   private _asset: ERC20|null = null;
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, ERC4626Json.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   async deployJsonAbi(erc20Address: string, name: string, symbol: string) {
     const deployOptions = {
-      data: ERC4626Json.bytecode,
+      data: artifact.bytecode,
       arguments: [
         erc20Address,
         name, symbol,
-      ]
+      ] as ContractConstructorArgs<typeof artifact.abi>
     }
     return this.deploy(deployOptions, this.connection.Account);
   }
@@ -43,7 +41,7 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
   }
 
   async allowance(owner: string, spender: string) {
-    return this.callTx(this.contract.methods.allowance(owner, spender))
+    return this.callTx<number>(this.contract.methods.allowance(owner, spender))
       .then(value => fromSmartContractDecimals(value, this._decimals))
   }
 
@@ -90,13 +88,13 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
     if (this._decimals > -1)
       return this._decimals;
 
-    return this.callTx(this.contract.methods.decimals());
+    return this.callTx<number>(this.contract.methods.decimals());
   }
 
   get asset() { return this._asset; }
 
   async assetAddress() {
-    return this.callTx(this.contract.methods.asset());
+    return this.callTx<string>(this.contract.methods.asset());
   }
 
   async totalAssets() {
@@ -175,19 +173,19 @@ export class ERC4626 extends Model<ERC4626Methods> implements Deployable {
       .methods.redeem(toSmartContractDecimals(shares, this._decimals, 3), receiver, owner));
   }
 
-  async getApprovalEvents(filter: PastEventOptions): XPromiseEvent<Events.ApprovalEvent> {
+  async getApprovalEvents(filter: Filter) {
     return this.contract.self.getPastEvents('Approval', filter);
   }
 
-  async getDepositEvents(filter: PastEventOptions): XPromiseEvent<Events.DepositEvent> {
+  async getDepositEvents(filter: Filter) {
     return this.contract.self.getPastEvents('Deposit', filter);
   }
 
-  async getTransferEvents(filter: PastEventOptions): XPromiseEvent<Events.TransferEvent> {
+  async getTransferEvents(filter: Filter) {
     return this.contract.self.getPastEvents('Transfer', filter);
   }
 
-  async getWithdrawEvents(filter: PastEventOptions): XPromiseEvent<Events.WithdrawEvent> {
+  async getWithdrawEvents(filter: Filter) {
     return this.contract.self.getPastEvents('Withdraw', filter);
   }
 

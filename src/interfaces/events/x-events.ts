@@ -1,4 +1,7 @@
-import {EventData} from 'web3-eth-contract';
+import {type EventLog} from "web3-eth-contract/lib/commonjs/types";
 
-export type XEvents<V> = { [K in keyof EventData]: EventData[K] extends V ? V : any }
-export type XPromiseEvent<V> = Promise<XEvents<V>[]>
+type CustomReturnValues<T = unknown> = {
+  readonly returnValues: Record<string, unknown> & T
+}
+
+export type CustomEvent<T = unknown> = (string | EventLog & CustomReturnValues<T>)

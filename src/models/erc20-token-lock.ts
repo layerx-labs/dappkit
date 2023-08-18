@@ -1,28 +1,26 @@
 import {Model} from '@base/model';
-import {ERC20TokenLockMethods} from '@methods/erc20-token-lock';
 import {Deployable} from '@interfaces/deployable';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
-import ERC20TokenLock from '@abi/ERC20TokenLock.json';
-import {AbiItem} from 'web3-utils';
+
 import {Errors} from '@interfaces/error-enum';
 import {ERC20} from '@models/erc20';
 import {fromDecimals, toSmartContractDate, toSmartContractDecimals} from '@utils/numbers';
 import {lockedTokensInfo} from '@utils/locked-tokens-info';
-import {Pausable} from '@base/pausable';
 import {Ownable} from '@base/ownable';
-import {IsOwnable, IsPausable} from '@interfaces/modifiers';
+import {IsOwnable} from '@interfaces/modifiers';
+import artifact from "@interfaces/generated/abi/ERC20TokenLock";
+import {ContractConstructorArgs} from "web3-types/lib/types";
 
-export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Deployable, IsOwnable, IsPausable {
+
+export class Erc20TokenLock extends Model<typeof artifact.abi> implements Deployable, IsOwnable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, ERC20TokenLock.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   private _erc20!: ERC20;
-  private _pausable!: Pausable;
   private _ownable!: Ownable;
 
-  get pausable() { return this._pausable }
   get ownable() { return this._ownable }
   get erc20() { return this._erc20; }
 
@@ -35,7 +33,8 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
   }
 
   async getERC20TokenAddress() {
-    return this.callTx(this.contract.methods.erc20());
+    return this.contract.methods.erc20().call()
+    //return this.callTx(this.contract.methods.erc20());
   }
 
   async totalAmountStaked() {
@@ -71,7 +70,6 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
   }
 
   async lock(amount: string | number, endDate: number) {
-    await this.pausable.whenNotPaused();
 
     if (amount > (await this.getMaxLock()) || amount < (await this.getMinLock()))
       throw new Error(Errors.InvalidTokenAmount);
@@ -93,10 +91,9 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
     await super.start();
 
     if (this.contract) {
-      this._ownable = new Ownable(this);
-      this._pausable = new Pausable(this);
+      this._ownable = new Ownable(this.connection, this.contractAddress);
 
-      this._erc20 = new ERC20(this.connection, await this.getERC20TokenAddress());
+      this._erc20 = new ERC20(this.connection, (await this.getERC20TokenAddress()) as string);
       await this._erc20.start();
     }
   }
@@ -106,8 +103,8 @@ export class Erc20TokenLock extends Model<ERC20TokenLockMethods> implements Depl
       throw new Error(Errors.MissingTokenAddress);
 
     const options = {
-      data: ERC20TokenLock.bytecode,
-      arguments: [erc20ContractAddress || this.erc20.contractAddress]
+      data: artifact.bytecode,
+      arguments: [erc20ContractAddress || this.erc20.contractAddress] as ContractConstructorArgs<typeof artifact.abi>
     }
 
     return this.deploy(options, this.connection.Account);

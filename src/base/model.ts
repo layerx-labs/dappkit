@@ -13,9 +13,8 @@ import {NonPayableMethodObject, PayableMethodObject} from "web3-eth-contract/src
 import DeployOptions from "@interfaces/contract/deploy-options";
 import {Web3BaseWalletAccount} from "web3/lib/types";
 import {Web3PromiEvent} from "web3-core/lib/types/web3_promi_event";
-import {AbiFragment} from "web3-types/src/eth_abi_types";
 
-export class Model<Abi extends ContractAbi = AbiFragment[]> {
+export class Model<Abi extends ContractAbi> {
   protected _contract!: Web3Contract<Abi>;
   protected _contractAddress?: string;
   private readonly web3Connection!: Web3Connection;
@@ -106,9 +105,12 @@ export class Model<Abi extends ContractAbi = AbiFragment[]> {
 
   /**
    * Return a property value from the contract
+   * Use only when you need to force a return type
+   * @deprecated
+   * @see <method.call()>
    */
-  async callTx<Outputs = unknown>(method: PayableMethodObject|NonPayableMethodObject) {
-    return method.call<Outputs>();
+  async callTx<ForceOutput>(method: PayableMethodObject|NonPayableMethodObject) {
+    return method.call<ForceOutput>();
   }
 
   /**
@@ -161,7 +163,7 @@ export class Model<Abi extends ContractAbi = AbiFragment[]> {
    * Deploy the loaded abi contract
    */
   async deploy(deployOptions: DeployOptions<Abi>, account?: Web3BaseWalletAccount) {
-    return this.contract.deploy([...this.abi], deployOptions, account)
+    return this.contract.deploy(this.contract.abi, deployOptions, account)
       .then(async tx => {
         if (this.web3Connection.options.restartModelOnDeploy && tx.contractAddress) {
           this._contractAddress = tx.contractAddress;

@@ -2,30 +2,26 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import Network_v2Json from '@abi/NetworkV2.json';
-import {Network_v2Methods} from '@methods/network-v2';
-import * as Events from '@events/network-v2-events';
-import {XEvents, XPromiseEvent} from '@events/x-events';
-import {PastEventOptions} from 'web3-eth-contract';
-import {AbiItem} from 'web3-utils';
 import {BountyToken} from '@models/bounty-token';
 import {ERC20} from '@models/erc20';
 import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress, Thousand} from '@utils/constants';
-import { OraclesResume } from '@interfaces/oracles-resume';
-import { Delegation } from '@interfaces/delegation';
-import { oraclesResume } from '@utils/oracles-resume';
-import { bounty } from '@utils/bounty';
-import { treasuryInfo } from '@utils/treasury-info';
+import {OraclesResume} from '@interfaces/oracles-resume';
+import {Delegation} from '@interfaces/delegation';
+import {oraclesResume} from '@utils/oracles-resume';
+import {bounty} from '@utils/bounty';
+import {treasuryInfo} from '@utils/treasury-info';
 import {delegationEntry} from "@utils/delegation";
 import {NetworkRegistry} from "@models/network-registry";
 import BigNumber from "bignumber.js";
+import artifact from "@interfaces/generated/abi/NetworkV2";
+import {ContractConstructorArgs} from "web3-types";
+import {Filter} from "web3";
 
-export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
+export class Network_v2 extends Model<typeof artifact.abi> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    super(web3Connection, (Network_v2Json as any).abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   private _nftToken!: BountyToken;
@@ -74,7 +70,7 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     const transactionalTokenAddress = await this.networkTokenAddress();
     const registryAddress = await this.registryAddress();
 
-    this._governed = new Governed(this);
+    this._governed = new Governed(this.connection, this.contractAddress);
     this._networkToken = new ERC20(this.connection, transactionalTokenAddress);
     await this._networkToken.start();
 
@@ -95,23 +91,23 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
                       _registryAddress = nativeZeroAddress) {
     const deployOptions = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: (Network_v2Json as any).bytecode,
-      arguments: [_oracleTokenAddress, _registryAddress]
+      data: artifact.bytecode,
+      arguments: [_oracleTokenAddress, _registryAddress] as ContractConstructorArgs<typeof artifact.abi>
     };
 
     return this.deploy(deployOptions, this.connection.Account);
   }
 
   async getDivisor() {
-    return this.callTx(this.contract.methods.DIVISOR());
+    return this.callTx<number>(this.contract.methods.DIVISOR());
   }
 
   async canceledBounties() {
-    return +(await this.callTx(this.contract.methods.canceledBounties()));
+    return +(await this.callTx<number>(this.contract.methods.canceledBounties()));
   }
 
   async closedBounties() {
-    return +(await this.callTx(this.contract.methods.closedBounties()));
+    return +(await this.callTx<number>(this.contract.methods.closedBounties()));
   }
 
   async treasuryInfo() {
@@ -131,40 +127,40 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async oracleExchangeRate() {
-    return (await this.callTx(this.contract.methods.oracleExchangeRate())) / this.divisor;
+    return (await this.callTx<number>(this.contract.methods.oracleExchangeRate())) / this.divisor;
   }
 
   /**
    * @returns number duration in milliseconds
    */
   async disputableTime() {
-    return +(await this.callTx(this.contract.methods.disputableTime())) * Thousand;
+    return +(await this.callTx<number>(this.contract.methods.disputableTime())) * Thousand;
   }
 
   /**
    * @returns number duration in milliseconds
    */
   async draftTime() {
-    return +(await this.callTx(this.contract.methods.draftTime())) * Thousand;
+    return +(await this.callTx<number>(this.contract.methods.draftTime())) * Thousand;
   }
 
   async bountiesIndex() {
-    return +(await this.callTx(this.contract.methods.bountiesIndex()));
+    return +(await this.callTx<number>(this.contract.methods.bountiesIndex()));
   }
 
   async disputes(address: string, bountyId: string | number, proposalId: string | number) {
-    const hash = this.web3.utils.keccak256(`${this.web3.utils.encodePacked(bountyId, proposalId)}`);
+    const hash = this.connection.utils.keccak256(`${this.connection.utils.encodePacked(bountyId, proposalId)}`);
     
     return fromSmartContractDecimals(await this.callTx(this.contract.methods.disputes(address, hash)), 
                                      this.networkToken.decimals);
   }
 
   async mergeCreatorFeeShare() {
-    return (await this.callTx(this.contract.methods.mergeCreatorFeeShare())) / this.divisor;
+    return (await this.callTx<number>(this.contract.methods.mergeCreatorFeeShare())) / this.divisor;
   }
 
   async proposerFeeShare() {
-    return (await this.callTx(this.contract.methods.proposerFeeShare())) / this.divisor;
+    return (await this.callTx<number>(this.contract.methods.proposerFeeShare())) / this.divisor;
   }
 
   async oraclesDistributed() {
@@ -173,19 +169,19 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async percentageNeededForDispute() {
-    return (await this.callTx(this.contract.methods.percentageNeededForDispute())) / this.divisor;
+    return (await this.callTx<number>(this.contract.methods.percentageNeededForDispute())) / this.divisor;
   }
 
   async networkTokenAddress() {
-    return this.callTx(this.contract.methods.networkToken());
+    return this.contract.methods.networkToken().call()
   }
 
   async registryAddress() {
-    return this.callTx(this.contract.methods.registry());
+    return this.contract.methods.registry().call();
   }
 
   async nftTokenAddress() {
-    return this.callTx(this.contract.methods.nftToken());
+    return this.contract.methods.nftToken().call();
   }
 
   async totalNetworkToken() {
@@ -299,22 +295,14 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async cancelableTime() {
-    return (await this.callTx(this.contract.methods.cancelableTime())) * Thousand;
-  }
-
-   /**
-   * update the treasury address
-   * @param _address 
-   */
-  async updateTresuryAddress(_address: string) {
-    return this.sendTx(this.contract.methods.updateTresuryAddress(_address));
+    return (await this.callTx<number>(this.contract.methods.cancelableTime())) * Thousand;
   }
 
   /**
    * get total amount of oracles of an address
    */
   async getOraclesOf(_address: string) {
-    const oracles = await this.callTx(this.contract.methods.oracles(_address));
+    const oracles = await this.callTx<{locked: number, byOthers: number}>(this.contract.methods.oracles(_address));
     const value = new BigNumber(oracles.locked).plus(oracles.byOthers);
     return fromSmartContractDecimals(value, this.networkToken.decimals);
   }
@@ -527,66 +515,65 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async getDelegationsOf(address: string): Promise<Delegation[]> {
-    return (await this.callTx(this.contract.methods.getDelegationsFor(address)))
+    return (await this.callTx<never[]>(this.contract.methods.getDelegationsFor(address)))
       .map((d, i) => delegationEntry(d, i, this.networkToken.decimals))
       .filter(({amount}) => new BigNumber(amount).gt(0));
   }
 
-  async getBountyCanceledEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCanceledEvent>[]> {
+  async getBountyCanceledEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyCanceled`, filter)
   }
 
-  async getBountyClosedEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyClosedEvent>[]> {
+  async getBountyClosedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyClosed`, filter)
   }
 
-  async getBountyCreatedEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyCreatedEvent>[]> {
+  async getBountyCreatedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyCreated`, filter)
   }
 
-  async getBountyProposalCreatedEvents(filter: PastEventOptions): XPromiseEvent<Events.BountyProposalCreatedEvent> {
+  async getBountyProposalCreatedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyProposalCreated`, filter)
   }
 
-  async getBountyProposalDisputedEvents(filter: PastEventOptions): XPromiseEvent<Events.BountyProposalDisputedEvent> {
+  async getBountyProposalDisputedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyProposalDisputed`, filter)
   }
 
-  async getBountyProposalRefusedEvents(filter: PastEventOptions): XPromiseEvent<Events.BountyProposalRefusedEvent> {
+  async getBountyProposalRefusedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyProposalRefused`, filter)
   }
 
-  /* eslint-disable max-len */
-  async getBountyPullRequestCanceledEvents(filter: PastEventOptions): XPromiseEvent<Events.BountyPullRequestCanceledEvent> {
+
+  async getBountyPullRequestCanceledEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyPullRequestCanceled`, filter)
   }
 
-  async getBountyPullRequestCreatedEvents(filter: PastEventOptions): XPromiseEvent<Events.BountyPullRequestCreatedEvent> {
+  async getBountyPullRequestCreatedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyPullRequestCreated`, filter)
   }
 
-  async getBountyPullRequestReadyForReviewEvents(filter: PastEventOptions): XPromiseEvent<Events.BountyPullRequestReadyForReviewEvent> {
+  async getBountyPullRequestReadyForReviewEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyPullRequestReadyForReview`, filter)
   }
-  /* eslint-enable max-len */
 
-  async getGovernorTransferredEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
+  async getGovernorTransferredEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`GovernorTransferred`, filter)
   }
 
-  async getBountyFundedEvents(filter: PastEventOptions): Promise<XEvents<Events.GovernorTransferredEvent>[]> {
+  async getBountyFundedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyFunded`, filter)
   }
 
-  async getBountyAmountUpdatedEvents(filter: PastEventOptions): Promise<XEvents<Events.BountyAmountUpdatedEvent>[]> {
+  async getBountyAmountUpdatedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyAmountUpdated`, filter)
   }
   
-  async getOraclesChangedEvents(filter: PastEventOptions): Promise<XEvents<Events.OraclesChangedEvent>[]> {
+  async getOraclesChangedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`OraclesChanged`, filter)
   }
   
-  async getOraclesTransferEvents(filter: PastEventOptions): Promise<XEvents<Events.OraclesTransferEvent>[]> {
+  async getOraclesTransferEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`OraclesTransfer`, filter)
   }
 
