@@ -6,7 +6,6 @@ import {Errors} from '@interfaces/error-enum';
 import {getPrivateKeyFromFile, hasTxBlockNumber, shouldBeRejected} from '../utils/';
 import erc20 from "../../src/interfaces/generated/abi/Token";
 import {ERC20} from "../../src";
-import {ContractConstructorArgs} from "web3-types";
 
 describe(`Model<any>`, () => {
   let deployedAddress: string;
@@ -37,10 +36,12 @@ describe(`Model<any>`, () => {
   describe(`with autoStart: true`, () => {
     it(`Starts and loads the ABI automatically and re-assigns`, async () => {
       const web3Connection = new Web3Connection({...options, autoStart: true});
-      const model = new Model(web3Connection, erc20.abi as any);
+      const model = new Model(web3Connection, erc20.abi);
+
+      console.log(await web3Connection.getAddress())
 
       const tx =
-        await hasTxBlockNumber(model.deploy({data: erc20.bytecode, arguments: ["name", "symbol", 0, ""] as ContractConstructorArgs<typeof erc20.abi>} as any, web3Connection.Account));
+        await hasTxBlockNumber(model.deploy({data: erc20.bytecode, arguments: ["name", "symbol", 1, await web3Connection.getAddress()] as any} as any, web3Connection.Account));
 
       expect(model.contract.abi).to.exist;
       expect(tx.blockNumber).to.exist;

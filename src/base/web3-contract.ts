@@ -135,7 +135,7 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
     // eslint-disable-next-line no-unused-vars
     const deployer = async (resolve: (tx: TransactionReceipt) => void, reject: (error: Error) => void) => {
       try {
-        const newContract = new this.web3.eth.Contract(abi);
+        const newContract = new this.web3.eth.Contract(this.abi || abi);
         const limbo = newContract.deploy(deployOptions);
         const from = 
           account?.address || (await this.web3.eth.personal.getAccounts())[0];
@@ -149,17 +149,21 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
         function onError(error: Error) { reject(error); }
         /* eslint-enable no-inner-declarations */
 
-        if (account) {
-          const data = limbo.encodeABI();
-          const {rawTransaction} =
-            await account.signTransaction({data, from, ...await this.txOptions(limbo, undefined, from)});
-          this.web3.eth.sendSignedTransaction(rawTransaction)
-              .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
-              .on(`error`, onError);
-        } else
-          limbo.send({from, ...await this.txOptions(limbo, undefined, from)})
-               .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
-               .on(`error`, onError);
+
+        const gas = (await limbo.estimateGas({from})).toString();
+
+        // if (account) {
+        //   const data = limbo.encodeABI();
+        //   console.log('data', data);
+        //   const {rawTransaction} =
+        //     await account.signTransaction({data, from, ...await this.txOptions(limbo, undefined, from)});
+        //   this.web3.eth.sendSignedTransaction(rawTransaction)
+        //       .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
+        //       .on(`error`, onError);
+        // } else
+        //   limbo.send({from, ...await this.txOptions(limbo, undefined, from)})
+        //        .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
+        //        .on(`error`, onError);
 
       } catch (e: unknown) {
         reject(e as Error);
