@@ -1,9 +1,10 @@
-import {PromiEvent, TransactionReceipt} from 'web3-core';
-import {Contract} from 'web3-eth-contract';
+import {TransactionReceipt} from "web3-types";
+import {type Web3PromiEvent} from "web3-core";
+
 
 type ResolveReject = (value?: any | unknown) => void;
 
-export function transactionHandler(transaction: PromiEvent<TransactionReceipt | Contract>,
+export function transactionHandler(transaction: Web3PromiEvent<TransactionReceipt, Record<string, unknown>>,
                                    resolve: ResolveReject,
                                    reject: ResolveReject,
                                    debug?: boolean) {

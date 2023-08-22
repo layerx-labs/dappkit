@@ -1,5 +1,5 @@
 import {fromDecimals} from '@utils/numbers';
-import {NetworkMerge} from '@interfaces/network-merge';
+import {NetworkMerge} from '@interfaces/bepro/network-merge';
 
 interface Params {'0': number; '1': number; '2': number; '3': string[]; '4': number[]; '5': string}
 export default function networkMerge({'0': _id, '1': votes, '2': disputes, '3': prAddresses,

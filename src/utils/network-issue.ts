@@ -1,5 +1,5 @@
 import {fromDecimals} from './numbers';
-import {NetworkIssue} from '@interfaces/network-issue';
+import {NetworkIssue} from '@interfaces/bepro/network-issue';
 
 type Params = {
   '0': number; '1': string; '2': number;

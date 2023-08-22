@@ -12,7 +12,6 @@ import {transactionHandler} from '@utils/transaction-handler';
 import {NonPayableMethodObject, PayableMethodObject} from "web3-eth-contract/src/types";
 import DeployOptions from "@interfaces/contract/deploy-options";
 import {Web3BaseWalletAccount} from "web3/lib/types";
-import {Web3PromiEvent} from "web3-core/lib/types/web3_promi_event";
 
 export class Model<Abi extends ContractAbi> {
   protected _contract!: Web3Contract<Abi>;
@@ -144,10 +143,10 @@ export class Model<Abi extends ContractAbi> {
     return new Promise<TransactionReceipt>(async (resolve, reject) => {
       try {
         const options = await this.contract.txOptions(method, value, from);
-        const sendMethod = () => method.send({from, value, ...options}) as unknown as Web3PromiEvent<never, never>;
+        const sendMethod = () => method.send({from, value, ...options});
 
         if (cb)
-          cb(sendMethod(), resolve, reject, debug)
+          cb(sendMethod() as any, resolve, reject, debug)
         else
           transactionHandler(sendMethod(), resolve, reject, debug)
       } catch (e) {

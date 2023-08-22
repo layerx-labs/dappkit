@@ -58,7 +58,7 @@ export class ERC1155Ownable extends Model<typeof artifact.abi> implements Deploy
   }
 
   async uri(v1: number){
-    return this.callTx(this.contract.methods.uri(v1)); 
+    return this.contract.methods.uri(v1);
   }
 
   async setURI(uri: string){

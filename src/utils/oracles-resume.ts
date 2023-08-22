@@ -1,6 +1,6 @@
-import { Delegation } from "@interfaces/delegation";
-import { Oracle } from "@interfaces/oracle";
-import { OraclesResume } from "@interfaces/oracles-resume";
+import { Delegation } from "@interfaces/bepro/delegation";
+import { Oracle } from "@interfaces/bepro/oracle";
+import { OraclesResume } from "@interfaces/bepro/oracles-resume";
 
 import { fromSmartContractDecimals } from "@utils/numbers";
 

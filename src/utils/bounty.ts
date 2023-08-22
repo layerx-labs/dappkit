@@ -1,4 +1,4 @@
-import { Bounty } from "@interfaces/bounty";
+import { Bounty } from "@interfaces/bepro/bounty";
 import { Thousand } from "@utils/constants";
 import { fromDecimals } from "@utils/numbers";
 import { proposal } from "@utils/proposal";

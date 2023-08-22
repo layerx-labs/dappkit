@@ -1,4 +1,4 @@
-import { ProposalDetail } from "@interfaces/proposal-detail";
+import { ProposalDetail } from "@interfaces/bepro/proposal-detail";
 
 export function proposalDetail({
   recipient,

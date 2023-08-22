@@ -7,8 +7,8 @@ import {ERC20} from '@models/erc20';
 import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress, Thousand} from '@utils/constants';
-import {OraclesResume} from '@interfaces/oracles-resume';
-import {Delegation} from '@interfaces/delegation';
+import {OraclesResume} from '@interfaces/bepro/oracles-resume';
+import {Delegation} from '@interfaces/bepro/delegation';
 import {oraclesResume} from '@utils/oracles-resume';
 import {bounty} from '@utils/bounty';
 import {treasuryInfo} from '@utils/treasury-info';
@@ -190,7 +190,7 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
   }
 
   async getBountiesOfAddress(_address: string) {
-    return this.callTx(this.contract.methods.getBountiesOfAddress(_address));
+    return this.contract.methods.getBountiesOfAddress(_address).call();
   }
 
   async getBounty(id: number) {
@@ -511,7 +511,7 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
   }
 
   async cidBountyId(cid: string) {
-    return this.callTx(this.contract.methods.cidBountyId(cid));
+    return this.callTx<number>(this.contract.methods.cidBountyId(cid));
   }
 
   async getDelegationsOf(address: string): Promise<Delegation[]> {

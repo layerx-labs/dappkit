@@ -4,8 +4,9 @@ import {Model} from '@base/model';
 import {expect} from 'chai';
 import {Errors} from '@interfaces/error-enum';
 import {getPrivateKeyFromFile, hasTxBlockNumber, shouldBeRejected} from '../utils/';
-import erc20 from "../../build/contracts/ERC20.json";
+import erc20 from "../../src/interfaces/generated/abi/Token";
 import {ERC20} from "../../src";
+import {ContractConstructorArgs} from "web3-types";
 
 describe(`Model<any>`, () => {
   let deployedAddress: string;
@@ -39,7 +40,7 @@ describe(`Model<any>`, () => {
       const model = new Model(web3Connection, erc20.abi as any);
 
       const tx =
-        await hasTxBlockNumber(model.deploy({data: erc20.bytecode, arguments: ["name", "symbol"]}, web3Connection.Account));
+        await hasTxBlockNumber(model.deploy({data: erc20.bytecode, arguments: ["name", "symbol", 0, ""] as ContractConstructorArgs<typeof erc20.abi>} as any, web3Connection.Account));
 
       expect(model.contract.abi).to.exist;
       expect(tx.blockNumber).to.exist;
@@ -50,16 +51,16 @@ describe(`Model<any>`, () => {
     });
 
     it(`Starts but can't interact, only read because no pvtkey`, async () => {
-      const model = new Model({...options, privateKey: undefined, autoStart: true}, erc20.abi as any, deployedAddress);
+      const model = new Model({...options, privateKey: undefined, autoStart: true}, erc20.abi, deployedAddress);
       expect(await model.callTx(model.contract.methods.name())).to.be.eq('name');
-      const AliceAddress = model.web3.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
+      const AliceAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
       await shouldBeRejected(model.sendTx(model.contract.methods.transfer(AliceAddress, '10')))
     })
 
     it(`should await the start of a custom model after deploy`, async () => {
       const model = new ERC20({...options, autoStart: true});
-      const BobAddress = model.web3.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(0)).address;
-      const AliceAddress = model.web3.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
+      const BobAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(0)).address;
+      const AliceAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
 
       await hasTxBlockNumber(model.deployJsonAbi("name", "symbol", "2000000000000000000", BobAddress));
       await hasTxBlockNumber(model.transfer(AliceAddress, 1));

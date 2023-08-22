@@ -1,4 +1,4 @@
-import {Delegation} from "@interfaces/delegation";
+import {Delegation} from "@interfaces/bepro/delegation";
 import {fromSmartContractDecimals} from "@utils/numbers";
 
 export function delegationEntry({amount, ...rest}: Delegation, index: number, decimals = 18): Delegation {

@@ -3,6 +3,7 @@ import {shouldBeRejected, defaultWeb3Connection, erc20Deployer, hasTxBlockNumber
 import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {Errors} from '../../src/interfaces/error-enum';
+import {EventLog} from "web3-eth-contract/lib/commonjs/types";
 
 describe(`NetworkFactory`, () => {
 
@@ -88,7 +89,7 @@ describe(`NetworkFactory`, () => {
       expect(await networkFactory.getAmountOfNetworksForked(), `Amount of networks`).to.eq(1);
 
       const event = await networkFactory.contract.self.getPastEvents(`CreatedNetwork`, {filter: {transactionHash: tx.transactionHash}})
-      expect(event[0].returnValues['opener'], `Event opener`).to.be.eq(accountAddress);
+      expect((event[0] as EventLog).returnValues['opener'], `Event opener`).to.be.eq(accountAddress);
     });
 
     it(`Throws because one network per user`, async () => {

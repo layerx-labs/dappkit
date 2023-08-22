@@ -1,5 +1,5 @@
-import {lstatSync, readFileSync, readdirSync} from "fs";
-import {resolve} from "path";
+import {lstatSync, readFileSync} from "fs";
+import {getFilesOnDir} from "./get-files-on-dir.mjs";
 
 let limit = process.argv[3] || 24576;
 
@@ -15,6 +15,6 @@ const stat = lstatSync(jsonOrPath);
 if (stat.isFile())
   outputSize(readFileSync(jsonOrPath))
 else
-  readdirSync(jsonOrPath)
-    .filter(f => f.endsWith(`.json`))
-    .forEach(f => outputSize(readFileSync(resolve(jsonOrPath, f))))
+  getFilesOnDir(jsonOrPath)
+    .filter(f => f.endsWith(`.json`) && !f.contains('.dbg.'))
+    .forEach(f => outputSize(readFileSync(f)))

@@ -1,6 +1,6 @@
-import { Proposal } from "@interfaces/proposal";
-import { Benefactor } from "@interfaces/benefactor";
-import { PullRequest } from "@interfaces/pull-request";
+import { Proposal } from "@interfaces/bepro/proposal";
+import { Benefactor } from "@interfaces/bepro/benefactor";
+import { PullRequest } from "@interfaces/bepro/pull-request";
 
 export interface Bounty {
     id: number;

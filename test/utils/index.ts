@@ -3,11 +3,11 @@ import {readFileSync} from 'fs';
 import {resolve} from 'path';
 import {expect, use} from 'chai';
 import Web3 from 'web3';
-import {HttpProvider, WebsocketProvider} from 'web3-core';
-import {TransactionReceipt} from 'web3-eth';
 import {Log} from "../../src/interfaces/web3-core";
 import like from 'chai-like';
 import things from 'chai-things';
+import {type JsonRpcPayload} from "web3-types/src/json_rpc_types";
+import {TransactionReceipt} from "web3-types";
 
 use(like);
 use(things);
@@ -69,8 +69,8 @@ export async function erc20Deployer(name: string, symbol: string, cap = toSmartC
  * @param web3Connection
  * @param salt
  */
-export function newWeb3Account(web3Connection: Web3Connection, salt = `0xB3pR0Te511Ng`) {
-  return web3Connection.Web3.eth.accounts.create(salt);
+export function newWeb3Account(web3Connection: Web3Connection) {
+  return web3Connection.Web3.eth.accounts.create();
 }
 
 /**
@@ -98,9 +98,9 @@ const payload = (method: string, params: any[] = []) => ({jsonrpc: `2.0`, method
  */
 export async function increaseTime(time: number, web3: Web3) {
 
-  const timeAdvance = payload(`evm_increaseTime`, [time]);
-  const mine = payload(`evm_mine`, []);
-  const provider = (web3.currentProvider as HttpProvider|WebsocketProvider);
+  const timeAdvance = payload(`evm_increaseTime`, [time]) as JsonRpcPayload;
+  const mine = payload(`evm_mine`, []) as JsonRpcPayload;
+  const provider = web3.currentProvider!;
 
   return new Promise((resolve, reject) => {
     provider.send(timeAdvance, (err,) => {
@@ -121,8 +121,8 @@ export async function increaseTime(time: number, web3: Web3) {
  */
 export async function revertChain(web3: Web3) {
   return new Promise((resolve, reject) => {
-    (web3.currentProvider as HttpProvider|WebsocketProvider)
-      .send(payload(`evm_revert`, []),
+    web3.currentProvider!
+      .send(payload(`evm_revert`, []) as JsonRpcPayload,
             (err, resp) => {
               if (err)
                 reject(err)
@@ -168,7 +168,7 @@ export function calculateAPR(apr = 1, start = 0,
  * @returns Date
  */
 export async function getChainDate(web3Connection: Web3Connection) {
-  return new Date(+(await web3Connection.eth.getBlock(await web3Connection.Web3.eth.getBlockNumber())).timestamp * 1000)
+  return new Date(parseInt((await web3Connection.eth.getBlock(await web3Connection.Web3.eth.getBlockNumber())).timestamp.toString(),10) * 1000)
 }
 
 export function outputDeploy(info: [string, string][] = []) {

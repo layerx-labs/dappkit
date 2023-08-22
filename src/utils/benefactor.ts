@@ -1,4 +1,4 @@
-import { Benefactor } from "@interfaces/benefactor";
+import { Benefactor } from "@interfaces/bepro/benefactor";
 import { Thousand } from "./constants";
 import { fromDecimals } from "./numbers";
 

@@ -10,7 +10,8 @@ import {
 import {expect} from 'chai';
 import {AMOUNT_1M} from '../utils/constants';
 import {nativeZeroAddress, Thousand} from '../../src/utils/constants';
-import {Account} from 'web3-core';
+import {type Web3Account} from "web3-eth-accounts/lib/types";
+import {EventLog} from "web3-eth-contract/lib/commonjs/types";
 
 
 describe(`NetworkV2`, () => {
@@ -20,9 +21,9 @@ describe(`NetworkV2`, () => {
   let bountyTransactional: ERC20;
   let rewardToken: ERC20;
   let bountyToken: BountyToken;
-  let Admin: Account;
-  let Alice: Account;
-  let Bob: Account;
+  let Admin: Web3Account;
+  let Alice: Web3Account;
+  let Bob: Web3Account;
 
   const cap = toSmartContractDecimals(AMOUNT_1M);
   const newCouncilAmount = 105000;
@@ -257,7 +258,7 @@ describe(`NetworkV2`, () => {
             nativeZeroAddress, 0, 0,
             'c1', 'Title', '//', 'master', 'ghuser');
 
-          const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
+          const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}}) as EventLog[];
 
           expect(await bountyTransactional.balanceOf(network.contractAddress!)).to.eq((1000).toString());
           expect(events.length).to.be.eq(1);
@@ -266,13 +267,13 @@ describe(`NetworkV2`, () => {
           expect(await network.bountiesIndex()).to.be.eq(1);
           expect(await network.openBounties()).to.be.eq(1);
 
-          bountyId = events[0].returnValues.id;
+          bountyId = events[0].returnValues.id as number;
         });
 
         it(`Updates bounty amount`, async () => {
           const receipt = await network.updateBountyAmount(bountyId, 1001);
 
-          const events = await network.getBountyAmountUpdatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
+          const events = await network.getBountyAmountUpdatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}}) as EventLog[];
 
           expect(events[0].returnValues.amount).to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
           expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq((1001).toString());
@@ -306,14 +307,14 @@ describe(`NetworkV2`, () => {
         describe(`Hard cancels a bounty`,() => {
           async function prepare(cid: string) {
             const receipt = await network.openBounty(1000, bountyTransactional.contractAddress!, nativeZeroAddress, 0, 0, cid, 'Title', '//', 'master', 'ghuser');
-            const [{returnValues: {id}}] = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber});
+            const [{returnValues: {id}}] = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber})  as EventLog[];
             await increaseTime(15638402, web3Connection.Web3); // 182 days + 2 seconds
-            const prReceipt = await network.createPullRequest(id, '//', 'master', cid,'//', 'feat-1', 1);
-            const [{returnValues: {pullRequestId}}] = await network.getBountyPullRequestCreatedEvents({fromBlock: prReceipt.blockNumber});
-            await network.markPullRequestReadyForReview(id, pullRequestId);
-            const proposalReceipt = await network.createBountyProposal(id, pullRequestId, [nativeZeroAddress], [100]);
-            const [{returnValues: {proposalId}}] = await network.getBountyProposalCreatedEvents({fromBlock: proposalReceipt.blockNumber});
-            return {id, pullRequestId, proposalId};
+            const prReceipt = await network.createPullRequest(id as number, '//', 'master', cid,'//', 'feat-1', 1);
+            const [{returnValues: {pullRequestId}}] = await network.getBountyPullRequestCreatedEvents({fromBlock: prReceipt.blockNumber}) as EventLog[];
+            await network.markPullRequestReadyForReview(id as number, pullRequestId as number);
+            const proposalReceipt = await network.createBountyProposal(id as number, pullRequestId as number, [nativeZeroAddress], [100]);
+            const [{returnValues: {proposalId}}] = await network.getBountyProposalCreatedEvents({fromBlock: proposalReceipt.blockNumber}) as EventLog[];
+            return {id, pullRequestId, proposalId} as unknown as {id: number, pullRequest: number, proposalId: number};
           }
 
           it(`by refusal`, async () => {
@@ -327,7 +328,7 @@ describe(`NetworkV2`, () => {
             const {id, proposalId} = await prepare('c6');
             await network.lock(newCouncilAmount*3);
             const {blockNumber: fromBlock} = await network.disputeBountyProposal(id, proposalId);
-            const [{returnValues: {'4': overflow}}] = await network.getBountyProposalDisputedEvents({fromBlock});
+            const [{returnValues: {'4': overflow}}] = await network.getBountyProposalDisputedEvents({fromBlock}) as EventLog[];
             expect(await network.isProposalDisputed(id, proposalId)).to.be.true;
             expect(overflow).to.be.true;
             await hasTxBlockNumber(network.hardCancel(id));
@@ -344,8 +345,8 @@ describe(`NetworkV2`, () => {
             nativeZeroAddress, 0, fundingValue,
             'c7', 'Title 7', '//', 'master', 'ghuser');
 
-          const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
-          bountyId = events[0].returnValues.id;
+          const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}}) as EventLog[];
+          bountyId = events[0].returnValues.id as number;
           expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue.toString())
         });
 
@@ -372,8 +373,8 @@ describe(`NetworkV2`, () => {
             rewardToken.contractAddress!, 1000, 1000,
             'c2', 'Title 2', '//', 'master', 'ghuser');
 
-          const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}});
-          bountyId = events[0].returnValues.id;
+          const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}}) as EventLog[];
+          bountyId = events[0].returnValues.id as number;
 
           expect(await network.getBounty(bountyId)).property('rewardToken').to.be.eq(rewardToken.contractAddress!);
         });
@@ -430,9 +431,9 @@ describe(`NetworkV2`, () => {
           const receipt = await network.createPullRequest(bountyId, '//', 'master',
             'c3','//', 'feat-1', 1);
 
-          const events = await network.getBountyPullRequestCreatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}})
+          const events = await network.getBountyPullRequestCreatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}}) as EventLog[]
           expect(events.length).to.be.eq(1);
-          prId = events[0].returnValues.pullRequestId;
+          prId = events[0].returnValues.pullRequestId as number;
 
           await hasTxBlockNumber(network.cancelPullRequest(bountyId, prId));
           expect((await network.getBounty(bountyId)).pullRequests[prId].canceled).to.be.true;
@@ -442,9 +443,9 @@ describe(`NetworkV2`, () => {
           const receipt = await network.createPullRequest(bountyId, '//', 'master',
             'c4','//', 'feat-2', 1);
 
-          const events = await network.getBountyPullRequestCreatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}})
+          const events = await network.getBountyPullRequestCreatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}}) as EventLog[];
           expect(events.length).to.be.eq(1);
-          prId = events[0].returnValues.pullRequestId;
+          prId = events[0].returnValues.pullRequestId as number;
         });
 
         it(`Should be unable to create a Proposal because PR is not ready`, async () => {

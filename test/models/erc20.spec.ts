@@ -53,7 +53,7 @@ describe(`ERC20`, () => {
     })
 
     it(`Transfers some tokens`, async () => {
-      const newAccount = web3Connection.Web3.eth.accounts.create(`0xB3pR0Te511Ng`);
+      const newAccount = web3Connection.Web3.eth.accounts.create();
       const transfer = await erc20.transferTokenAmount(newAccount.address, 1)
       expect(transfer).to.not.be.empty;
     });

@@ -1,5 +1,6 @@
 import {lstatSync, readdirSync, readFileSync, writeFileSync} from "fs";
 import {basename, join, resolve} from "path";
+import {getFilesOnDir} from "./get-files-on-dir.mjs";
 
 const config = {
   /* import all json files on this directory */
@@ -40,22 +41,8 @@ async function main() {
 
   const test = (key, file) => new RegExp(key).test(file);
 
-  const findArtifacts = (path, artifacts = []) => {
-
-    readdirSync(path)
-      .forEach(file => {
-        const filePath = join(path, file);
-        const stat= lstatSync(filePath);
-        if (stat.isFile())
-          artifacts.push(filePath.toString());
-        else findArtifacts(filePath, artifacts);
-      });
-
-    return artifacts;
-  }
-
   const files =
-    findArtifacts(resolve(config.path))
+    getFilesOnDir(resolve(config.path))
       .filter(file =>
         (!checkExclude ? true : !config.exclude.some(key => test(key, basename(file)))) &&
         (!checkInclude ? true : config.include.some(key => test(key, basename(file)))));
@@ -67,7 +54,7 @@ async function main() {
     try {
       content = JSON.stringify(await import(_filePath));
     } catch (e) {
-      content = readFileSync(_filePath, 'utf-8');
+      content = JSON.stringify(JSON.parse(readFileSync(_filePath, {encoding: "utf-8"})));
     }
 
     try {

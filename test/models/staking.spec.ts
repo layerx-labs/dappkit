@@ -5,7 +5,7 @@ import {
   hasTxBlockNumber,
   increaseTime, outputDeploy
 } from '../utils/';
-import {toSmartContractDecimals} from '../../src/utils/numbers';
+import {toSmartContractDecimals} from '../../src';
 import {addMinutes, differenceInSeconds} from 'date-fns'
 import {expect} from 'chai';
 import BigNumber from 'bignumber.js';

@@ -17,7 +17,7 @@ export class NetworkFactory extends Model<typeof artifact.abi> implements Deploy
   }
 
   async getNetworkByAddress(address: string) {
-    return this.callTx(this.contract.methods.getNetworkByAddress(address));
+    return this.contract.methods.getNetworkByAddress(address).call();
   }
 
   async getNetworkById(id: number) {

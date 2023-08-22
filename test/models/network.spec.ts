@@ -4,8 +4,8 @@ import {Network} from '@models/network';
 import {defaultWeb3Connection, erc20Deployer, increaseTime, newWeb3Account, outputDeploy,} from '../utils/';
 import {Web3Connection} from '@base/web3-connection';
 import {toSmartContractDecimals} from '@utils/numbers';
-import {NetworkIssue} from '@interfaces/network-issue';
-import {OraclesSummary} from '@interfaces/oracles-summary';
+import {NetworkIssue} from '../../src/interfaces/bepro/network-issue';
+import {OraclesSummary} from '../../src/interfaces/bepro/oracles-summary';
 
 describe(`Network`, () => {
   let network: Network;

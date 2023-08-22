@@ -1,4 +1,4 @@
-import { PullRequest } from "@interfaces/pull-request";
+import { PullRequest } from "@interfaces/bepro/pull-request";
 
 export function pullRequest({
   originRepo,
