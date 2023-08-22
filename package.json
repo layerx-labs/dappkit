@@ -45,6 +45,8 @@
     "web3-utils": "^4.0.4"
   },
   "devDependencies": {
+    "bignumber.js": "^9.1.1",
+    "bn.js": "^5.2.1",
     "@openzeppelin/contracts": "^3.4.2",
     "@taikai/dappkit-launchpad": "^0.0.19",
     "@types/chai": "^4.3.0",

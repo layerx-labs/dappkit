@@ -6,6 +6,7 @@ import {Web3Connection} from '@base/web3-connection';
 import {toSmartContractDecimals} from '@utils/numbers';
 import {NetworkIssue} from '../../src/interfaces/bepro/network-issue';
 import {OraclesSummary} from '../../src/interfaces/bepro/oracles-summary';
+import {EventLog} from "web3-eth-contract/lib/commonjs/types";
 
 describe(`Network`, () => {
   let network: Network;
@@ -74,7 +75,7 @@ describe(`Network`, () => {
       const approvedSettler = await network.isApprovedSettlerToken(+newCouncilAmount);
       expect(approvedSettler, `isApproved settler`).to.be.true;
 
-      const events = await network.settlerToken.contract.self.getPastEvents(`Approval`, {fromBlock: settler.blockNumber});
+      const events = await network.settlerToken.contract.self.getPastEvents(`Approval`, {fromBlock: settler.blockNumber}) as EventLog[];
 
       expect(events[0].returnValues['spender']).to.be.eq(networkContractAddress);
       expect(events[0].returnValues['owner']).to.be.eq(accountAddress);
