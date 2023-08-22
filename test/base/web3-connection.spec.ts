@@ -33,7 +33,7 @@ describe(`Web3Connection`, () => {
     })
 
     it(`gets balance`, async () => {
-      expect(await web3Connection.getBalance()).to.not.be.empty;
+      expect((await web3Connection.getBalance()).toString()).to.not.be.empty;
     });
 
     it(`get ETHNetworkId`, async () => {

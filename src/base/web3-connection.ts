@@ -2,6 +2,7 @@ import Web3, {type Web3BaseWalletAccount} from 'web3';
 import {Errors} from '@interfaces/error-enum';
 import {type Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {type SupportedProviders} from "web3-types/src/web3_base_provider";
+import {fromSmartContractDecimals} from "@utils/numbers";
 
 export class Web3Connection {
   protected web3!: Web3;
@@ -37,8 +38,8 @@ export class Web3Connection {
     return this.account ? this.account.address : ((await this.Personal.getAccounts()) || [""])[0];
   }
 
-  async getBalance(ofAddress?: string): Promise<bigint> {
-    return this.eth?.getBalance(ofAddress || await this.getAddress());
+  async getBalance(ofAddress?: string): Promise<string> {
+    return fromSmartContractDecimals(await this.eth?.getBalance(ofAddress || await this.getAddress()));
   }
 
   async getETHNetworkId(): Promise<bigint> {

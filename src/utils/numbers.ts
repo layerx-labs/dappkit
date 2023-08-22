@@ -22,8 +22,8 @@ export function toSmartContractDecimals(value: string|number, decimals = 18, rou
  * @param {number} rounding
  * @return {string}
  */
-export function fromSmartContractDecimals(value: string|number|BigNumber, decimals = 18, rounding: number|null = null) {
-  return shiftByFixed(value, -(+decimals), rounding);
+export function fromSmartContractDecimals(value: string|number|BigNumber|bigint, decimals = 18, rounding: number|null = null) {
+  return shiftByFixed(value.toString(), -(+decimals), rounding);
 }
 
 /**
