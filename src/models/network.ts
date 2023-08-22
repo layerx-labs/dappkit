@@ -1,6 +1,6 @@
 import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
-import * as NetworkAbi from '@abi/Network.json';
+
 import {ERC20} from '@models/erc20';
 import {fromDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {TransactionReceipt} from '@interfaces/web3-core';
@@ -9,41 +9,41 @@ import {NetworkIssue} from '@interfaces/bepro/network-issue';
 import networkMerge from '@utils/network-merge';
 import {Errors} from '@interfaces/error-enum';
 import {Deployable} from '@interfaces/deployable';
-import {NetworkMethods} from '@methods/network';
 import {OraclesSummary} from '@interfaces/bepro/oracles-summary';
-import {AbiItem} from 'web3-utils';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
-import {PastEventOptions} from 'web3-eth-contract';
+import artifact from "@interfaces/generated/abi/Network";
+import {Filter} from "web3";
+import {ContractConstructorArgs} from "web3-types";
 
-export class Network extends Model<typeof artifact> implements Deployable {
+export class Network extends Model<typeof artifact.abi> implements Deployable {
   private _transactionToken!: ERC20;
   private _settlerToken!: ERC20;
   get transactionToken() { return this._transactionToken; }
   get settlerToken() { return this._settlerToken; }
 
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, NetworkAbi.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   async getTransactionTokenAddress() {
-    return this.callTx(await this.contract.methods.transactionToken());
+    return this.callTx<string>(await this.contract.methods.transactionToken());
   }
 
   async getSettlerTokenAddress() {
-    return this.callTx(await this.contract.methods.settlerToken());
+    return this.callTx<string>(await this.contract.methods.settlerToken());
   }
 
   async getIssuesByAddress(address: string) {
-    const ids = await this.callTx(await this.contract.methods.getIssuesByAddress(address));
-    return ids.map(id => +id);
+    const ids = await await this.contract.methods.getIssuesByAddress(address).call();
+    return ids.map(id => +id.toString());
   }
 
   async getAmountOfIssuesOpened(): Promise<number> {
-    return +(await this.callTx(await this.contract.methods.incrementIssueID()));
+    return +(await this.callTx<string>(await this.contract.methods.incrementIssueID()));
   }
 
   async getAmountOfIssuesClosed() {
-    return +(await this.callTx(await this.contract.methods.closedIdsCount()));
+    return +(await this.callTx<string>(await this.contract.methods.closedIdsCount()));
   }
 
   async getOraclesByAddress(address: string) {
@@ -68,23 +68,23 @@ export class Network extends Model<typeof artifact> implements Deployable {
   }
 
   async percentageNeededForDispute() {
-    return +(await this.callTx(this.contract.methods.percentageNeededForDispute()));
+    return +(await this.callTx<string>(this.contract.methods.percentageNeededForDispute()));
   }
 
   async mergeCreatorFeeShare() {
-    return +(await this.callTx(this.contract.methods.mergeCreatorFeeShare()));
+    return +(await this.callTx<string>(this.contract.methods.mergeCreatorFeeShare()));
   }
 
   async disputesForMergeByAddress(issueId: number, proposalId: number, address: string) {
-    return +(await this.callTx(this.contract.methods.disputesForMergeByAddress(issueId, proposalId, address)));
+    return +(await this.callTx<string>(this.contract.methods.disputesForMergeByAddress(issueId, proposalId, address)));
   }
 
   async disputableTime() {
-    return +(await this.callTx(this.contract.methods.disputableTime()));
+    return +(await this.callTx<string>(this.contract.methods.disputableTime()));
   }
 
   async redeemTime() {
-    return +(await this.callTx(this.contract.methods.redeemTime()))
+    return +(await this.callTx<string>(this.contract.methods.redeemTime()))
   }
 
   async getTokensStaked() {
@@ -246,46 +246,48 @@ export class Network extends Model<typeof artifact> implements Deployable {
   deployJsonAbi(settlerAddress: string, transactionalAddress: string, governanceAddress: string) {
 
     const deployOptions = {
-      data: NetworkAbi.bytecode,
-      arguments: [settlerAddress, transactionalAddress, governanceAddress]
+      data: artifact.bytecode,
+      arguments: [
+        settlerAddress, transactionalAddress, governanceAddress
+      ] as ContractConstructorArgs<typeof artifact.abi>
     }
 
     return this.deploy(deployOptions, this.connection.Account);
   }
 
-  async getCloseIssueEvents(filter: PastEventOptions) {
+  async getCloseIssueEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`CloseIssue`, filter)
   }
 
-  async getDisputeMergeEvents(filter: PastEventOptions) {
+  async getDisputeMergeEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`DisputeMerge`, filter)
   }
 
-  async getGovernorTransferredEvents(filter: PastEventOptions) {
+  async getGovernorTransferredEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`GovernorTransferred`, filter)
   }
 
-  async getMergeProposalCreatedEvents(filter: PastEventOptions) {
+  async getMergeProposalCreatedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`MergeProposalCreated`, filter)
   }
 
-  async getOpenIssueEvents(filter: PastEventOptions) {
+  async getOpenIssueEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`OpenIssue`, filter)
   }
 
-  async getPausedEvents(filter: PastEventOptions) {
+  async getPausedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`Paused`, filter)
   }
 
-  async getRecognizedAsFinishedEvents(filter: PastEventOptions) {
+  async getRecognizedAsFinishedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`RecognizedAsFinished`, filter)
   }
 
-  async getRedeemIssueEvents(filter: PastEventOptions) {
+  async getRedeemIssueEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`RedeemIssue`, filter)
   }
 
-  async getUnpausedEvents(filter: PastEventOptions) {
+  async getUnpausedEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`Unpaused`, filter)
   }
 

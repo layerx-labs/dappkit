@@ -6,7 +6,6 @@ import {Errors} from '@interfaces/error-enum';
 import {transactionHandler} from '@utils/transaction-handler';
 import {Web3ConnectionOptions} from "@interfaces/web3-connection-options";
 import {AbiEventFragment, AbiFragment} from "web3-types/src/eth_abi_types";
-import {Web3PromiEvent} from "web3-core/lib/types/web3_promi_event";
 import DeployOptions from "@interfaces/contract/deploy-options";
 import {NonPayableMethodObject, PayableMethodObject} from "web3-eth-contract/src/types";
 import {Transaction} from "web3-types/src/eth_types";
@@ -189,10 +188,10 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
         const to = this.address;
         const signedTx = await account.signTransaction({from, to, data, value, ...txOptions});
         const sendMethod = () =>
-          this.web3.eth.sendSignedTransaction(signedTx.rawTransaction) as unknown as Web3PromiEvent<never, never>;
+          this.web3.eth.sendSignedTransaction(signedTx.rawTransaction);
 
         if (cb)
-          cb(sendMethod(), resolve, reject, debug);
+          cb(sendMethod() as any, resolve, reject, debug);
         else
           transactionHandler(sendMethod(), resolve, reject, debug);
 

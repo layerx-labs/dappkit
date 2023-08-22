@@ -43,7 +43,7 @@ export interface Web3ConnectionOptions {
 
 
   // eslint-disable-next-line max-len
-  customTransactionHandler?: <ResolveType = unknown, EventMap extends Web3EventMap = any>(event: Web3PromiEvent<ResolveType, EventMap>,
+  customTransactionHandler?: <ResolveType = unknown, EventMap extends Web3EventMap = never>(event: Web3PromiEvent<ResolveType, EventMap>,
                                                                                 resolve: (data: never) => void,
                                                                                 reject: (e: unknown) => void,
                                                                                 debug?: boolean) => void;

@@ -1,8 +1,7 @@
 import {fromDecimals} from '@utils/numbers';
-import {LockedTokensInfo} from '@methods/locked-tokens-info';
 
 interface Params {'0': number; '1': number; '2': number}
-export function lockedTokensInfo(tokensInfo: Params, decimals = 18): LockedTokensInfo {
+export function lockedTokensInfo(tokensInfo: Params, decimals = 18) {
   const [startDate, endDate, amount] = Object.values(tokensInfo);
 
   return {
