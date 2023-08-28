@@ -84,7 +84,7 @@ export async function shouldBeRejected(promise: Promise<any>, withErrorMessage?:
     expect(`to have failed`).to.not.exist;
   } catch (e: any) {
     if (withErrorMessage)
-      expect(e?.message).to.contain(withErrorMessage);
+      expect((e?.innerError?.message || e?.message)).to.contain(withErrorMessage);
     else expect(e).to.exist;
   }
 }
@@ -138,7 +138,7 @@ export async function revertChain(web3: Web3) {
  */
 export async function hasTxBlockNumber(promise: Promise<any>, message = `Should have blockNumber`) {
     const tx = await promise.catch(e => {
-      console.log(e);
+      //console.log(e);
       expect(e?.data?.reason || e?.data?.message || e?.message || `Should not have been rejected`, message).to.be.empty;
     });
 

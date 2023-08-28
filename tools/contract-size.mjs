@@ -3,18 +3,21 @@ import {getFilesOnDir} from "./get-files-on-dir.mjs";
 
 let limit = process.argv[3] || 24576;
 
-const outputSize = (json) => {
+const getContractSize = (json) => {
   const {contractName, bytecode} = JSON.parse(json);
   const size = (bytecode.length / 2) - 1;
-  console.log(size/1000, `kb`, `\t`, contractName, `\t\t`, size > limit ? `Overflow` : ``);
+  return {
+    contractName,
+    size: `${size/1000} kb`,
+    overflow: size > limit ? true : '',
+  }
 }
 
 const jsonOrPath = process.argv[2];
-const stat = lstatSync(jsonOrPath);
 
-if (stat.isFile())
-  outputSize(readFileSync(jsonOrPath))
+if (lstatSync(jsonOrPath).isFile())
+  console.table([getContractSize(readFileSync(jsonOrPath))])
 else
-  getFilesOnDir(jsonOrPath)
-    .filter(f => f.endsWith(`.json`) && !f.contains('.dbg.'))
-    .forEach(f => outputSize(readFileSync(f)))
+  console.table(getFilesOnDir(jsonOrPath)
+    .filter(f => f.endsWith(`.json`) && !f.endsWith('.dbg.json'))
+    .map(f => getContractSize(readFileSync(f))))

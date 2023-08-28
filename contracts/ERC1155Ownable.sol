@@ -7,7 +7,7 @@ import "./utils/Ownable.sol";
 
 contract ERC1155Ownable is ERC1155, Ownable {
 
-    constructor (string memory uri) public ERC1155(uri) { }
+    constructor (string memory uri) public ERC1155(uri) Ownable() { }
 
     function setURI(string memory uri) public onlyOwner {
         _setURI(uri);

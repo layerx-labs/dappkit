@@ -5,7 +5,7 @@ export default interface DeployOptions<Abi extends ContractAbi> {
   /**
    * The byte code of the contract.
    */
-  data?: HexString;
+  data: HexString;
   input?: HexString;
   /**
    * The arguments which get passed to the constructor on deployment.

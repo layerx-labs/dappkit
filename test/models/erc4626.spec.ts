@@ -31,8 +31,8 @@ describe(`ERC4626`, () => {
     web3Connection = await defaultWeb3Connection(true, true);
 
     Owner = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile());
-    Alice = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(5));
-    Bob = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(6));
+    Alice = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1));
+    Bob = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(2));
 
     const erc20Receipt = await erc20Deployer(name, symbol, '0', web3Connection);
 
@@ -59,7 +59,7 @@ describe(`ERC4626`, () => {
     });
 
     it(`Asserts underlying decimals`, async () => {
-      expect(await erc4626.decimals()).to.be.eq('18');
+      expect((await erc4626.decimals()).toString()).to.be.eq('18');
     });
 
     describe(`Simulates usage`, async () => {

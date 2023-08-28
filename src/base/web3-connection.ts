@@ -1,4 +1,4 @@
-import Web3, {type Web3BaseWalletAccount} from 'web3';
+import Web3, {Personal, type Web3BaseWalletAccount, Web3EthInterface} from 'web3';
 import {Errors} from '@interfaces/error-enum';
 import {type Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {type SupportedProviders} from "web3-types/src/web3_base_provider";
@@ -32,7 +32,7 @@ export class Web3Connection {
   get Web3() { return this.web3; }
 
   /* Account should be used when dealing with browser-accounts */
-  get Personal() { return this.web3.eth.personal; }
+  get Personal() { return (this.web3.eth as Web3EthInterface & {personal: Personal}).personal; }
 
   async getAddress(): Promise<string> {
     return this.account ? this.account.address : ((await this.Personal.getAccounts()) || [""])[0];

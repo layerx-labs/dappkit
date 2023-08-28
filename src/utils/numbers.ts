@@ -32,7 +32,7 @@ export function fromSmartContractDecimals(value: string|number|BigNumber|bigint,
  * @param {number} decimals
  * @return {string}
  */
-export function fromDecimals(value: string|number, decimals = 18) {
+export function fromDecimals(value: string|number|bigint, decimals = 18) {
   return fromSmartContractDecimals(value, decimals);
 }
 

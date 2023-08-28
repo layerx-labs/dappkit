@@ -162,7 +162,7 @@ export class Model<Abi extends ContractAbi> {
    * Deploy the loaded abi contract
    */
   async deploy(deployOptions: DeployOptions<Abi>, account?: Web3BaseWalletAccount) {
-    return this.contract.deploy(this.contract.abi, deployOptions, account)
+    return this.contract.deploy(deployOptions, account)
       .then(async tx => {
         if (this.web3Connection.options.restartModelOnDeploy && tx.contractAddress) {
           this._contractAddress = tx.contractAddress;

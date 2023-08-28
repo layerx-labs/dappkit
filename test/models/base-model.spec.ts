@@ -34,14 +34,16 @@ describe(`Model<any>`, () => {
   });
 
   describe(`with autoStart: true`, () => {
+    let web3Connection: Web3Connection;
+    before(() => {
+      web3Connection = new Web3Connection({...options, autoStart: true});
+    })
+
     it(`Starts and loads the ABI automatically and re-assigns`, async () => {
-      const web3Connection = new Web3Connection({...options, autoStart: true});
       const model = new Model(web3Connection, erc20.abi);
 
-      console.log(await web3Connection.getAddress())
-
       const tx =
-        await hasTxBlockNumber(model.deploy({data: erc20.bytecode, arguments: ["name", "symbol", 1, await web3Connection.getAddress()] as any} as any, web3Connection.Account));
+        await hasTxBlockNumber(model.deploy({data: erc20.bytecode, arguments: ["name", "symbol", "1000", await web3Connection.getAddress()] as any} as any, web3Connection.Account));
 
       expect(model.contract.abi).to.exist;
       expect(tx.blockNumber).to.exist;
@@ -52,14 +54,15 @@ describe(`Model<any>`, () => {
     });
 
     it(`Starts but can't interact, only read because no pvtkey`, async () => {
-      const model = new Model({...options, privateKey: undefined, autoStart: true}, erc20.abi, deployedAddress);
-      expect(await model.callTx(model.contract.methods.name())).to.be.eq('name');
+      const model = new Model<typeof erc20.abi>({...options, privateKey: undefined, autoStart: true}, erc20.abi, deployedAddress);
+      expect(await model.contract.methods.name().call()).to.be.eq('name');
       const AliceAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
       await shouldBeRejected(model.sendTx(model.contract.methods.transfer(AliceAddress, '10')))
     })
 
     it(`should await the start of a custom model after deploy`, async () => {
       const model = new ERC20({...options, autoStart: true});
+      await model.start()
       const BobAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(0)).address;
       const AliceAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
 

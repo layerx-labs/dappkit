@@ -88,7 +88,7 @@ export class ERC4626 extends Model<typeof artifact.abi> implements Deployable {
     if (this._decimals > -1)
       return this._decimals;
 
-    return this.callTx<number>(this.contract.methods.decimals());
+    return Number(await this.callTx<bigint>(this.contract.methods.decimals()));
   }
 
   get asset() { return this._asset; }

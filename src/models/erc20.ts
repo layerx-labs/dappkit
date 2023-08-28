@@ -24,7 +24,7 @@ export class ERC20 extends Model<typeof artifact.abi> implements Deployable {
 
     if (this.contractAddress) {
       this._ownable = new Ownable(this.connection, this.contractAddress);
-      this._decimals = await this.callTx(this.contract.methods.decimals()) || 18;
+      this._decimals = Number(await this.callTx(this.contract.methods.decimals())) || 18;
     }
   }
 

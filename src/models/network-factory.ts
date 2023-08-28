@@ -25,7 +25,7 @@ export class NetworkFactory extends Model<typeof artifact.abi> implements Deploy
   }
 
   async getAmountOfNetworksForked() {
-    return +(await this.callTx<number>(this.contract.methods.networksAmount()));
+    return Number(await this.callTx<bigint>(this.contract.methods.networksAmount()));
   }
 
   async getBEPROLocked() {

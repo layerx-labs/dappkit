@@ -54,7 +54,7 @@ describe(`NetworkFactory`, () => {
     })
 
     it(`Matches token address`, async () => {
-      expect(await networkFactory.getSettlerTokenAddress()).to.be.eq(settlerToken);
+      expect(await networkFactory.getSettlerTokenAddress()).to.match(new RegExp(settlerToken, 'i'));
     });
 
     it(`Throws because no locked amount`, async () => {
@@ -88,7 +88,8 @@ describe(`NetworkFactory`, () => {
       const tx = await networkFactory.createNetwork(networkToken!, networkToken!);
       expect(await networkFactory.getAmountOfNetworksForked(), `Amount of networks`).to.eq(1);
 
-      const event = await networkFactory.contract.self.getPastEvents(`CreatedNetwork`, {filter: {transactionHash: tx.transactionHash}})
+      const event = await networkFactory.contract.self.getPastEvents(`CreatedNetwork`, {filter: {transactionHash: tx.transactionHash}});
+      console.log(event);
       expect((event[0] as EventLog).returnValues['opener'], `Event opener`).to.be.eq(accountAddress);
     });
 

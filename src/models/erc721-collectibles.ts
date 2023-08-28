@@ -64,7 +64,7 @@ export class ERC721Collectibles extends Model<typeof artifact.abi> implements De
   }
 
   async _currentTokenId() {
-    return +(await this.callTx<number>(this.contract.methods._currentTokenId()))
+    return Number(await this.callTx<bigint>(this.contract.methods._currentTokenId()))
   }
 
   async _feeAddress() {
@@ -92,7 +92,7 @@ export class ERC721Collectibles extends Model<typeof artifact.abi> implements De
   }
 
   async openedPacks() {
-    return +(await this.callTx<number>(this.contract.methods._openedPacks()));
+    return Number(await this.callTx<bigint>(this.contract.methods._openedPacks()));
   }
 
   async pricePerPack() {
@@ -245,7 +245,7 @@ export class ERC721Collectibles extends Model<typeof artifact.abi> implements De
   }
 
   async getRegisteredIDs(_address: string) {
-    return (await this.callTx<string[]>(this.contract.methods.getRegisteredIDs(_address)))?.map(id => +id);
+    return (await this.callTx<bigint[]>(this.contract.methods.getRegisteredIDs(_address)))?.map(id => Number(id));
   }
 
 }

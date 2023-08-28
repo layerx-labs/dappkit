@@ -1,6 +1,6 @@
 import {sha3} from 'web3-utils';
 import {Contract,} from 'web3-eth-contract';
-import Web3, {ContractAbi, Web3BaseWalletAccount} from 'web3';
+import Web3, {ContractAbi, FMT_BYTES, FMT_NUMBER, Web3BaseWalletAccount} from 'web3';
 import {Log, TransactionReceipt} from '@interfaces/web3-core';
 import {Errors} from '@interfaces/error-enum';
 import {transactionHandler} from '@utils/transaction-handler';
@@ -79,7 +79,7 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
 
     if (auto) {
       if (!gasPrice)
-        gasPrice = Number(await this.web3.eth.getGasPrice());
+        gasPrice = Number(await this.web3.eth.getGasPrice({number: FMT_NUMBER.NUMBER, bytes: FMT_BYTES.HEX}));
 
       if (!gasAmount)
         gasAmount = Number(await method.estimateGas({...value ? {value} : {}, ...from ? {from} : {}}));
@@ -128,44 +128,37 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
   /**
    * Deploys the new AbiItem and returns its transaction receipt
    */
-  async deploy(abi: Abi,
-               deployOptions: DeployOptions<never>,
+  async deploy(deployOptions: DeployOptions<Abi>,
                account?: Web3BaseWalletAccount): Promise<TransactionReceipt> {
 
     // eslint-disable-next-line no-unused-vars
     const deployer = async (resolve: (tx: TransactionReceipt) => void, reject: (error: Error) => void) => {
       try {
-        const newContract = new this.web3.eth.Contract(this.abi || abi);
-        const limbo = newContract.deploy(deployOptions);
+        const limbo = this.self.deploy(deployOptions);
         const from = 
-          account?.address || (await this.web3.eth.personal.getAccounts())[0];
+          account?.address || (await (this.web3.eth as any).personal.getAccounts())[0];
 
         /* eslint-disable no-inner-declarations */
-        function onConfirmation(number: bigint, receipt: unknown) {
+        function onConfirmation(number: number, receipt: unknown) {
           if (DEFAULT_CONFIRMATIONS_NEEDED >= number)
             resolve(receipt as TransactionReceipt);
         }
 
-        function onError(error: Error) { reject(error); }
+        function onError(error: any) {
+          reject(error);
+        }
         /* eslint-enable no-inner-declarations */
 
+        if (account) {
+          this.sendSignedTx(account, limbo.encodeABI(), undefined, await this.txOptions(limbo, "0x0", from))
+            .then(r => onConfirmation(DEFAULT_CONFIRMATIONS_NEEDED, r))
+            .catch(onError);
+        } else
+          limbo.send({from, ...await this.txOptions(limbo, undefined, from)})
+               .on(`receipt`, d => onConfirmation(DEFAULT_CONFIRMATIONS_NEEDED, d))
+               .on(`error`, onError);
 
-        const gas = (await limbo.estimateGas({from})).toString();
-
-        // if (account) {
-        //   const data = limbo.encodeABI();
-        //   console.log('data', data);
-        //   const {rawTransaction} =
-        //     await account.signTransaction({data, from, ...await this.txOptions(limbo, undefined, from)});
-        //   this.web3.eth.sendSignedTransaction(rawTransaction)
-        //       .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
-        //       .on(`error`, onError);
-        // } else
-        //   limbo.send({from, ...await this.txOptions(limbo, undefined, from)})
-        //        .on(`confirmation`, d => onConfirmation(d.confirmations, d.receipt))
-        //        .on(`error`, onError);
-
-      } catch (e: unknown) {
+      } catch (e: any) {
         reject(e as Error);
       }
     }
@@ -179,7 +172,7 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
    */
   sendSignedTx(account: Web3BaseWalletAccount,
                data: string,
-               value = "",
+               value = "0x0",
                txOptions: Partial<Transaction>, {
                  debug,
                  customTransactionHandler: cb
