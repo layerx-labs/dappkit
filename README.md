@@ -26,7 +26,7 @@ await web3Connection.connect();
 console.log(`Address`, await web3Connection.getAddress());
 ```
 
-It's possible, if needed, provide [more options](https://sdk.dappkit.dev/interfaces/Web3ConnectionOptions.html) (such as `privateKey`) to the `Web3Connection` class.
+It's possible to provide [more options](https://sdk.dappkit.dev/interfaces/Web3ConnectionOptions.html) (such as `privateKey`) to the `Web3Connection` class.
 > Note: a Server side connection does not need to call `connect()` and should _when needed_ provide a `privateKey`
 
 ### Creating ERC20 tokens
@@ -45,7 +45,7 @@ await erc20.deployJsonAbi(
 
 console.log(`ERC20 address`, erc20.contractAddress);
 ```
-> Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC20.html)
+> Note: Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC20.html)
 
 ### Creating ERC721 NFTs
 
@@ -65,7 +65,7 @@ await erc721.deployJsonAbi(
 
 console.log(`ERC721 address`, erc721.contractAddress)
 ```
-> Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC721Collectibles.html)
+> Note: Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC721Collectibles.html)
 
 ### Creating ERC1155
 
@@ -78,7 +78,7 @@ await erc1155.deployJsonAbi('http://my.token-uri.tld/');
 
 console.log(`ERC1155 address`, erc1155.contractAddress);
 ```
-> Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC4626.html)
+> Note: Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC1155Ownable.html)
 
 ### Creating ERC4626
 ```ts
@@ -90,6 +90,7 @@ await erc4626.deployJsonAbi(`0xUnderlyingERC20Address`, `Vault Name`, `$vault_sy
 
 console.log(`ERC4626 address  `, erc4626.contractAddress);
 ```
+> Note: Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC4626.html)
 
 ## Documentation 
 
