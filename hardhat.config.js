@@ -8,7 +8,9 @@ require('dotenv').config();
 
 const {DEV_PRIVATE_KEY} = process.env;
 
-const account = (privateKey, balance = "10000000000000000000000") => ({privateKey, balance})
+const account = (privateKey, balance = "10000000000000000000000") =>
+  ({privateKey, balance})
+
 const accounts = [];
 let moreNetworks = {};
 

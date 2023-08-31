@@ -5,3 +5,5 @@
 - [How to use @taikai/dappkit with your own Solidity project](./custom-project.md)
 - [How to use Wallet Connect / Custom Provider](./use-wallet-connect.md)
 - [How to sign in with ethereum EIP4361](./eip4361-how-to.md)
+- [Create new model](./contributing/creating-new-model.md)
+- [Test integration](./contributing/integration-tests.md)
