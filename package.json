@@ -91,15 +91,11 @@
   },
   "types": "./dist/src/index.d.ts",
   "bugs": {
-    "url": "https://github.com/taikai/dappkit/issues"
+    "url": "https://github.com/layerx-labs/dappkit/issues"
   },
-  "homepage": "https://github.com/taikai/dappkit#readme",
+  "homepage": "https://dappkit.dev",
   "directories": {
     "doc": "docs",
     "test": "test"
-  },
-  "overrides": {
-    "@truffle/events": "0.1.6",
-    "@truffle/config": "1.3.29"
   }
 }
