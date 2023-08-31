@@ -59,6 +59,9 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
               abi: Abi,
               readonly address?: string,
               options: Web3ContractOptions = {auto: true}) {
+    if (!abi)
+      throw new Error(Errors.MissingAbiInterfaceFromArguments)
+
     this.self = new web3.eth.Contract(abi, address);
     this.options = options;
     this.abi = abi;

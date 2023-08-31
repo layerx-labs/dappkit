@@ -14,7 +14,7 @@ $ npm install @taikai/dappkit
 ```
 
 ## Usage
-`dappkit` offers tokens (ERC20, ERC721, ERC1155 and ERC4626) along with some other contracts, such as Staking and Voting, for ease of use. you can check all the models over at the [SDK Documentation](https://sdk.dappkit.dev/).
+`dappkit` offers tokens ([ERC20](https://sdk.dappkit.dev/classes/ERC20.html), [ERC721](https://sdk.dappkit.dev/classes/Erc721Standard.html), [ERC1155](https://sdk.dappkit.dev/classes/ERC1155Ownable.html) and [ERC4626](https://sdk.dappkit.dev/classes/ERC4626.html)) along with some other contracts, such as [Staking](https://sdk.dappkit.dev/classes/StakingContract.html) and [Voting](https://sdk.dappkit.dev/classes/Votable.html), for ease of use. you can check all the models over at the [SDK Documentation](https://sdk.dappkit.dev/).
 
 ### Simple browser connection
 ```ts
@@ -36,9 +36,7 @@ import {ERC20} from '@layerx-labs/dappkit';
 
 const erc20 = new ERC20({ web3Host: process.env.WEB3_HOST_PROVIDER });
 
-await erc20.connect(); // connect web3 by asking the user to allow the connection and interact with the chain
-
-await erc20Deployer.deployJsonAbi(
+await erc20.deployJsonAbi(
   'Token Name', // the name of the token
   '$tokenSymbol', // the symbol of the token
   "1000000000000000000000000", // the total amount of the token (with 18 decimals; 1M = 1000000000000000000000000)
@@ -47,6 +45,7 @@ await erc20Deployer.deployJsonAbi(
 
 console.log(`ERC20 address`, erc20.contractAddress);
 ```
+> Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC20.html)
 
 ### Creating ERC721 NFTs
 
@@ -54,7 +53,6 @@ console.log(`ERC20 address`, erc20.contractAddress);
 import {ERC721Collectibles} from '@layerx-labs/dappkit'
 
 const erc721 = new ERC721Collectibles({web3Host: 'http://rpc.tld'});
-erc721.loadAbi();
 
 await erc721.deployJsonAbi(
   `Token Name`, 
@@ -67,6 +65,8 @@ await erc721.deployJsonAbi(
 
 console.log(`ERC721 address`, erc721.contractAddress)
 ```
+> Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC721Collectibles.html)
+
 ### Creating ERC1155
 
 ```ts
@@ -74,17 +74,21 @@ import {ERC1155Ownable} from "@layerx-labs/dappkit";
 
 const erc1155 = new ERC1155Ownable({web3Host: 'http://rpc.tld'});
 
-await erc1155.loadAbi();
-
 await erc1155.deployJsonAbi('http://my.token-uri.tld/');
 
 console.log(`ERC1155 address`, erc1155.contractAddress);
 ```
+> Full model documentation [on the sdk](https://sdk.dappkit.dev/classes/ERC4626.html)
 
 ### Creating ERC4626
 ```ts
 import {ERC4626} from "@layerx-labs/dappkit";
 
+const erc4626 = new ERC4626({web3Host: 'http://rpc.tld'})
+
+await erc4626.deployJsonAbi(`0xUnderlyingERC20Address`, `Vault Name`, `$vault_symbol`);
+
+console.log(`ERC4626 address  `, erc4626.contractAddress);
 ```
 
 ## Documentation 
