@@ -2,8 +2,8 @@ pragma solidity >=0.6.0;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../../utils/Governed.sol";
-import "./INetworkV2.sol";
+import "../../../utils/Governed.sol";
+import "../../INetworkV2.sol";
 
 /*
  * A BountyToken is a non-transferable NFT that tracks the record of participation of a certain address on a
