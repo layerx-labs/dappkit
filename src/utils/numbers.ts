@@ -22,7 +22,9 @@ export function toSmartContractDecimals(value: string|number, decimals = 18, rou
  * @param {number} rounding
  * @return {string}
  */
-export function fromSmartContractDecimals(value: string|number|BigNumber|bigint, decimals = 18, rounding: number|null = null) {
+export function fromSmartContractDecimals(value: string | number | BigNumber | bigint,
+                                          decimals = 18,
+                                          rounding: number | null = null) {
   return shiftByFixed(value.toString(), -(+decimals), rounding);
 }
 
@@ -42,7 +44,7 @@ export function fromDecimals(value: string|number|bigint, decimals = 18) {
  * @return {number}
  */
 export function toSmartContractDate(date: number|Date) {
-  return parseInt(`${+new Date(date) / 1000}`, 10).toFixed() as any as number;
+  return parseInt(`${+new Date(date) / 1000}`, 10).toFixed() as unknown as number;
 }
 
 /**

@@ -76,7 +76,8 @@ export class Network extends Model<typeof artifact.abi> implements Deployable {
   }
 
   async disputesForMergeByAddress(issueId: number, proposalId: number, address: string) {
-    return Number(await this.callTx<bigint>(this.contract.methods.disputesForMergeByAddress(issueId, proposalId, address)));
+    return Number(await this.callTx<bigint>(this.contract.methods
+      .disputesForMergeByAddress(issueId, proposalId, address)));
   }
 
   async disputableTime() {
