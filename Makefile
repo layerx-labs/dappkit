@@ -43,10 +43,6 @@ up:
 down:
 	@docker-compose -p ${PROJECT_NAME} down
 
-## watch - Watch and build files
-watch:
-	@docker-compose -p ${PROJECT_NAME} up
-
 ## build	- Build images.
 build:
 	@docker-compose -p ${PROJECT_NAME} build
@@ -55,6 +51,6 @@ build:
 test:
 	@docker-compose -p ${PROJECT_NAME} exec bepro npm run test
 
-## ganache.start	- Start ganache
-ganache.start:
-	@docker-compose -p ${PROJECT_NAME} exec bepro npm run ganache:start
+## hardhat.start	- Start hardhat node
+hardhat.start:
+	@docker-compose -p ${PROJECT_NAME} exec bepro npm run hardhat:start

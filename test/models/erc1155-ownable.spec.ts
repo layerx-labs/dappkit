@@ -1,11 +1,11 @@
 import {
   defaultWeb3Connection,
-  getPrivateKeyFromFile,
   shouldBeRejected,
 } from '../utils';
 import { ERC1155Ownable, Web3Connection } from '../../src';
 import { expect } from 'chai';
 import {type Web3Account} from "web3-eth-accounts";
+import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
 
 
 describe(`ERC1155 Ownable`, () => {

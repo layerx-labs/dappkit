@@ -1,6 +1,6 @@
 import {describe} from 'mocha';
 import {expect} from "chai";
-import {fromSmartContractDecimals, toSmartContractDecimals} from "../../src";
+import {fromSmartContractDecimals, toSmartContractDecimals} from "../../../src";
 
 
 describe(`Numbers utilities`, () => {

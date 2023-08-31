@@ -1,6 +1,7 @@
-import {defaultWeb3Connection, erc20Deployer, expectEvent} from "./index";
-import {Web3Connection} from "../../src";
-import {nativeZeroAddress} from "../../src/utils/constants";
+import {defaultWeb3Connection, erc20Deployer, expectEvent} from "../";
+import {Web3Connection} from "../../../src";
+import {nativeZeroAddress} from "../../../src/utils/constants";
+
 
 describe(`parseReceiptLogs`, () => {
 

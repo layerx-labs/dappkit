@@ -3,9 +3,10 @@ import {Web3Connection} from '@base/web3-connection';
 import {Model} from '@base/model';
 import {expect} from 'chai';
 import {Errors} from '@interfaces/error-enum';
-import {getPrivateKeyFromFile, hasTxBlockNumber, shouldBeRejected} from '../utils/';
+import {hasTxBlockNumber, shouldBeRejected} from '../utils/';
 import erc20 from "../../src/interfaces/generated/abi/Token";
 import {ERC20} from "../../src";
+import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
 
 describe(`Model<any>`, () => {
   let deployedAddress: string;

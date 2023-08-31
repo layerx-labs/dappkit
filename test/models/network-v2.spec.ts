@@ -3,18 +3,19 @@ import {
   defaultWeb3Connection,
   erc20Deployer,
   expectEvent,
-  getPrivateKeyFromFile,
   hasTxBlockNumber,
   increaseTime,
   modelExtensionDeployer,
   shouldBeRejected
 } from '../utils';
 import {expect} from 'chai';
-import {AMOUNT_1M} from '../utils/constants';
+
 import {nativeZeroAddress} from '../../src/utils/constants';
 import {type Web3Account} from "web3-eth-accounts/lib/types";
 import {EventLog} from "web3-eth-contract/lib/commonjs/types";
+import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
 
+const AMOUNT_1M = 1000000;
 
 describe(`NetworkV2`, () => {
   let network: Network_v2;

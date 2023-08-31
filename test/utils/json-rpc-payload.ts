@@ -1,0 +1,1 @@
+export const payload = (method: string, params: any[] = []) => ({jsonrpc: `2.0`, method, params, id: +new Date()});

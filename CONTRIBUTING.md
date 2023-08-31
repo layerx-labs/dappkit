@@ -1,9 +1,3 @@
----
-noteId: "0d1b7090b1d311eb8c4ed19e49359bd0"
-tags: []
-
----
-
 # Contributor's Guide
 
 Welcome; we appreciate you and would like to thank you for contributing to our project. This document aims to facilitate the process and share with you some structure that hopefully will remove any roadblock.

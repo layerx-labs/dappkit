@@ -1,7 +1,7 @@
 import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {Network} from '@models/network';
-import {defaultWeb3Connection, erc20Deployer, increaseTime, newWeb3Account, outputDeploy,} from '../utils/';
+import {defaultWeb3Connection, erc20Deployer, increaseTime,} from '../utils/';
 import {Web3Connection} from '@base/web3-connection';
 import {toSmartContractDecimals} from '@utils/numbers';
 import {NetworkIssue} from '../../src/interfaces/bepro/network-issue';
@@ -45,10 +45,6 @@ describe(`Network`, () => {
         const receipt = await deployer.deployJsonAbi(settlerToken!, transactionToken!, deployer.connection.Account.address);
         expect(receipt.contractAddress).to.not.be.empty;
         networkContractAddress = receipt.contractAddress;
-      });
-
-      after(() => {
-        outputDeploy([[`Network`, networkContractAddress!], [`ERC20`, settlerToken!]])
       });
     });
   }
@@ -135,7 +131,7 @@ describe(`Network`, () => {
         let delegated: OraclesSummary;
 
         before(() => {
-          receiver = newWeb3Account(web3Connection).address;
+          receiver = web3Connection.Web3.eth.accounts.create().address;
         });
 
         it(`Delegates`, async () => {
