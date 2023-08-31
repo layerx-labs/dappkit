@@ -7,7 +7,7 @@ import {Deployable} from '@interfaces/deployable';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress} from "@utils/constants";
 import {Governed} from "@base/governed";
-import {BountyToken} from "@models/bepro/ERC721/bounty-token";
+import {BountyToken} from "@models/bepro/token/ERC721/bounty-token";
 import artifact from "@interfaces/generated/abi/NetworkRegistry";
 import {Filter} from "web3";
 import {ContractConstructorArgs} from "web3-types";

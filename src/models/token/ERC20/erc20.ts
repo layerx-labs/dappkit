@@ -10,7 +10,7 @@ import {ContractConstructorArgs} from "web3-types/lib/types";
 
 export class ERC20 extends Model<typeof artifact.abi> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, artifact.abi as any, contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   private _decimals = 0;

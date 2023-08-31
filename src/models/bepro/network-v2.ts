@@ -2,7 +2,7 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import {BountyToken} from '@models/bepro/ERC721/bounty-token';
+import {BountyToken} from '@models/bepro/token/ERC721/bounty-token';
 import {ERC20} from '@models/token/ERC20/erc20';
 import {Governed} from '@base/governed';
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
