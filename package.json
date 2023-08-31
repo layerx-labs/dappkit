@@ -37,7 +37,7 @@
     "dk-transpile": "dlt -j dk-config.json"
   },
   "dependencies": {
-    "bignumber.js": "^9.0.2",
+    "bignumber.js": "^9.1.1",
     "date-fns": "^2.27.0",
     "ipfs-http-client": "^50.1.2",
     "web3": "^4.1.1",
@@ -45,7 +45,6 @@
     "web3-utils": "^4.0.4"
   },
   "devDependencies": {
-    "bignumber.js": "^9.1.1",
     "@openzeppelin/contracts": "^3.4.2",
     "@taikai/dappkit-launchpad": "^0.0.19",
     "@types/chai": "^4.3.0",
