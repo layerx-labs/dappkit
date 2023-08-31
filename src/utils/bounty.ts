@@ -18,11 +18,11 @@ export function bounty({
 }: Bounty, networkTokenDecimals = 18, transactionalTokenDecimals = 18, rewardTokenDecimals = 18): Bounty {
   return {
     ...rest,
-    creationDate: +creationDate * Thousand,
-    tokenAmount: fromDecimals(tokenAmount, transactionalTokenDecimals),
-    rewardAmount: fromDecimals(rewardAmount, rewardTokenDecimals),
-    fundingAmount: fromDecimals(fundingAmount, transactionalTokenDecimals),
-    closedDate: +closedDate * Thousand,
+    creationDate: Number(creationDate) * Thousand,
+    tokenAmount: Number(fromDecimals(tokenAmount, transactionalTokenDecimals)),
+    rewardAmount: Number(fromDecimals(rewardAmount, rewardTokenDecimals)),
+    fundingAmount: Number(fromDecimals(fundingAmount, transactionalTokenDecimals)),
+    closedDate: Number(closedDate) * Thousand,
     pullRequests: pullRequests.map(pullRequest),
     proposals: proposals.map(bountyProposal => proposal(bountyProposal, networkTokenDecimals)),
     funding: funding.map(bountyBenefactor => benefactor(bountyBenefactor, transactionalTokenDecimals))

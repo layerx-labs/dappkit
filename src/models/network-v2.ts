@@ -99,15 +99,15 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
   }
 
   async getDivisor() {
-    return this.callTx<number>(this.contract.methods.DIVISOR());
+    return Number(await this.callTx<bigint>(this.contract.methods.DIVISOR()));
   }
 
   async canceledBounties() {
-    return +(await this.callTx<number>(this.contract.methods.canceledBounties()));
+    return Number(await this.callTx<bigint>(this.contract.methods.canceledBounties()));
   }
 
   async closedBounties() {
-    return +(await this.callTx<number>(this.contract.methods.closedBounties()));
+    return Number(await this.callTx<bigint>(this.contract.methods.closedBounties()));
   }
 
   async treasuryInfo() {
@@ -127,25 +127,25 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
   }
 
   async oracleExchangeRate() {
-    return (await this.callTx<number>(this.contract.methods.oracleExchangeRate())) / this.divisor;
+    return Number(await this.callTx<bigint>(this.contract.methods.oracleExchangeRate())) / this.divisor;
   }
 
   /**
    * @returns number duration in milliseconds
    */
   async disputableTime() {
-    return +(await this.callTx<number>(this.contract.methods.disputableTime())) * Thousand;
+    return Number(await this.callTx<bigint>(this.contract.methods.disputableTime())) * Thousand;
   }
 
   /**
    * @returns number duration in milliseconds
    */
   async draftTime() {
-    return +(await this.callTx<number>(this.contract.methods.draftTime())) * Thousand;
+    return Number(await this.callTx<bigint>(this.contract.methods.draftTime())) * Thousand;
   }
 
   async bountiesIndex() {
-    return +(await this.callTx<number>(this.contract.methods.bountiesIndex()));
+    return Number(await this.callTx<bigint>(this.contract.methods.bountiesIndex()));
   }
 
   async disputes(address: string, bountyId: string | number, proposalId: string | number) {
@@ -156,20 +156,20 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
   }
 
   async mergeCreatorFeeShare() {
-    return (await this.callTx<number>(this.contract.methods.mergeCreatorFeeShare())) / this.divisor;
+    return Number(await this.callTx<bigint>(this.contract.methods.mergeCreatorFeeShare())) / this.divisor;
   }
 
   async proposerFeeShare() {
-    return (await this.callTx<number>(this.contract.methods.proposerFeeShare())) / this.divisor;
+    return Number(await this.callTx<bigint>(this.contract.methods.proposerFeeShare())) / this.divisor;
   }
 
   async oraclesDistributed() {
-    return fromSmartContractDecimals(await this.callTx(this.contract.methods.oraclesDistributed()), 
+    return fromSmartContractDecimals(await this.callTx<bigint>(this.contract.methods.oraclesDistributed()),
                                      this.networkToken.decimals);
   }
 
   async percentageNeededForDispute() {
-    return (await this.callTx<number>(this.contract.methods.percentageNeededForDispute())) / this.divisor;
+    return Number(await this.callTx<bigint>(this.contract.methods.percentageNeededForDispute())) / this.divisor;
   }
 
   async networkTokenAddress() {
@@ -303,7 +303,7 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
    */
   async getOraclesOf(_address: string) {
     const oracles = await this.callTx<{locked: number, byOthers: number}>(this.contract.methods.oracles(_address));
-    const value = new BigNumber(oracles.locked).plus(oracles.byOthers);
+    const value = new BigNumber(oracles.locked).plus(new BigNumber(oracles.byOthers));
     return fromSmartContractDecimals(value, this.networkToken.decimals);
   }
 
@@ -461,13 +461,13 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
                           userRepo: string,
                           userBranch: string,
                           cid: number) {
-    return this.sendTx(this.contract.methods.createPullRequest(forBountyId,
+    return this.sendTx(this.contract.methods.createPullRequest(BigInt(forBountyId),
                                                                originRepo,
                                                                originBranch,
                                                                originCID,
                                                                userRepo,
                                                                userBranch,
-                                                               cid));
+                                                               BigInt(cid)));
   }
 
   async cancelPullRequest(ofBounty: number, prId: number) {
@@ -511,7 +511,7 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
   }
 
   async cidBountyId(cid: string) {
-    return this.callTx<number>(this.contract.methods.cidBountyId(cid));
+    return Number(await this.callTx<bigint>(this.contract.methods.cidBountyId(cid)));
   }
 
   async getDelegationsOf(address: string): Promise<Delegation[]> {

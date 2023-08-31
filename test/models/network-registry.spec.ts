@@ -74,7 +74,7 @@ describe(`Network_Registry`, () => {
       it(`Test MAX_LOCK_PERCENTAGE_FEE should be equal to 99%`, async () => {             
         const maxLockPercentageFee = await registry.getMAX_LOCK_PERCENTAGE_FEE();        
 
-        expect(maxLockPercentageFee).to.eq((99000000).toString());
+        expect(maxLockPercentageFee).to.eq((99000000));
       });
 
       it(`Changes amount needed for network creation`, async () => {

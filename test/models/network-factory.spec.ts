@@ -1,9 +1,8 @@
-import {Network, NetworkFactory, Web3Connection, fromDecimals, toSmartContractDecimals} from '../../src';
-import {shouldBeRejected, defaultWeb3Connection, erc20Deployer, hasTxBlockNumber} from '../utils/';
+import {fromDecimals, Network, NetworkFactory, toSmartContractDecimals, Web3Connection} from '../../src';
+import {defaultWeb3Connection, erc20Deployer, expectEvent, hasTxBlockNumber, shouldBeRejected} from '../utils/';
 import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {Errors} from '../../src/interfaces/error-enum';
-import {EventLog} from "web3-eth-contract/lib/commonjs/types";
 
 describe(`NetworkFactory`, () => {
 
@@ -85,12 +84,8 @@ describe(`NetworkFactory`, () => {
     it(`Should lock and create a new network`, async () => {
       await networkFactory.approveSettlerERC20Token();
       await hasTxBlockNumber(networkFactory.lock(fromDecimals(cap)));
-      const tx = await networkFactory.createNetwork(networkToken!, networkToken!);
+      await expectEvent(networkFactory.createNetwork(networkToken!, networkToken!), 'CreatedNetwork', {opener: accountAddress});
       expect(await networkFactory.getAmountOfNetworksForked(), `Amount of networks`).to.eq(1);
-
-      const event = await networkFactory.contract.self.getPastEvents(`CreatedNetwork`, {filter: {transactionHash: tx.transactionHash}});
-      console.log(event);
-      expect((event[0] as EventLog).returnValues['opener'], `Event opener`).to.be.eq(accountAddress);
     });
 
     it(`Throws because one network per user`, async () => {

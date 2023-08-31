@@ -26,7 +26,6 @@
     "compile-contracts": "npx hardhat compile && npm run clean-contracts && npm run list-contract-size",
     "compile-ts": "tsc -p ./tsconfig.json && npm run fix-paths",
     "build": "npm run compile-contracts && npm run generate-typings && npm run compile-ts ",
-
     "docs": "typedoc",
     "hardhat:start": "npx hardhat node",
     "test-ci": "npm run hardhat:start >/dev/null & npm run test",

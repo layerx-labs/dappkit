@@ -78,11 +78,11 @@ export class Network_Registry extends Model<typeof artifact.abi> implements Depl
   }
 
   async getDivisor() {
-    return this.callTx<number>(this.contract.methods.DIVISOR());
+    return Number(await this.callTx<bigint>(this.contract.methods.DIVISOR()));
   }
 
   async getMAX_LOCK_PERCENTAGE_FEE() {
-    return this.callTx<number>(this.contract.methods.MAX_LOCK_PERCENTAGE_FEE());
+    return Number(await this.callTx<bigint>(this.contract.methods.MAX_LOCK_PERCENTAGE_FEE()));
   }
 
   async lockAmountForNetworkCreation() { 
@@ -91,7 +91,7 @@ export class Network_Registry extends Model<typeof artifact.abi> implements Depl
   }
 
   async lockedTokensOfAddress(v1: string) { 
-    return fromSmartContractDecimals(await this.callTx<number>(this.contract.methods.lockedTokensOfAddress(v1)),
+    return fromSmartContractDecimals(await this.callTx<bigint>(this.contract.methods.lockedTokensOfAddress(v1)),
                                      this.token.decimals);
   }
 
@@ -109,7 +109,7 @@ export class Network_Registry extends Model<typeof artifact.abi> implements Depl
   }
 
   async networkCreationFeePercentage() {
-    return +(await this.callTx<number>(this.contract.methods.networkCreationFeePercentage())) / this.divisor;
+    return Number(await this.callTx<bigint>(this.contract.methods.networkCreationFeePercentage())) / this.divisor;
   }
 
   async treasury() {
@@ -155,9 +155,9 @@ export class Network_Registry extends Model<typeof artifact.abi> implements Depl
 
   async getAllowedTokenLen(): Promise<number[]> {
     return Promise.all([
-      this.callTx<number>(this.contract.methods.getAllowedTokenLen(true)),
-      this.callTx<number>(this.contract.methods.getAllowedTokenLen(false)),
-    ]);
+      this.callTx<bigint>(this.contract.methods.getAllowedTokenLen(true)),
+      this.callTx<bigint>(this.contract.methods.getAllowedTokenLen(false)),
+    ]).then(p => p.map(v => Number(v)));
   }
 
   async getAllowedTokens() {

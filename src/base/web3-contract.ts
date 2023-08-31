@@ -193,7 +193,7 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
           transactionHandler(sendMethod(), resolve, reject, debug);
 
       } catch (e) {
-        console.error(e);
+        console.error(`signedTxError`, e);
         reject(e);
       }
     }).then((receipt) => this.parseReceiptLogs(receipt))

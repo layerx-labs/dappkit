@@ -127,7 +127,7 @@ export class StakingContract extends Model<typeof artifact.abi> implements Deplo
   }
 
   async getProductIds() {
-    return (await this.callTx<string[]>(this.contract.methods.getProductIds())).map(id => +id);
+    return (await this.callTx<bigint[]>(this.contract.methods.getProductIds())).map(id => Number(id));
   }
 
   async getMySubscriptions(_address: string) {
@@ -153,7 +153,7 @@ export class StakingContract extends Model<typeof artifact.abi> implements Deplo
   }
 
   async depositAPRTokens(amount: string | number) {
-    return this.erc20.transferTokenAmount(this.contractAddress!, amount);
+    return this.erc20.transfer(this.contractAddress!, amount);
   }
 
   async getAllProducts() {

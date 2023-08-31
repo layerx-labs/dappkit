@@ -6,6 +6,6 @@ export function proposalDetail({
 } : ProposalDetail): ProposalDetail {
   return {
     recipient,
-    percentage: +percentage
+    percentage: Number(percentage)
   };
 }

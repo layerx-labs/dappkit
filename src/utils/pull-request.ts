@@ -21,7 +21,7 @@ export function pullRequest({
     ready,
     canceled,
     creator,
-    cid: +cid,
-    id: +id
+    cid: Number(cid),
+    id: Number(id)
   };
 }

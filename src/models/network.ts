@@ -39,11 +39,11 @@ export class Network extends Model<typeof artifact.abi> implements Deployable {
   }
 
   async getAmountOfIssuesOpened(): Promise<number> {
-    return +(await this.callTx<string>(await this.contract.methods.incrementIssueID()));
+    return Number(await this.callTx<bigint>(await this.contract.methods.incrementIssueID()));
   }
 
   async getAmountOfIssuesClosed() {
-    return +(await this.callTx<string>(await this.contract.methods.closedIdsCount()));
+    return Number(await this.callTx<bigint>(await this.contract.methods.closedIdsCount()));
   }
 
   async getOraclesByAddress(address: string) {
@@ -68,23 +68,23 @@ export class Network extends Model<typeof artifact.abi> implements Deployable {
   }
 
   async percentageNeededForDispute() {
-    return +(await this.callTx<string>(this.contract.methods.percentageNeededForDispute()));
+    return Number(await this.callTx<bigint>(this.contract.methods.percentageNeededForDispute()));
   }
 
   async mergeCreatorFeeShare() {
-    return +(await this.callTx<string>(this.contract.methods.mergeCreatorFeeShare()));
+    return Number(await this.callTx<bigint>(this.contract.methods.mergeCreatorFeeShare()));
   }
 
   async disputesForMergeByAddress(issueId: number, proposalId: number, address: string) {
-    return +(await this.callTx<string>(this.contract.methods.disputesForMergeByAddress(issueId, proposalId, address)));
+    return Number(await this.callTx<bigint>(this.contract.methods.disputesForMergeByAddress(issueId, proposalId, address)));
   }
 
   async disputableTime() {
-    return +(await this.callTx<string>(this.contract.methods.disputableTime()));
+    return Number(await this.callTx<bigint>(this.contract.methods.disputableTime()));
   }
 
   async redeemTime() {
-    return +(await this.callTx<string>(this.contract.methods.redeemTime()))
+    return Number(await this.callTx<string>(this.contract.methods.redeemTime()))
   }
 
   async getTokensStaked() {

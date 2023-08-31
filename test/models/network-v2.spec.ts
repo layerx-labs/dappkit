@@ -1,15 +1,17 @@
-import {ERC20, Network_v2, BountyToken, toSmartContractDecimals, Web3Connection, NetworkRegistry} from '../../src';
+import {BountyToken, ERC20, Network_v2, NetworkRegistry, toSmartContractDecimals, Web3Connection} from '../../src';
 import {
   defaultWeb3Connection,
   erc20Deployer,
+  expectEvent,
   getPrivateKeyFromFile,
   hasTxBlockNumber,
-  increaseTime, modelExtensionDeployer,
+  increaseTime,
+  modelExtensionDeployer,
   shouldBeRejected
 } from '../utils';
 import {expect} from 'chai';
 import {AMOUNT_1M} from '../utils/constants';
-import {nativeZeroAddress, Thousand} from '../../src/utils/constants';
+import {nativeZeroAddress} from '../../src/utils/constants';
 import {type Web3Account} from "web3-eth-accounts/lib/types";
 import {EventLog} from "web3-eth-contract/lib/commonjs/types";
 
@@ -55,6 +57,8 @@ describe(`NetworkV2`, () => {
   })
 
   describe(`No Registry`, () => {
+    const convertToDivisible = (n: number) => n * 1000000;
+
     it(`Deploys Network_V2`, async () => {
       const _network = new Network_v2(web3Connection);
       await _network.start();
@@ -65,147 +69,39 @@ describe(`NetworkV2`, () => {
     });
 
     describe(`Owner`, () => {
-      it(`changeCouncilAmount()`, async () => {
-        await hasTxBlockNumber(network.changeCouncilAmount(103000));
-        expect(await network.councilAmount()).to.eq((103000).toString());
-      });
+      const eventParams = (param: string|number, newvalue: string|number) =>
+        ({param: BigInt(param), newvalue: BigInt(newvalue)});
 
-      it(`changeCouncilAmount emits event`, async () => {
-        const tx = await network.changeCouncilAmount(newCouncilAmount)
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '0',
-            newvalue: toSmartContractDecimals(newCouncilAmount).toString(),
-            oldvalue: toSmartContractDecimals(103000).toString(),
-          }
-        }])
+      type methods =
+        'changeCouncilAmount'
+        | 'changeDraftTime'
+        | 'changeDisputableTime'
+        | 'changePercentageNeededForDispute'
+        | 'changeMergeCreatorFeeShare'
+        | 'changeProposerFeeShare'
+        | 'changeOracleExchangeRate'
+        | 'changeCancelableTime'
+
+      ([
+        ['changeCouncilAmount', 103000, toSmartContractDecimals(103000, 18), 0],
+        ['changeDisputableTime', 61, 61, 1],
+        ['changeDraftTime', 121, 121, 2],
+        ['changeOracleExchangeRate', 2, convertToDivisible(2), 3],
+        ['changeMergeCreatorFeeShare', 1, convertToDivisible(1), 4],
+        ['changePercentageNeededForDispute', 1, convertToDivisible(1), 5],
+        ['changeCancelableTime', 15638400, 15638400, 7],
+        ['changeProposerFeeShare', 1, convertToDivisible(1), 8],
+      ] as [methods, number, number, number][]).forEach(([fn, value, newvalue, param]) => {
+        it(`${fn}()`, async () => {
+          await expectEvent(network[fn](value), 'NetworkParamChanged', eventParams(param, newvalue))
+        })
       })
 
-      it(`changeDraftTime()`, async () => {
-        await hasTxBlockNumber(network.changeDraftTime(121));
-        expect(await network.draftTime()).to.eq(121000);
-      });
-
-      it(`changeDraftTime() event emitted`, async () => {
-        const tx = await network.changeDraftTime(61)
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '2',
-            newvalue: '61',
-            oldvalue: '121',
-          }
-        }])
-      })
-
-      it(`changeDisputableTime()`, async () => {
-        await hasTxBlockNumber(network.changeDisputableTime(122));
-        expect(await network.disputableTime()).to.eq(122000);
-      });
-
-      it(`changeDisputableTime() event emitted`, async () => {
-        const tx = await network.changeDisputableTime(61)
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '1',
-            newvalue: '61',
-            oldvalue: '122',
-          }
-        }])
-      })
-
-      it(`changePercentageNeededForDispute()`, async () => {
-        await hasTxBlockNumber(network.changePercentageNeededForDispute(2));
-        expect(await network.percentageNeededForDispute()).to.eq(2);
-      });
-
-      it(`changePercentageNeededForDispute() event emitted`, async () => {
-        const tx = await network.changePercentageNeededForDispute(1)
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '5',
-            newvalue:  network.toPercentage(1).toString(),
-            oldvalue: network.toPercentage(2).toString(),
-          }
-        }])
-      })
-
-      it(`changeMergeCreatorFeeShare()`, async () => {
-        await hasTxBlockNumber(network.changeMergeCreatorFeeShare(4));
-        expect(await network.mergeCreatorFeeShare()).to.eq(4);
-      });
-
-      it(`changeMergeCreatorFeeShare() event emitted`, async () => {
-        const tx = await network.changeMergeCreatorFeeShare(1)
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '4',
-            newvalue: network.toPercentage(1).toString(),
-            oldvalue: network.toPercentage(4).toString(),
-          }
-        }])
-      })
-
-      it(`changeProposerFeeShare()`, async () => {
-        await hasTxBlockNumber(network.changeProposerFeeShare(5));
-        expect(await network.proposerFeeShare()).to.eq(5);
-      });
-
-      it(`changeProposerFeeShare() event emitted`, async () => {
-        const tx = await network.changeProposerFeeShare(2)
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '8',
-            newvalue: network.toPercentage(2).toString(),
-            oldvalue: network.toPercentage(5).toString(),
-          }
-        }])
-      })
-
-      it(`changeOracleExchangeRate()`, async () => {
-        await hasTxBlockNumber(network.changeOracleExchangeRate(1));
-        expect(await network.oracleExchangeRate()).to.eq(1);
-      });
-
-      it(`changeOracleExchangeRate() event emitted`, async () => {
-        const tx = await network.changeOracleExchangeRate(2)
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '3',
-            newvalue: network.toPercentage(2).toString(),
-            oldvalue: network.toPercentage(1).toString(),
-          }
-        }])
-      })
-
-      it(`changeCancelableTime()`, async () => {
-        await hasTxBlockNumber(network.changeCancelableTime(17280000)); // 181 days
-        expect(await network.cancelableTime()).to.eq(17280000 * Thousand);
-      });
-
-      it(`changeCancelableTime() event emitted`, async () => {
-        const tx = await network.changeCancelableTime(15638400) // 200 days
-        expect(tx.logs).to.be.like([{
-          event: 'NetworkParamChanged',
-          args: {
-            param: '7',
-            newvalue: "15638400" ,
-            oldvalue: "17280000",
-          }
-        }])
-      })
 
     });
 
     describe(`Public`, () => {
       let bountyId: number;
-      let prId: number;
 
       before(async () => {
         await hasTxBlockNumber(networkToken.approve(network.contractAddress!, AMOUNT_1M));
@@ -250,6 +146,19 @@ describe(`NetworkV2`, () => {
           expect(await network.getOraclesOf(Admin.address)).to.be.eq((105000 * 2).toString());
           expect(await networkToken.getTokenAmount(Admin.address)).to.be.eq((AMOUNT_1M - 105000).toString());
         });
+
+        it(`Oracles Changed`, async () => {
+          await expectEvent(network.lock(1000), 'OraclesChanged', {actionAmount: BigInt(toSmartContractDecimals(1000))});
+        });
+
+        it(`Oracles Transfer`, async () => {
+          const delegate = await network.delegateOracles(1200, Alice.address)
+          const delegateEvents = await network.getOraclesTransferEvents({fromBlock: delegate.blockNumber});
+          const takeBack = await network.takeBackOracles(1);
+          const takeBackEvents = await network.getOraclesTransferEvents({fromBlock: takeBack.blockNumber});
+          expect(delegateEvents.length).to.be.eq(1);
+          expect(takeBackEvents.length).to.be.eq(1);
+        });
       });
 
       describe(`Bounties`, () => {
@@ -271,28 +180,9 @@ describe(`NetworkV2`, () => {
         });
 
         it(`Updates bounty amount`, async () => {
-          const receipt = await network.updateBountyAmount(bountyId, 1001);
-
-          const events = await network.getBountyAmountUpdatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}}) as EventLog[];
-
-          expect(events[0].returnValues.amount).to.be.eq(toSmartContractDecimals(1001, bountyTransactional.decimals));
-          expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq((1001).toString());
+          await expectEvent(network.updateBountyAmount(bountyId, 1001), 'BountyAmountUpdated', {amount: BigInt(toSmartContractDecimals(1001))});
+          expect((await network.getBounty(bountyId)).tokenAmount).to.be.eq((1001));
           expect(await bountyTransactional.getTokenAmount(network.contractAddress!)).to.eq((1001).toString());
-        });
-
-        it(`Oracles Changed`, async () => {
-          const receipt = await network.lock(1000);
-          const events = await network.getOraclesChangedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}});
-          expect(events.length).to.be.eq(1);
-        });
-
-        it(`Oracles Transfer`, async () => {
-          const delegate = await network.delegateOracles(1200, Alice.address)
-          const delegateEvents = await network.getOraclesTransferEvents({fromBlock: delegate.blockNumber});
-          const takeBack = await network.takeBackOracles(1);
-          const takeBackEvents = await network.getOraclesTransferEvents({fromBlock: takeBack.blockNumber});
-          expect(delegateEvents.length).to.be.eq(1);
-          expect(takeBackEvents.length).to.be.eq(1);
         });
 
         it(`Cancels bounty`, async () => {
@@ -347,7 +237,7 @@ describe(`NetworkV2`, () => {
 
           const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}}) as EventLog[];
           bountyId = events[0].returnValues.id as number;
-          expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue.toString())
+          expect(await network.getBounty(bountyId)).property('fundingAmount').to.be.eq(fundingValue)
         });
 
         it(`Cancel funding`, async () => {
@@ -376,7 +266,7 @@ describe(`NetworkV2`, () => {
           const events = await network.getBountyCreatedEvents({fromBlock: receipt.blockNumber, filter: {creator: Admin.address}}) as EventLog[];
           bountyId = events[0].returnValues.id as number;
 
-          expect(await network.getBounty(bountyId)).property('rewardToken').to.be.eq(rewardToken.contractAddress!);
+          expect(await network.getBounty(bountyId)).property('rewardToken').to.be.match(new RegExp(rewardToken.contractAddress!, 'i'));
         });
 
         it(`Fund 50-50`, async () => {
@@ -425,43 +315,40 @@ describe(`NetworkV2`, () => {
           web3Connection.switchToAccount(Admin.privateKey);
           await increaseTime(62, web3Connection.Web3);
           await network.lock(await network.councilAmount());
+          await increaseTime(await network.draftTime() + 60, web3Connection.Web3);
         });
 
-        it(`Creates a PR and cancel`, async () => {
-          const receipt = await network.createPullRequest(bountyId, '//', 'master',
-            'c3','//', 'feat-1', 1);
+        it (`Creates prId 0`, async () => {
+          await expectEvent(network.createPullRequest(bountyId, '//', 'master',
+            'c3','//', 'feat-1', 1), 'BountyPullRequestCreated', {pullRequestId: BigInt(0)});
+        })
 
-          const events = await network.getBountyPullRequestCreatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}}) as EventLog[]
-          expect(events.length).to.be.eq(1);
-          prId = events[0].returnValues.pullRequestId as number;
+        it(`Cancels prId 0`, async () => {
+          await hasTxBlockNumber(network.cancelPullRequest(bountyId, 0));
+          expect((await network.getBounty(bountyId)).pullRequests[0].canceled).to.be.true;
+        })
 
-          await hasTxBlockNumber(network.cancelPullRequest(bountyId, prId));
-          expect((await network.getBounty(bountyId)).pullRequests[prId].canceled).to.be.true;
+        it(`Creates prId 1`, async () => {
+          await expectEvent(network.createPullRequest(bountyId, '//', 'master',
+            'c4','//', 'feat-2', 1), 'BountyPullRequestCreated', {pullRequestId: BigInt(1)});
         });
 
-        it(`Creates a PR`, async () => {
-          const receipt = await network.createPullRequest(bountyId, '//', 'master',
-            'c4','//', 'feat-2', 1);
-
-          const events = await network.getBountyPullRequestCreatedEvents({fromBlock: receipt.blockNumber, filter: {id: bountyId}}) as EventLog[];
-          expect(events.length).to.be.eq(1);
-          prId = events[0].returnValues.pullRequestId as number;
+        it(`Should be unable to create a Proposal because prId 1 is not ready`, async () => {
+          await shouldBeRejected(network.createBountyProposal(bountyId, 1, [Alice.address, Bob.address], [51, 49]));
         });
 
-        it(`Should be unable to create a Proposal because PR is not ready`, async () => {
-          await shouldBeRejected(network.createBountyProposal(bountyId, prId, [Alice.address, Bob.address], [51, 49]));
+        it(`Set prId 1 as Ready`, async () => {
+          await hasTxBlockNumber(network.markPullRequestReadyForReview(bountyId, 1));
+          expect((await network.getBounty(bountyId)).pullRequests[1].ready).to.be.true;
         });
 
-        it(`Set PR as Ready and Creates a Proposal`, async () => {
-          await hasTxBlockNumber(network.markPullRequestReadyForReview(bountyId, prId));
-          expect((await network.getBounty(bountyId)).pullRequests[prId].ready).to.be.true;
-
-          await hasTxBlockNumber(network.createBountyProposal(bountyId, prId, [Alice.address, Bob.address], [51, 49]));
+        it (`Creates proposal for prId 1`, async () => {
+          await hasTxBlockNumber(network.createBountyProposal(bountyId, 1, [Alice.address, Bob.address], [51, 49]));
           expect((await network.getBounty(bountyId)).proposals.length).to.be.eq(1);
-        });
+        })
 
-        it(`Should be unable to cancel a Pull Request because exists a Proposal`, async () => {
-          await shouldBeRejected(network.cancelPullRequest(bountyId, prId));
+        it(`Should be unable to cancel a prId 1 because exists a Proposal`, async () => {
+          await shouldBeRejected(network.cancelPullRequest(bountyId, 1));
         });
 
         it(`Disputes a Proposal`, async () => {

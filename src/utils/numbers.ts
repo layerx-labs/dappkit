@@ -51,5 +51,5 @@ export function toSmartContractDate(date: number|Date) {
  * @return {Date}
  */
 export function fromSmartContractDate(date: number) {
-  return +new Date(date*1000);
+  return +new Date(Number(date)*1000);
 }
