@@ -64,4 +64,8 @@ $ git commit -m "MESSAGE"
 $ git push origin master
 ```
 
+---
+
+[Read on how to create models and integration tests](./how-to/contributing);
+
 If you have any comment or ideas in terms of making this process better, please let us know or submit a PR.
