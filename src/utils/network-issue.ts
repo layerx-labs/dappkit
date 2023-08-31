@@ -13,7 +13,7 @@ export default function networkIssue({'0': _id, '1': cid, '2': creationDate, '3'
                                      decimals = 18): NetworkIssue {
   return {
     _id, cid, issueGenerator, finalized, canceled, recognizedAsFinished,
-    creationDate: creationDate * 1000,
+    creationDate: Number(creationDate) * 1000,
     tokensStaked: fromDecimals(tokensStaked, decimals),
     mergeProposalAmount: mergeProposalsAmount,
   }

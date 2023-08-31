@@ -64,8 +64,8 @@ describe(`Network`, () => {
       const _settler = await network.getSettlerTokenAddress();
       const _transaction = await network.getTransactionTokenAddress();
 
-      expect(_settler).to.be.eq(settlerToken);
-      expect(_transaction).to.be.eq(transactionToken);
+      expect(_settler).to.be.match(new RegExp(settlerToken, 'i'));
+      expect(_transaction).to.be.match(new RegExp(transactionToken, 'i'));
     });
 
     it(`Approves settler`, async () => {
@@ -77,9 +77,9 @@ describe(`Network`, () => {
 
       const events = await network.settlerToken.contract.self.getPastEvents(`Approval`, {fromBlock: settler.blockNumber}) as EventLog[];
 
-      expect(events[0].returnValues['spender']).to.be.eq(networkContractAddress);
-      expect(events[0].returnValues['owner']).to.be.eq(accountAddress);
-      expect(events[0].returnValues['value']).to.be.eq(cap);
+      expect(events[0].returnValues['spender']).to.be.match(new RegExp(networkContractAddress, 'i'));
+      expect(events[0].returnValues['owner']).to.be.match(new RegExp(accountAddress), 'i');
+      expect(events[0].returnValues['value']).to.be.eq(BigInt(cap));
     });
 
     it(`Approves transactional`, async () => {
