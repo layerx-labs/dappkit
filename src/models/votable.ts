@@ -2,7 +2,7 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import {ERC20} from '@models/erc20';
+import {ERC20} from '@models/token/ERC20/erc20';
 import {fromDecimals, toSmartContractDecimals} from '@utils/numbers';
 import voterInfo from '@utils/voter-info';
 import votingPollWinner from '@utils/voting-poll-winner';

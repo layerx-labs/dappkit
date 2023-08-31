@@ -21,7 +21,7 @@ export default {
 
   /* file to be excluded */
   exclude: [
-    /^[_I]/,
-    /\.dbg\.json$/i
+    /^[_I]/, // eagerly ignore _?Interfaces
+    /\.dbg\.json$/i // and ignore the dbg file created by hardhat
   ],
 }

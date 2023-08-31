@@ -1,13 +1,13 @@
 import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
-import {ERC20} from '@models/erc20';
+import {ERC20} from '@models/token/ERC20/erc20';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
 
 import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers';
 import {nativeZeroAddress} from "@utils/constants";
 import {Governed} from "@base/governed";
-import {BountyToken} from "@models/bounty-token";
+import {BountyToken} from "@models/bepro/ERC721/bounty-token";
 import artifact from "@interfaces/generated/abi/NetworkRegistry";
 import {Filter} from "web3";
 import {ContractConstructorArgs} from "web3-types";

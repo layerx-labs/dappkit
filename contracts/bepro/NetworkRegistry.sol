@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./INetworkV2.sol";
 import "../../utils/Governed.sol";
-import "./BountyToken.sol";
+import "./token/ERC721/BountyToken.sol";
 
 /*
  * The NetworkRegistry acts as a registry for @INetworkV2, allowing registering and closing of new networks, by using

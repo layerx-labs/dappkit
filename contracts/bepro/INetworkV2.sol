@@ -1,6 +1,6 @@
 pragma abicoder v2;
 
-import "./BountyToken.sol";
+import "./token/ERC721/BountyToken.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./NetworkRegistry.sol";
 

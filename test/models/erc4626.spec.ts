@@ -7,7 +7,7 @@ import {
 } from "../utils";
 import {ERC20, Web3Connection} from "../../src";
 
-import {ERC4626} from "../../src/models/erc4626";
+import {ERC4626} from "../../src/models/token/ERC4626/erc4626";
 import {expect} from "chai";
 import {type Web3Account} from "web3-eth-accounts/lib/types";
 import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
