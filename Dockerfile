@@ -32,12 +32,6 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.38.0/install.sh | b
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
 
-RUN apt-get -y update
-RUN apt-get install -y g++ make python2
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 1
-RUN update-alternatives --config python
-RUN npm config set python python
-
 WORKDIR /app
 
 COPY package*.json ./
@@ -46,6 +40,3 @@ RUN npm i
 COPY . .
 
 RUN npm run-script build
-
-EXPOSE  9012
-CMD npm run watch
