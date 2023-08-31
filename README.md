@@ -1,8 +1,8 @@
 # dappkit
 A javascript SDK for web3 projects with curated community contracts to ease development and interactions with blockchain contracts. 
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/taikai/dappkit/integration-tests.yml)
-[![GitHub issues](https://img.shields.io/github/issues/taikai/dappkit)](https://GitHub.com/taikai/dappkit/issues/)
+![Build Status](https://img.shields.io/github/actions/workflow/status/layerx-labs/dappkit/integration-tests.yml)
+[![GitHub issues](https://img.shields.io/github/issues/layerx-labs/dappkit)](https://GitHub.com/taikai/dappkit/issues/)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
 [![License](https://img.shields.io/badge/license-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
