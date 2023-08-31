@@ -40,3 +40,5 @@ RUN npm i
 COPY . .
 
 RUN npm run-script build
+
+RUN npm run-script docs

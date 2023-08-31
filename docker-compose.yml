@@ -7,13 +7,10 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - "./src:/app/src"
-      - "./build:/app/build"
+      - "./build:/app/dist"
       - "./package.json:/app/package.json"
       - "./docs:/app/docs"
-      - "./docs-src:/app/docs-src"
       - "./contracts:/app/contracts"
-      - "./tests:/app/tests"
-      - "./migrations:/app/migrations"
+      - "./tests:/app/test"
       - "./hardhat.config.js:/app/hardhat.config.js"
-      - "./index.js:/app/index.js"
       - "./README.md:/app/README.md"
