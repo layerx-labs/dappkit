@@ -2,7 +2,7 @@ pragma solidity >=0.6.0;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../utils/Governed.sol";
+import "../../utils/Governed.sol";
 import "./INetworkV2.sol";
 
 /*

@@ -3,7 +3,7 @@ pragma solidity >=0.6.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "../utils/Governed.sol";
+import "../../utils/Governed.sol";
 
 /**
  * @dev Interface of the ERC20 standard + mint & burn

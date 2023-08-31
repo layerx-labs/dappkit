@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./INetworkV2.sol";
-import "../utils/Governed.sol";
+import "../../utils/Governed.sol";
 import "./BountyToken.sol";
 
 /*

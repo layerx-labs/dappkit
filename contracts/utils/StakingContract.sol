@@ -2,10 +2,11 @@
 
 pragma solidity >=0.6.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./utils/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./Ownable.sol";
 
 contract StakingContract is Pausable, Ownable {
     using SafeMath for uint256;
@@ -18,7 +19,7 @@ contract StakingContract is Pausable, Ownable {
 
     uint256 constant private year = 365 days;
 
-    ERC20 public erc20;
+    IERC20 public erc20;
 
     address public erc721;
 
@@ -54,7 +55,7 @@ contract StakingContract is Pausable, Ownable {
 
 
     constructor(address _tokenAddress, address _nftAddress) public {
-        erc20 = ERC20(_tokenAddress);
+        erc20 = IERC20(_tokenAddress);
         erc721 = _nftAddress;
     }
 
@@ -241,6 +242,6 @@ contract StakingContract is Pausable, Ownable {
 
     function changeTokenAddress(address _tokenAddress) external onlyOwner whenPaused  {
         /* If Needed to Update the Token Address (ex : token swap) */
-        erc20 = ERC20(_tokenAddress);
+        erc20 = IERC20(_tokenAddress);
     }
 }

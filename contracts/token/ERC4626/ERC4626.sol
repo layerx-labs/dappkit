@@ -6,9 +6,9 @@ pragma solidity >=0.6.0;
 import "@openzeppelin/contracts/math/Math.sol";
 import "./IERC4626.sol";
 import "../../math/SaferMath.sol";
-import "../../ERC20.sol";
+import "../ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../../IERC20View.sol";
+import "../ERC20/IERC20View.sol";
 
 
 contract ERC4626 is ERC20 {
