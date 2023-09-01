@@ -33,6 +33,7 @@ jobs:
 
       - name: Create keys
         run: echo "$KEYS_JSON" >> keys.json
+        shell: bash
         env:
           KEYS_JSON: ${{secrets.KEYS_JSON}}
 
