@@ -44,9 +44,7 @@ export * from '@events/x-events';
 export * from '@events/network-events';
 export * from '@events/erc4626';
 
-export * from '@utils/block-number-timestamp';
 export * from '@utils/locked-tokens-info';
-export * from '@utils/network-issue';
 export * from '@utils/numbers';
 export * from '@utils/pool-information';
 export * from '@utils/stake-subscription';
