@@ -51,7 +51,7 @@ jobs:
           cache-name: dist
         with:
           path: ~/dist
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ GITHUB_SHA  }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ github.sha  }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
