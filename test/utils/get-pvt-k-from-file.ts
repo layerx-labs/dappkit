@@ -12,5 +12,5 @@ export function getPrivateKeyFromFile(index = 0) {
   if (existsSync(resolve('./keys.json')))
     return Object.values(JSON.parse(readFileSync(resolve('./keys.json'), 'utf-8')).private_keys)[index] as string;
   const accounts = config.networks.hardhat.accounts as HardhatNetworkHDAccountsConfig;
-  return deriveKeyFromMnemonicAndPath(process.env.CI_MNEMONIC!, accounts.path + `/${index}`, accounts.passphrase)!;
+  return deriveKeyFromMnemonicAndPath(process.env.CI_MNEMONIC! || accounts.mnemonic, accounts.path + `/${index}`, accounts.passphrase)!;
 }
