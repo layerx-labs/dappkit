@@ -6,21 +6,19 @@ const {readFileSync, existsSync} = require("fs");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-const {DEV_PRIVATE_KEY} = process.env;
+const {CI_MNEMONIC} = process.env;
+const ACCOUNT_BALANCE = "10000000000000000000000";
 
-const account = (privateKey, balance = "10000000000000000000000") =>
-  ({privateKey, balance})
+const account = (privateKey) =>
+  ({privateKey, balance: ACCOUNT_BALANCE})
 
 const accounts = [];
 let moreNetworks = {};
 
-if (DEV_PRIVATE_KEY)
-  accounts.push(account(DEV_PRIVATE_KEY));
-
 if (existsSync('./keys.json'))
   accounts
     .push(...Object.values(JSON.parse(readFileSync('./keys.json', {encoding: 'utf-8'}))?.private_keys)
-      .map(pvtKey => account(pvtKey)))
+      .map(account))
 
 if (existsSync('./networks.json'))
   moreNetworks = JSON.parse(readFileSync('./.networks.json', {encoding: "utf-8"}));
@@ -38,7 +36,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      accounts,
+      ... accounts.length ? {accounts} : {mnemonic: CI_MNEMONIC, accountsBalance: ACCOUNT_BALANCE, count: 10 }
     },
     ... moreNetworks,
   }

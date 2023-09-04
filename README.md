@@ -34,7 +34,7 @@ It's possible to provide [more options](https://sdk.dappkit.dev/interfaces/Web3C
 ```ts
 import {ERC20} from '@layerx-labs/dappkit';
 
-const erc20 = new ERC20({ web3Host: process.env.WEB3_HOST_PROVIDER });
+const erc20 = new ERC20({ web3Host: 'http://rpc.tld' });
 
 await erc20.deployJsonAbi(
   'Token Name', // the name of the token
