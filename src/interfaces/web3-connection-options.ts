@@ -16,7 +16,7 @@ export interface Web3ConnectionOptions {
    * Provide a privateKey to automatically use that account when started
    * If not provided, only read-mode will be possible
    */
-  privateKey?: string;
+  privateKey?: string|Uint8Array;
 
   /**
    * Pass options a socket to the custom provider if needed

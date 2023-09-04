@@ -13,16 +13,11 @@ const account = (privateKey) =>
   ({privateKey, balance: ACCOUNT_BALANCE})
 
 const accounts = [];
-let moreNetworks = {};
 
 if (existsSync('./keys.json'))
   accounts
     .push(...Object.values(JSON.parse(readFileSync('./keys.json', {encoding: 'utf-8'}))?.private_keys)
       .map(account))
-
-if (existsSync('./networks.json'))
-  moreNetworks = JSON.parse(readFileSync('./.networks.json', {encoding: "utf-8"}));
-
 
 module.exports = {
   solidity: {
@@ -38,6 +33,5 @@ module.exports = {
     hardhat: {
       ... accounts.length ? {accounts} : {mnemonic: CI_MNEMONIC, accountsBalance: ACCOUNT_BALANCE, count: 10 }
     },
-    ... moreNetworks,
   }
 };

@@ -116,7 +116,7 @@ export class Web3Connection {
   async sendNativeToken(to: string, amount: number) {
     const data = {
       from: await this.getAddress(), to,
-      value: this.utils?.toWei(amount.toString(), "ether")
+      value: this.utils?.toWei(amount, "ether")
     };
 
     return this.eth?.sendTransaction(data)
