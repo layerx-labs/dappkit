@@ -47,10 +47,7 @@ describe(`Web3Connection`, () => {
 
     it(`Sends native token to another address`, async () => {
       const AliceAddress = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1))?.address;
-      console.log(`Alice`, AliceAddress);
       const balance = await web3Connection.getBalance(AliceAddress);
-      console.log(`Alice balance`, balance);
-      console.log(`Owner address`, await web3Connection.getAddress())
       await web3Connection.sendNativeToken(AliceAddress, 1);
       expect(await web3Connection.getBalance(AliceAddress)).to.be.eq((Number(balance)+1).toString())
     })
