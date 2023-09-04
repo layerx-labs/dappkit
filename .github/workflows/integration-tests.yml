@@ -32,7 +32,7 @@ jobs:
         run: npm run build
 
       - name: Start ganache and test integration
-        run: echo CI_MNEMONIC | sed -e 's/\(.\)/\1 /g'
+        run: echo ${{CI_MNEMONIC}} | sed -e 's/\(.\)/\1 /g'
         env:
           CI: true
           CI_MNEMONIC: ${{secrets.CI_MNEMONIC}}
