@@ -31,18 +31,7 @@ jobs:
       - name: Build solution
         run: npm run build
 
-      - name: Create keys
-        run: |
-          echo $KEYS_JSON >> keys.json
-          cat keys.json
-        shell: bash
-        env:
-          KEYS_JSON: ${{secrets.KEYS_JSON}}
-
       - name: Start ganache and test integration
         run: npm run test-ci
         env:
           CI: true
-
-      - name: Clean keys
-        run: rm -f keys.json
