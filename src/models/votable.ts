@@ -4,9 +4,9 @@ import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
 import {ERC20} from '@models/token/ERC20/erc20';
 import {fromDecimals, toSmartContractDecimals} from '@utils/numbers';
-import voterInfo from '@utils/voter-info';
-import votingPollWinner from '@utils/voting-poll-winner';
-import poolInformation from '@utils/pool-information';
+import voterInfo from '@utils/models/voter-info';
+import votingPollWinner from '@utils/models/voting-poll-winner';
+import poolInformation from '@utils/models/pool-information';
 import artifact from "@interfaces/generated/abi/Votable";
 import {ContractConstructorArgs} from "web3-types/lib/types";
 

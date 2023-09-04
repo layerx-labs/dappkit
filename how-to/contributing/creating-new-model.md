@@ -37,7 +37,7 @@ contract and these can be imported from `@utils/numbers.ts`
 | toSmartContractDecimals   | convert a simple number into a (text) big number representation | [erc20.ts](../../src/models/token/ERC20/erc20.ts#L42)                            |
 | fromSmartContractDecimals | convert a ERC20 token value into javascript number              | [erc20.ts](../../src/models/token/ERC20/erc20.ts#L47)                            |
 | toSmartContractDate       | converts a javascript date (ms) to a smart contract date (s)    | [erc20-distribution.ts](../../src/models/token/ERC20/erc20-distribution.ts#L109) |
-| fromSmartContractDate     | converts from a smart contract date (s) to javascript date (ms) | [staking-product.ts](../../src/utils/staking-product.ts#L25)         |
+| fromSmartContractDate     | converts from a smart contract date (s) to javascript date (ms) | [staking-product.ts](../../src/utils/models/staking-product.ts#L25)         |
 
 
 For constant values, there is the `@utils/constants.ts` file that's self-explanatory.

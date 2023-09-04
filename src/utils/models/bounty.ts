@@ -1,9 +1,9 @@
 import { Bounty } from "@interfaces/bepro/bounty";
 import { Thousand } from "@utils/constants";
 import { fromDecimals } from "@utils/numbers";
-import { proposal } from "@utils/proposal";
-import { pullRequest } from "@utils/pull-request";
-import { benefactor } from "@utils/benefactor";
+import { proposal } from "@utils/models/proposal";
+import { pullRequest } from "@utils/models/pull-request";
+import { benefactor } from "@utils/models/benefactor";
 
 export function bounty({
   creationDate,

@@ -9,10 +9,10 @@ import {fromSmartContractDecimals, toSmartContractDecimals} from '@utils/numbers
 import {nativeZeroAddress, Thousand} from '@utils/constants';
 import {OraclesResume} from '@interfaces/bepro/oracles-resume';
 import {Delegation} from '@interfaces/bepro/delegation';
-import {oraclesResume} from '@utils/oracles-resume';
-import {bounty} from '@utils/bounty';
-import {treasuryInfo} from '@utils/treasury-info';
-import {delegationEntry} from "@utils/delegation";
+import {oraclesResume} from '@utils/models/oracles-resume';
+import {bounty} from '@utils/models/bounty';
+import {treasuryInfo} from '@utils/models/treasury-info';
+import {delegationEntry} from "@utils/models/delegation";
 import {NetworkRegistry} from "@models/bepro/network-registry";
 import BigNumber from "bignumber.js";
 import artifact from "@interfaces/generated/abi/NetworkV2";

@@ -6,7 +6,7 @@ import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Errors} from '@interfaces/error-enum';
 import {ERC20} from '@models/token/ERC20/erc20';
 import {fromDecimals, toSmartContractDate, toSmartContractDecimals} from '@utils/numbers';
-import {lockedTokensInfo} from '@utils/locked-tokens-info';
+import {lockedTokensInfo} from '@utils/models/locked-tokens-info';
 import {Ownable} from '@base/ownable';
 import {IsOwnable} from '@interfaces/modifiers';
 import artifact from "@interfaces/generated/abi/ERC20TokenLock";

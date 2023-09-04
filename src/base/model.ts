@@ -7,7 +7,7 @@ import {TransactionReceipt} from '@interfaces/web3-core';
 import {Web3Contract} from './web3-contract';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 
-import {transactionHandler} from '@utils/transaction-handler';
+import {transactionHandler} from '@utils/models/transaction-handler';
 
 import {NonPayableMethodObject, PayableMethodObject} from "web3-eth-contract/src/types";
 import DeployOptions from "@interfaces/contract/deploy-options";

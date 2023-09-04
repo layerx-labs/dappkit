@@ -3,7 +3,7 @@ import {Contract,} from 'web3-eth-contract';
 import Web3, {ContractAbi, FMT_BYTES, FMT_NUMBER, Web3BaseWalletAccount} from 'web3';
 import {Log, TransactionReceipt} from '@interfaces/web3-core';
 import {Errors} from '@interfaces/error-enum';
-import {transactionHandler} from '@utils/transaction-handler';
+import {transactionHandler} from '@utils/models/transaction-handler';
 import {Web3ConnectionOptions} from "@interfaces/web3-connection-options";
 import {AbiEventFragment, AbiFragment} from "web3-types/src/eth_abi_types";
 import DeployOptions from "@interfaces/contract/deploy-options";

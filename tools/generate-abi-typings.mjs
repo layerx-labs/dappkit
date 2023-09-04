@@ -1,4 +1,4 @@
-import {lstatSync, readdirSync, readFileSync, writeFileSync} from "fs";
+import {readFileSync, writeFileSync} from "fs";
 import {basename, join, resolve} from "path";
 import {getFilesOnDir} from "./get-files-on-dir.mjs";
 import config from '../generate-typings.config.mjs';

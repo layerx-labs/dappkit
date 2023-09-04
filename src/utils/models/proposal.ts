@@ -2,7 +2,7 @@ import { Proposal } from "@interfaces/bepro/proposal";
 
 import { Thousand } from "@utils/constants";
 import { fromDecimals } from "@utils/numbers";
-import { proposalDetail } from "@utils/proposal-detail";
+import { proposalDetail } from "@utils/models/proposal-detail";
 
 export function proposal({
   id,
