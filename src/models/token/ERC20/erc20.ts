@@ -5,7 +5,7 @@ import {fromDecimals, fromSmartContractDecimals, toSmartContractDecimals} from '
 import {Deployable} from '@interfaces/deployable';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Ownable} from "@base/ownable";
-import artifact from "@interfaces/generated/abi/Token"
+import artifact from "@interfaces/generated/abi/ERC20Ownable"
 import {ContractConstructorArgs} from "web3-types/lib/types";
 
 export class ERC20 extends Model<typeof artifact.abi> implements Deployable {
@@ -91,11 +91,11 @@ export class ERC20 extends Model<typeof artifact.abi> implements Deployable {
 
   async deployJsonAbi(name: string,
                       symbol: string,
-                      cap: string,
-                      distributionAddress: string): Promise<TransactionReceipt> {
+                      initialSupply: string,
+                      decimals = 18): Promise<TransactionReceipt> {
     const deployOptions = {
       data: artifact.bytecode,
-      arguments: [name, symbol, cap, distributionAddress] as ContractConstructorArgs<typeof artifact.abi>
+      arguments: [name, symbol, decimals, initialSupply] as ContractConstructorArgs<typeof artifact.abi>
     }
 
     return this.deploy(deployOptions, this.connection.Account);

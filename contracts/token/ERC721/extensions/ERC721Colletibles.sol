@@ -2,7 +2,7 @@
 
 pragma solidity >=0.6.0;
 
-import "./utils/Opener.sol";
+import "../utils/Opener.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract ERC721Collectibles is Opener, ERC721 {
@@ -13,10 +13,7 @@ contract ERC721Collectibles is Opener, ERC721 {
         ERC20 _purchaseToken,
         address baseFeeAddress,
         address feeAddress,
-        address otherAddress) public ERC721(name, symbol)
-    Opener(_purchaseToken, baseFeeAddress, feeAddress, otherAddress, limitedAmount)
-    {
-    }
+        address otherAddress) public ERC721(name, symbol) Opener(_purchaseToken, baseFeeAddress, feeAddress, otherAddress, limitedAmount) {}
 
     function exists(uint256 tokenId) public view returns (bool) {
         return _exists(tokenId);

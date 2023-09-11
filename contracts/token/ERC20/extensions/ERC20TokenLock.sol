@@ -5,7 +5,7 @@ pragma solidity >=0.6.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "../../utils/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ERC20TokenLock is Pausable, Ownable {
     using SafeMath for uint256;
@@ -43,7 +43,7 @@ contract ERC20TokenLock is Pausable, Ownable {
     /**
      * @dev Constructor
 	 */
-    constructor(address _erc20TokenAddress) public {
+    constructor(address _erc20TokenAddress) public Ownable() Pausable() {
 		erc20 = IERC20(_erc20TokenAddress);
     }
 	
@@ -52,7 +52,7 @@ contract ERC20TokenLock is Pausable, Ownable {
 	 * @return address
      */
     function admin() public view returns (address) {
-        return owner;
+        return owner();
     }
 	
 	/**

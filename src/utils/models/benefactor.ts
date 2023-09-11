@@ -1,6 +1,6 @@
 import { Benefactor } from "@interfaces/bepro/benefactor";
-import { Thousand } from "./constants";
-import { fromDecimals } from "./numbers";
+import { Thousand } from "../constants";
+import { fromDecimals } from "../numbers";
 
 export function benefactor({
   benefactor,

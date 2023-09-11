@@ -2,8 +2,8 @@ pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../../utils/Ownable.sol";
-import "../../utils/ReentrancyGuardOptimized.sol";
+import "../../../access/Ownable.sol";
+import "../../../access/ReentrancyGuardOptimized.sol";
 
 contract ERC721Marketplace is Ownable, ReentrancyGuardOptimized {
 
@@ -30,7 +30,7 @@ contract ERC721Marketplace is Ownable, ReentrancyGuardOptimized {
         bool sold;
     }
 
-    constructor(ERC20 _erc20Address, IERC721 _erc721Address) ReentrancyGuardOptimized() public {
+    constructor(ERC20 _erc20Address, IERC721 _erc721Address) public ReentrancyGuardOptimized() {
             erc20Address = _erc20Address;
             erc721Address = _erc721Address;
     }

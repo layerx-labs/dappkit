@@ -544,7 +544,6 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
     return this.contract.self.getPastEvents(`BountyProposalRefused`, filter)
   }
 
-
   async getBountyPullRequestCanceledEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`BountyPullRequestCanceled`, filter)
   }
@@ -576,5 +575,4 @@ export class Network_v2 extends Model<typeof artifact.abi> implements Deployable
   async getOraclesTransferEvents(filter: Filter) {
     return this.contract.self.getPastEvents(`OraclesTransfer`, filter)
   }
-
 }

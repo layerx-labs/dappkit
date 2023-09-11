@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./INetworkV2.sol";
-import "../utils/Governed.sol";
+import "../access/Governed.sol";
 import "./token/ERC721/BountyToken.sol";
 
 /*
@@ -69,7 +69,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         uint256 _networkCreationFeePercentage,
         uint256 _closeFeePercentage,
         uint256 _cancelFeePercentage,
-        address _bountyToken) ReentrancyGuard() Governed() {
+        address _bountyToken) public ReentrancyGuard() Governed() {
         _closeAndCancelFeesLimits(_cancelFeePercentage, _closeFeePercentage);
         _networkCreationFeeLimits(_networkCreationFeePercentage);
 

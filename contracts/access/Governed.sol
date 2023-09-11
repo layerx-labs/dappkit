@@ -16,7 +16,7 @@ contract Governed {
     * @dev The Ownable constructor sets the original `governor` of the contract to the sender
     * account.
     */
-    constructor() public {
+    constructor() {
         _governor = msg.sender;
     }
 

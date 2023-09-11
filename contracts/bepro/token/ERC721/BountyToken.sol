@@ -2,7 +2,7 @@ pragma solidity >=0.6.0;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../../../utils/Governed.sol";
+import "../../../access/Governed.sol";
 import "../../INetworkV2.sol";
 
 /*
@@ -17,7 +17,7 @@ contract BountyToken is ERC721, Governed {
         dispatcher = _dispatcher;
     }
 
-    INetworkV2.BountyConnector[] tokenIds;
+    INetworkV2.BountyConnector[] public tokenIds;
 
     /*
      * Alias to safeMint

@@ -4,17 +4,17 @@
 pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/math/Math.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IERC4626.sol";
 import "../../math/SaferMath.sol";
-import "../ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../ERC20/IERC20View.sol";
 
 
 contract ERC4626 is ERC20 {
     using SaferMath for uint256;
 
-    Token private immutable _asset;
+    IERC20 private immutable _asset;
     uint8 private immutable _decimals;
 
     event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
@@ -30,7 +30,7 @@ contract ERC4626 is ERC20 {
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
-    constructor(Token asset_, string memory name_, string memory symbol_) public ERC20(name_, symbol_) {
+    constructor(IERC20 asset_, string memory name_, string memory symbol_) public ERC20(name_, symbol_) {
         (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
         _decimals = super.decimals();
         _asset = asset_;
@@ -39,7 +39,7 @@ contract ERC4626 is ERC20 {
     /**
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
-    function _tryGetAssetDecimals(Token asset_) private view returns (bool, uint8) {
+    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
         (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
             abi.encodeWithSelector(IERC20View.decimals.selector)
         );
@@ -187,7 +187,7 @@ contract ERC4626 is ERC20 {
         // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
         // assets are transferred and before the shares are minted, which is a valid state.
         // slither-disable-next-line reentrancy-no-eth
-        Token(_asset).transferFrom(caller, address(this), assets);
+        IERC20(_asset).transferFrom(caller, address(this), assets);
         _mint(receiver, shares);
 
         emit Deposit(caller, receiver, assets, shares);
@@ -262,7 +262,7 @@ contract ERC4626 is ERC20 {
         // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
         // shares are burned and after the assets are transferred, which is a valid state.
         _burn(owner, shares);
-        Token(_asset).transfer(receiver, assets);
+        IERC20(_asset).transfer(receiver, assets);
 
         emit Withdraw(caller, receiver, owner, assets, shares);
     }

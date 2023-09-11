@@ -104,8 +104,6 @@ export class Model<Abi extends ContractAbi> {
 
   /**
    * Return a property value from the contract
-   * Use only when you need to force a return type
-   * @deprecated
    * @see <method.call()>
    */
   async callTx<ForceOutput>(method: PayableMethodObject|NonPayableMethodObject) {

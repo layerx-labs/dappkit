@@ -4,9 +4,9 @@ import {Model} from '@base/model';
 import {expect} from 'chai';
 import {Errors} from '@interfaces/error-enum';
 import {hasTxBlockNumber, shouldBeRejected} from '../utils/';
-import erc20 from "../../src/interfaces/generated/abi/Token";
+import erc20 from "../../src/interfaces/generated/abi/ERC20CappedToken";
 import {ERC20} from "../../src";
-import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
+import {getPrivateKeyFromFile} from "../utils";
 
 describe(`Model<any>`, () => {
   let deployedAddress: string;
@@ -64,10 +64,9 @@ describe(`Model<any>`, () => {
     it(`should await the start of a custom model after deploy`, async () => {
       const model = new ERC20({...options, autoStart: true});
       await model.start()
-      const BobAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(0)).address;
       const AliceAddress = model.connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1)).address;
 
-      await hasTxBlockNumber(model.deployJsonAbi("name", "symbol", "2000000000000000000", BobAddress));
+      await hasTxBlockNumber(model.deployJsonAbi("name", "symbol", "2000000000000000000"));
       await hasTxBlockNumber(model.transfer(AliceAddress, 1));
       expect(await model.name()).to.be.eq(`name`)
     })

@@ -1,4 +1,4 @@
-import {lstatSync, readFileSync, writeFileSync, readdirSync} from "fs";
+import {lstatSync, readFileSync, writeFileSync} from "fs";
 import {getFilesOnDir} from "./get-files-on-dir.mjs";
 
 const KEEP_ROOT_KEYS = ['abi', 'bytecode', 'contractName'];
@@ -16,7 +16,7 @@ try {
     writeFileSync(jsonOrPath, cleanFile(jsonOrPath), "utf-8");
   else
     getFilesOnDir(jsonOrPath)
-      .filter(file => file.endsWith(".json"))
+      .filter(file => file.endsWith(".json") && !file.endsWith(".dbg.json"))
       .forEach(pathToFile => writeFileSync(pathToFile, cleanFile(pathToFile), "utf-8"));
 
 } catch (e) {

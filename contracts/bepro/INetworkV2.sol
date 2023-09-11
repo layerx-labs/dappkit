@@ -1,3 +1,4 @@
+pragma solidity >=0.6.0;
 pragma abicoder v2;
 
 import "./token/ERC721/BountyToken.sol";

@@ -2,7 +2,7 @@
 
 pragma solidity >=0.6.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "../../utils/Ownable.sol";
+import "../../../access/Ownable.sol";
 
 contract ERC721Standard is ERC721, Ownable {
 

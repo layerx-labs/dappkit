@@ -3,7 +3,8 @@ pragma solidity >=0.6.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "../../utils/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 
 contract ERC20Distribution is Pausable, Ownable {
     using SafeMath for uint256;
@@ -26,7 +27,7 @@ contract ERC20Distribution is Pausable, Ownable {
         uint256 amountSent;
     }
 
-    constructor() public{}
+    constructor() {}
 
     function setTokenAddress(IERC20 _tokenAddress) external onlyOwner whenNotPaused  {
         erc20 = _tokenAddress;
