@@ -35,4 +35,4 @@ jobs:
         run: npm run test-ci
         env:
           CI: true
-          CI_MNEMONIC: ${{secrets.CI_MNEMONIC}}
+          CI_MNEMONIC: ${{ secrets.CI_MNEMONIC }}
