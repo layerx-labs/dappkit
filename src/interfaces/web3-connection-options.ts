@@ -1,6 +1,9 @@
-import {HttpProviderOptions, WebsocketProviderOptions} from 'web3-core-helpers';
-import {PromiEvent, provider as Provider, TransactionReceipt} from 'web3-core';
-import {Contract} from "web3-eth-contract";
+import {type Socket} from "net";
+import {type Web3PromiEvent} from "web3-core/lib/types/web3_promi_event";
+import {type Web3EventMap} from "web3-core/src/web3_event_emitter";
+import {type SupportedProviders} from "web3-types/src/web3_base_provider";
+
+
 
 export interface Web3ConnectionOptions {
 
@@ -13,18 +16,17 @@ export interface Web3ConnectionOptions {
    * Provide a privateKey to automatically use that account when started
    * If not provided, only read-mode will be possible
    */
-  privateKey?: string;
+  privateKey?: string|Uint8Array;
 
   /**
-   * Pass options to provider
-   * @note you can provide a node server if you're using IPC
+   * Pass options a socket to the custom provider if needed
    */
-  web3ProviderOptions?: HttpProviderOptions | WebsocketProviderOptions;
-  
+  net?: Socket,
+
   /**
    * Pass a custom provider instead
    */
-  web3CustomProvider?: Provider;
+  web3CustomProvider?: SupportedProviders<never>;
 
   /**
    * Skip the assignment of `window.web3 = Web3`
@@ -38,10 +40,13 @@ export interface Web3ConnectionOptions {
    */
   debug?: boolean;
 
-  customTransactionHandler?: (event: PromiEvent<TransactionReceipt | Contract>,
-                              resolve: (data: any) => void,
-                              reject: (e: unknown) => void,
-                              debug?: boolean) => void;
+
+
+  // eslint-disable-next-line max-len
+  customTransactionHandler?: <ResolveType = unknown, EventMap extends Web3EventMap = never>(event: Web3PromiEvent<ResolveType, EventMap>,
+                                                                                resolve: (data: never) => void,
+                                                                                reject: (e: unknown) => void,
+                                                                                debug?: boolean) => void;
 
   /**
    * If true, web3Connection will call `.start()` on construction

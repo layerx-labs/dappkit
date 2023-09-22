@@ -3,9 +3,9 @@ import {
   defaultWeb3Connection,
   erc20Deployer, getChainDate,
   hasTxBlockNumber,
-  increaseTime, outputDeploy
+  increaseTime,
 } from '../utils/';
-import {toSmartContractDecimals} from '../../src/utils/numbers';
+import {toSmartContractDecimals} from '../../src';
 import {addMinutes, differenceInSeconds} from 'date-fns'
 import {expect} from 'chai';
 import BigNumber from 'bignumber.js';
@@ -128,9 +128,5 @@ describe(`StakingContract`, () => {
       expect(withdrawAmount).to.eq(expectedWithdraw);
     });
 
-  });
-
-  after(() => {
-    outputDeploy([[`StakingContract`, contractAddress], [`ERC20`, stakeTokenAddress]])
   });
 })

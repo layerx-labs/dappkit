@@ -2,20 +2,19 @@ import {Model} from '@base/model';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Deployable} from '@interfaces/deployable';
-import VotableJson from '@abi/Votable.json';
-import {VotableMethods} from '@methods/votable';
-import {AbiItem} from 'web3-utils';
-import {ERC20} from '@models/erc20';
+import {ERC20} from '@models/token/ERC20/erc20';
 import {fromDecimals, toSmartContractDecimals} from '@utils/numbers';
-import voterInfo from '@utils/voter-info';
-import votingPollWinner from '@utils/voting-poll-winner';
-import poolInformation from '@utils/pool-information';
+import voterInfo from '@utils/models/voter-info';
+import votingPollWinner from '@utils/models/voting-poll-winner';
+import poolInformation from '@utils/models/pool-information';
+import artifact from "@interfaces/generated/abi/Votable";
+import {ContractConstructorArgs} from "web3-types/lib/types";
 
-export class Votable extends Model<VotableMethods> implements Deployable {
+export class Votable extends Model<typeof artifact.abi> implements Deployable {
   constructor(web3Connection: Web3Connection|Web3ConnectionOptions,
               contractAddress?: string,
               readonly erc20TokenAddress?: string) {
-    super(web3Connection, VotableJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
   private _erc20!: ERC20;
@@ -36,8 +35,8 @@ export class Votable extends Model<VotableMethods> implements Deployable {
 
   async deployJsonAbi(_token: string) {
     const deployOptions = {
-        data: VotableJson.bytecode,
-        arguments: [_token]
+        data: artifact.bytecode,
+        arguments: [_token] as ContractConstructorArgs<typeof artifact.abi>
     };
 
     return this.deploy(deployOptions, this.connection.Account);

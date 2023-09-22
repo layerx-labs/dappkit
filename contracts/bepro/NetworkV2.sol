@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-import "../utils/Governed.sol";
-import "./BountyToken.sol";
+import "../access/Governed.sol";
+import "./token/ERC721/BountyToken.sol";
 import "./INetworkV2.sol";
 import "./NetworkRegistry.sol";
 
@@ -84,12 +84,10 @@ contract NetworkV2 is Governed, ReentrancyGuard {
     event OraclesChanged(address indexed actor, int256 indexed actionAmount, uint256 indexed newLockedTotal);
     event OraclesTransfer(address indexed from, address indexed to, uint256 indexed amount);
 
-    constructor(address _networkToken, address _registry) Governed() ReentrancyGuard() {
+    constructor(address _networkToken, address _registry) public Governed() ReentrancyGuard() {
         networkToken = ERC20(_networkToken);
         registry = NetworkRegistry(_registry);
     }
-
-
 
     function _isBountyOwner(uint256 id) internal view {
         require(bounties[id].creator == msg.sender, "1");

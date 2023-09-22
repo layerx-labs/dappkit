@@ -3,7 +3,9 @@ import {expect} from 'chai';
 import {Web3Connection} from '@base/web3-connection';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Errors} from '@interfaces/error-enum';
-import {getPrivateKeyFromFile} from '../utils/';
+
+import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
+import BigNumber from "bignumber.js";
 
 describe(`Web3Connection`, () => {
   it(`start() fails because missing web3host`, () => {
@@ -15,8 +17,8 @@ describe(`Web3Connection`, () => {
     let web3Connection: Web3Connection;
     before(() => {
       const options: Web3ConnectionOptions = {
-        web3Host: process.env.WEB3_HOST_PROVIDER || 'HTTP://127.0.0.1:8545',
-        privateKey: process.env.WALLET_PRIVATE_KEY || getPrivateKeyFromFile(),
+        web3Host: process.env.CI_WEB3_HOST_PROVIDER || 'HTTP://127.0.0.1:8545',
+        privateKey: getPrivateKeyFromFile(),
         skipWindowAssignment: true,
       }
 
@@ -33,7 +35,7 @@ describe(`Web3Connection`, () => {
     })
 
     it(`gets balance`, async () => {
-      expect(await web3Connection.getBalance()).to.not.be.empty;
+      expect((await web3Connection.getBalance()).toString()).to.not.be.empty;
     });
 
     it(`get ETHNetworkId`, async () => {
@@ -48,7 +50,7 @@ describe(`Web3Connection`, () => {
       const AliceAddress = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1))?.address;
       const balance = await web3Connection.getBalance(AliceAddress);
       await web3Connection.sendNativeToken(AliceAddress, 1);
-      expect(await web3Connection.getBalance(AliceAddress)).to.be.eq((+balance+1).toString())
+      expect(await web3Connection.getBalance(AliceAddress)).to.be.eq(BigNumber(balance).plus(1).toString());
     })
   })
 })

@@ -1,18 +1,20 @@
 import {Web3Connection} from './web3-connection';
-import {AbiItem} from 'web3-utils';
+
 import {Errors} from '@interfaces/error-enum';
-import Web3 from 'web3';
-import {Account} from 'web3-core';
+import {ContractAbi} from 'web3';
+
 import {TransactionReceipt} from '@interfaces/web3-core';
 import {Web3Contract} from './web3-contract';
 import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
-import {ContractSendMethod, DeployOptions} from 'web3-eth-contract';
-import {ContractCallMethod} from '@methods/contract-call-method';
-import {transactionHandler} from '@utils/transaction-handler';
-import {noop} from '@utils/noop';
 
-export class Model<Methods = any> {
-  protected _contract!: Web3Contract<Methods>;
+import {transactionHandler} from '@utils/models/transaction-handler';
+
+import {NonPayableMethodObject, PayableMethodObject} from "web3-eth-contract/src/types";
+import DeployOptions from "@interfaces/contract/deploy-options";
+import {Web3BaseWalletAccount} from "web3/lib/types";
+
+export class Model<Abi extends ContractAbi> {
+  protected _contract!: Web3Contract<Abi>;
   protected _contractAddress?: string;
   private readonly web3Connection!: Web3Connection;
 
@@ -29,7 +31,7 @@ export class Model<Methods = any> {
 
   /* eslint-disable complexity */
   constructor(web3Connection: Web3Connection | Web3ConnectionOptions,
-              readonly abi: AbiItem[],
+              readonly abi: Abi,
               contractAddress?: string) {
     if (!abi || !abi.length)
       throw new Error(Errors.MissingAbiInterfaceFromArguments);
@@ -52,21 +54,12 @@ export class Model<Methods = any> {
    */
   get connection(): Web3Connection { return this.web3Connection; }
 
-  /**
-   * Returns the Web3 class assigned to this connection
-   */
-  get web3(): Web3 { return this.connection.Web3; }
-
-  /**
-   * Returns the Account associated with this connection
-   */
-  get account(): Account { return this.connection.Account; }
 
   /**
    * Initialize the underlying web3js contract
    */
   loadAbi() {
-    this._contract = new Web3Contract(this.web3, this.abi, this._contractAddress);
+    this._contract = new Web3Contract(this.connection.Web3, this.abi, this._contractAddress);
   }
 
   /**
@@ -111,18 +104,19 @@ export class Model<Methods = any> {
 
   /**
    * Return a property value from the contract
+   * @see <method.call()>
    */
-  async callTx<ReturnData = any>(method: ContractCallMethod<ReturnData>) {
-    return method.call();
+  async callTx<ForceOutput>(method: PayableMethodObject|NonPayableMethodObject) {
+    return method.call<ForceOutput>();
   }
 
   /**
    * Interact with, or change a value of, a property on the contract
    */
-  async sendTx(method: ContractSendMethod,
-               value?: any): Promise<TransactionReceipt> {
-    if (this.account)
-      return this.contract.sendSignedTx(this.account,
+  async sendTx<Outputs = unknown>(method: PayableMethodObject|NonPayableMethodObject,
+               value?: any): Promise<TransactionReceipt<Outputs>> {
+    if (this.connection.Account)
+      return this.contract.sendSignedTx(this.connection.Account,
                                         method.encodeABI(),
                                         value,
                                         await this.contract.txOptions(method,
@@ -137,20 +131,20 @@ export class Model<Methods = any> {
   /**
    * Send unsigned transaction
    */
-  async sendUnsignedTx(method: ContractSendMethod,
+  async sendUnsignedTx(method: PayableMethodObject|NonPayableMethodObject,
                        value?: any, {
                          debug,
                          customTransactionHandler: cb
                        }: Partial<Web3ConnectionOptions> = {}): Promise<TransactionReceipt> {
-    const from = (await this.web3.eth.givenProvider.request({method: 'eth_requestAccounts'}))?.[0];
+    const from = await this.connection.getAddress();
 
     return new Promise<TransactionReceipt>(async (resolve, reject) => {
       try {
         const options = await this.contract.txOptions(method, value, from);
-        const sendMethod = () => method.send({from, value, ...options}, noop);
+        const sendMethod = () => method.send({from, value, ...options});
 
         if (cb)
-          cb(sendMethod(), resolve, reject, debug)
+          cb(sendMethod() as any, resolve, reject, debug)
         else
           transactionHandler(sendMethod(), resolve, reject, debug)
       } catch (e) {
@@ -165,8 +159,11 @@ export class Model<Methods = any> {
   /**
    * Deploy the loaded abi contract
    */
-  async deploy(deployOptions: DeployOptions, account?: Account) {
-    return this.contract.deploy(this.abi, deployOptions, account)
+  async deploy(deployOptions: DeployOptions<Abi>, account?: Web3BaseWalletAccount) {
+    if (!this.contract)
+      this.loadAbi();
+
+    return this.contract.deploy(deployOptions, account)
       .then(async tx => {
         if (this.web3Connection.options.restartModelOnDeploy && tx.contractAddress) {
           this._contractAddress = tx.contractAddress;

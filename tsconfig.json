@@ -27,7 +27,8 @@
         "models/*"
       ],
       "@abi/*": [
-        "../build/contracts/*"
+        "../build/contracts/*",
+        "../artifacts/*"
       ],
       "@methods/*": [
         "interfaces/methods/*"
