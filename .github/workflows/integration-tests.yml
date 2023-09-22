@@ -33,6 +33,8 @@ jobs:
 
       - name: Start ganache and test integration
         run: npm run test-ci
+        with:
+          CI_MNEMONIC: ${{ secrets.CI_MNEMONIC }}
         env:
           CI: true
           CI_MNEMONIC: ${{ secrets.CI_MNEMONIC }}
