@@ -5,6 +5,7 @@ import {Web3ConnectionOptions} from '@interfaces/web3-connection-options';
 import {Errors} from '@interfaces/error-enum';
 
 import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
+import BigNumber from "bignumber.js";
 
 describe(`Web3Connection`, () => {
   it(`start() fails because missing web3host`, () => {
@@ -49,7 +50,7 @@ describe(`Web3Connection`, () => {
       const AliceAddress = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1))?.address;
       const balance = await web3Connection.getBalance(AliceAddress);
       await web3Connection.sendNativeToken(AliceAddress, 1);
-      expect(await web3Connection.getBalance(AliceAddress)).to.be.eq((Number(balance)+1).toString())
+      expect(await web3Connection.getBalance(AliceAddress)).to.be.eq(BigNumber(balance).plus(1).toString());
     })
   })
 })

@@ -1,23 +1,9 @@
 /** @type import('hardhat/config').HardhatUserConfig */
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const {readFileSync, existsSync} = require("fs");
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 const {CI_MNEMONIC} = process.env;
 const ACCOUNT_BALANCE = "10000000000000000000000";
-
-const account = (privateKey) =>
-  ({privateKey, balance: ACCOUNT_BALANCE})
-
-const accounts = [];
-
-if (existsSync('./keys.json'))
-  accounts
-    .push(...Object.values(JSON.parse(readFileSync('./keys.json', {encoding: 'utf-8'}))?.private_keys)
-      .map(account))
 
 module.exports = {
   solidity: {
@@ -31,7 +17,9 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      ... accounts.length ? {accounts} : {mnemonic: CI_MNEMONIC, accountsBalance: ACCOUNT_BALANCE, count: 10 }
+      accounts: {
+        mnemonic: CI_MNEMONIC, accountsBalance: ACCOUNT_BALANCE, count: 10
+      }
     },
   }
 };

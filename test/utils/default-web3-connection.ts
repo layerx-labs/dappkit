@@ -10,7 +10,7 @@ import {getPrivateKeyFromFile} from "./get-pvt-k-from-file";
 export async function defaultWeb3Connection(start = false, revert = false) {
   const options: Web3ConnectionOptions = {
     web3Host: process.env.CI_WEB3_HOST_PROVIDER || 'HTTP://127.0.0.1:8545',
-    privateKey: process.env.DEV_PRIVATE_KEY || getPrivateKeyFromFile(),
+    privateKey: getPrivateKeyFromFile(),
     skipWindowAssignment: true,
     restartModelOnDeploy: false,
   }
@@ -20,6 +20,8 @@ export async function defaultWeb3Connection(start = false, revert = false) {
     await web3Connection.start();
   if (revert)
     await revertChain(web3Connection.Web3);
+
+  web3Connection.eth.contractDataInputFill = "both";
 
   return web3Connection;
 }

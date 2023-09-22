@@ -60,6 +60,7 @@ export class Web3Connection {
     this.web3 = new Web3((window as any).ethereum)
 
     this.web3.eth.handleRevert = false;
+    this.web3.eth.contractDataInputFill = "both";
     this.web3.eth.transactionBlockTimeout = 200;
 
     if (!this.options.skipWindowAssignment)
@@ -110,6 +111,8 @@ export class Web3Connection {
 
     if (this.options.privateKey)
       this.account = this.web3.eth.accounts.privateKeyToAccount(this.options.privateKey);
+
+    this.web3.eth.contractDataInputFill = "both";
   }
   /* eslint-enable complexity */
 

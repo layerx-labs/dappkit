@@ -4,7 +4,7 @@ import {expect} from 'chai';
 import {toSmartContractDecimals} from '@utils/numbers';
 import {describe} from 'mocha';
 import {defaultWeb3Connection, erc20Deployer, shouldBeRejected,} from '../utils/';
-import {Web3Connection, Web3Contract} from '../../src';
+import {Web3Connection} from '../../src';
 import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
 
 describe(`ERC20`, () => {
@@ -69,9 +69,6 @@ describe(`ERC20`, () => {
       const newAddress = newAccount.address;
       const web3con = new Web3Connection({privateKey, web3Host: web3Connection.options.web3Host});
       const _erc20 = new ERC20(web3con, erc20.contractAddress);
-
-      const empty = new Web3Contract(web3Connection.Web3, [], undefined, {gasAmount: 90000, auto: true});
-      await empty.sendSignedTx(web3Connection.Account, undefined as any, toSmartContractDecimals(1) as any as string, await empty.txOptions(undefined as any))
 
       await _erc20.start();
       await erc20.approve(newAddress, 1000);

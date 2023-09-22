@@ -62,7 +62,7 @@ export class Web3Contract<Abi extends ContractAbi = AbiFragment[]> {
     if (!abi)
       throw new Error(Errors.MissingAbiInterfaceFromArguments)
 
-    this.self = new web3.eth.Contract(abi, address);
+    this.self = new web3.eth.Contract(abi, address, {config: {contractDataInputFill: "both"}});
     this.options = options;
     this.abi = abi;
   }
