@@ -18,7 +18,7 @@ module.exports = {
   networks: {
     hardhat: {
       accounts: {
-        mnemonic: CI_MNEMONIC || "", accountsBalance: ACCOUNT_BALANCE, count: 10
+        mnemonic: CI_MNEMONIC, accountsBalance: ACCOUNT_BALANCE, count: 10
       }
     },
   }
