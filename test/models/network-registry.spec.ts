@@ -21,6 +21,8 @@ describe(`Network_Registry`, () => {
   let registryAddress: string;
   let networkAddress: string;
   let erc20Address: string;
+  const lockAmountForNetworkCreation = 1000;
+  const lockFeePercentage = 1000000;
 
   before(async () => {
     web3Connection = await defaultWeb3Connection(true, true);
@@ -31,7 +33,7 @@ describe(`Network_Registry`, () => {
   it(`Deploys`, async () => {
     const registry = new Network_Registry(web3Connection);
     await registry.loadAbi();
-    const receipt = await registry.deployJsonAbi(erc20Address, 1000, await web3Connection.getAddress(), 10000);
+    const receipt = await registry.deployJsonAbi(erc20Address, lockAmountForNetworkCreation, await web3Connection.getAddress(), lockFeePercentage);
     expect(receipt.contractAddress, "Should have deployed");
     registryAddress = receipt.contractAddress;
   });
@@ -71,6 +73,12 @@ describe(`Network_Registry`, () => {
     });
 
     describe(`Green Path`, () => {
+      it (`Parameters on contract should be the same of deployment`, async () => {
+        expect(await registry.erc20()).to.eq(erc20Address);
+        expect(+(await registry.lockAmountForNetworkCreation())).to.eq(lockAmountForNetworkCreation);
+        expect(+(await registry.networkCreationFeePercentage())).to.eq(lockFeePercentage / registry.divisor);
+      });
+
       it(`Test MAX_LOCK_PERCENTAGE_FEE should be equal to 99%`, async () => {             
         const maxLockPercentageFee = await registry.getMAX_LOCK_PERCENTAGE_FEE();        
 
