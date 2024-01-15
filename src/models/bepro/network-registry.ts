@@ -58,6 +58,7 @@ export class Network_Registry extends Model<typeof artifact.abi> implements Depl
                       bountyToken = nativeZeroAddress) {
 
     const token = new ERC20(this.connection, _erc20);
+    await token.start();
 
     const deployOptions = {
       data: artifact.bytecode,
