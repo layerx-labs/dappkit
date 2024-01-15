@@ -63,6 +63,8 @@ export class Network_Registry extends Model<Network_RegistryMethods> implements 
 
     const token = new ERC20(this.connection, _erc20);
 
+    await token.start();
+
     const deployOptions = {
       data: Network_RegistryJson.bytecode,
       arguments: [
