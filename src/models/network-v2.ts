@@ -198,7 +198,20 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
   }
 
   async getBounty(id: number) {
-    return bounty(await this.callTx(this.contract.methods.getBounty(id)));
+    const chainInformation = await this.callTx(this.contract.methods.getBounty(id));
+
+    if (!chainInformation)
+      throw new Error(`No bounty with ${id}`);
+
+    const transactional = new ERC20(this.connection, chainInformation.transactional);
+    await transactional.start();
+
+    const reward = chainInformation.rewardToken !== nativeZeroAddress ?
+      new ERC20(this.connection, chainInformation.rewardToken) : null;
+
+    await reward?.start();
+
+    return bounty(chainInformation, this.networkToken.decimals, transactional.decimals, reward?.decimals);
   }
 
   /**
