@@ -12,3 +12,4 @@ export interface BountyFunded { returnValues: {'id': string;'funded': boolean;} 
 export interface BountyAmountUpdatedEvent { returnValues: {'id': number;'amount': number;} }
 export interface OraclesChangedEvent { returnValues: {'actor': string;'actionAmount': number; 'newLockedTotal': number} }
 export interface OraclesTransferEvent { returnValues: {'from': string;'to': string; 'amount': number} }
+export interface NetworkParamChanged { returnValues: { 'param': number; 'newvalue': number; 'oldvalue': number } }
