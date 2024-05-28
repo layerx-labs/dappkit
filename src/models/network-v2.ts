@@ -603,4 +603,8 @@ export class Network_v2 extends Model<Network_v2Methods> implements Deployable {
     return this.contract.self.getPastEvents(`OraclesTransfer`, filter)
   }
 
+  async getNetworkParamChangedEvents(filter: PastEventOptions): Promise<XEvents<Events.NetworkParamChanged>[]> {
+    return this.contract.self.getPastEvents(`NetworkParamChanged`, filter)
+  }
+
 }
