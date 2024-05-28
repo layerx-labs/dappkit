@@ -4,9 +4,6 @@
   "description": "Web3 Decentralized Application Kit",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
-  "engines": {
-    "node": "^14 || ^16"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taikai/dappkit.git"
