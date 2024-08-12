@@ -1,14 +1,14 @@
-pragma solidity >=0.6.0 <=8.0.0;
+pragma solidity >=0.8.0;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./INetworkV2.sol";
-import "../utils/Governed.sol";
-import "./BountyToken.sol";
+import "../access/Governed.sol";
+import "./token/ERC721/BountyToken.sol";
 
 /*
  * The NetworkRegistry acts as a registry for @INetworkV2, allowing registering and closing of new networks, by using
@@ -18,7 +18,7 @@ import "./BountyToken.sol";
  */
 contract NetworkRegistry is ReentrancyGuard, Governed {
 
-    using SafeMath for uint256;
+    using Math for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     uint256 constant MAX_PERCENT = 100000000;
@@ -69,7 +69,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         uint256 _networkCreationFeePercentage,
         uint256 _closeFeePercentage,
         uint256 _cancelFeePercentage,
-        address _bountyToken) ReentrancyGuard() Governed() {
+        address _bountyToken) public ReentrancyGuard() Governed() {
         _closeAndCancelFeesLimits(_cancelFeePercentage, _closeFeePercentage);
         _networkCreationFeeLimits(_networkCreationFeePercentage);
 
@@ -100,8 +100,8 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         require(_amount > 0, "L0");
         require(erc20.transferFrom(msg.sender, address(this), _amount), "L1");
 
-        lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].add(_amount);
-        totalLockedAmount = totalLockedAmount.add(_amount);
+        lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender] + _amount;
+        totalLockedAmount = totalLockedAmount + _amount;
 
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
     }
@@ -112,16 +112,15 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
      *  user must have tokens to unlock
      *  - if user has a network
      *      TVL of network must be zero
-     *      All bounties must be closed or canceled
      *  transfer is successful
      */
-    function unlock() nonReentrant external {
+    function unlock() nonReentrant public {
         require(lockedTokensOfAddress[msg.sender] > 0, "UL0");
 
         if (networkOfAddress[msg.sender] != address(0)) {
             INetworkV2 network = INetworkV2(networkOfAddress[msg.sender]);
             require(network.totalNetworkToken() == 0, "UL1");
-            require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
+            //require((network.closedBounties() + network.canceledBounties()) == network.bountiesIndex(), "UL2");
 
             address closedNetworkAddress = networkOfAddress[msg.sender];
             openNetworks[closedNetworkAddress] = false;
@@ -132,7 +131,9 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
 
         require(erc20.transfer(msg.sender, lockedTokensOfAddress[msg.sender]), "UL3");
 
-        totalLockedAmount = totalLockedAmount.sub(lockedTokensOfAddress[msg.sender]);
+        (, uint256 newTotalLockedAmount) = totalLockedAmount.trySub(lockedTokensOfAddress[msg.sender]);
+
+        totalLockedAmount = newTotalLockedAmount;
         lockedTokensOfAddress[msg.sender] = 0;
 
         emit UserLockedAmountChanged(msg.sender, lockedTokensOfAddress[msg.sender]);
@@ -152,7 +153,7 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
      */
     function registerNetwork(address networkAddress) nonReentrant external {
         INetworkV2 network = INetworkV2(networkAddress);
-        uint256 fee = (lockAmountForNetworkCreation.mul(networkCreationFeePercentage)).div(MAX_PERCENT);
+        uint256 fee = lockAmountForNetworkCreation.mulDiv(networkCreationFeePercentage, MAX_PERCENT);
 
         require(networkOfAddress[msg.sender] == address(0), "R0");
         require(lockedTokensOfAddress[msg.sender] >= lockAmountForNetworkCreation, "R1");
@@ -160,14 +161,20 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         require(address(network.registry()) == address(this), "R4");
 
         if (treasury != address(0)) {
+            (, uint256 newTotalLockedAmount) = totalLockedAmount.trySub(fee);
+            totalLockedAmount = newTotalLockedAmount;
+
             require(erc20.transfer(treasury, fee), "R3");
-            totalLockedAmount = totalLockedAmount.sub(fee);
         }
 
         networksArray.push(network);
         openNetworks[networkAddress] = true;
         networkOfAddress[msg.sender] = networkAddress;
-        lockedTokensOfAddress[msg.sender] = lockedTokensOfAddress[msg.sender].sub(fee);
+
+        (, uint256 newUserLockedAmount) = lockedTokensOfAddress[msg.sender].trySub(fee);
+
+        lockedTokensOfAddress[msg.sender] = newUserLockedAmount;
+
         emit NetworkRegistered(networkAddress, msg.sender, networksArray.length - 1);
     }
 
@@ -202,7 +209,8 @@ contract NetworkRegistry is ReentrancyGuard, Governed {
         EnumerableSet.AddressSet storage pointer = transactional ? _transactionalTokens : _rewardTokens;
         uint256 len = _erc20Addresses.length;
 
-        require(len.add(pointer.length()) <= MAX_ALLOWED_TOKENS_LEN, "AT0");
+        (, uint256 tokensLength) = len.tryAdd(pointer.length());
+        require(tokensLength <= MAX_ALLOWED_TOKENS_LEN, "AT0");
 
         for (uint256 z = 0; z < len; z++) {
             require(pointer.add(_erc20Addresses[z]) == true, "AT1");

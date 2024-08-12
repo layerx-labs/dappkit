@@ -1,9 +1,9 @@
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract Votable {
-    using SafeMath for uint256;
+    using Math for uint256;
 
     /* EVENTS */
     event voteCasted(address indexed voter, uint indexed pollID, uint256 vote, uint256 weight);
@@ -71,8 +71,10 @@ contract Votable {
         for(uint i = 0; i < options.length; i++){
             curPoll.options[i] = options[i];
         }
+        (, uint256 timestampLength) = block.timestamp.tryAdd(_voteLength);
+        (, uint256 expirationTime) = timestampLength.tryMul(1 seconds);
         curPoll.optionsSize = options.length;
-        curPoll.expirationTime = block.timestamp.add(_voteLength).mul(1 seconds);
+        curPoll.expirationTime = expirationTime;
         curPoll.description = _description;
 
         emit pollCreated(msg.sender, pollCount, _description, _voteLength);
@@ -161,7 +163,8 @@ contract Votable {
         bank[msg.sender].lockedTokens[_pollID] = getTokenStake(msg.sender);
         bank[msg.sender].participatedPolls.push(_pollID);
 
-        curPoll.votesPerOption[_voteId] = curPoll.votesPerOption[_voteId].add(getTokenStake(msg.sender));
+        (, uint256 votesPerOptionId) = curPoll.votesPerOption[_voteId].tryAdd(getTokenStake(msg.sender));
+        curPoll.votesPerOption[_voteId] = votesPerOptionId;
 
         curPoll.voterInfo[msg.sender] = Voter({
             hasVoted: true,

@@ -1,4 +1,4 @@
-import {defaultWeb3Connection, erc20Deployer, hasTxBlockNumber} from '../utils/';
+import {defaultWeb3Connection, erc20Deployer, hasTxBlockNumber, shouldBeRejected} from '../utils/';
 import {ERC721Collectibles, Web3Connection} from '../../src';
 import {toSmartContractDecimals} from '../../src/utils/numbers';
 import {expect} from 'chai';
@@ -69,12 +69,13 @@ describe(`ERC271Collectibles`, () => {
 
     it(`Match ownership of held token`, async () => {
       expect(await contract.registeredIDs(accountAddress, 1000)).to.be.true; // we just asserted that base is 1000 and we have it (we bailed otherwise)
-      expect(await contract.exists(1000)).to.be.false; // we own it, but haven't minted
+      await shouldBeRejected(contract.exists(1000)) // we own it, but haven't minted
+      // expect(await contract.exists(1000)).to.be.eq(nativeZeroAddress);
     });
 
     it(`mints the token id`, async () => {
       await hasTxBlockNumber(contract.mint(1000));
-      expect(await contract.exists(1000)).to.be.true;
+      expect(await contract.exists(1000)).to.be.eq(accountAddress);
     });
 
     it(`Asserts tokenURI url for tokenId`, async () => {

@@ -40,12 +40,12 @@ describe(`ERC20TokenLock`, () => {
 
     it(`Sets max amount to lock`, async () => {
       expect(await tokenLock.setMaxAmountToLock(2)).to.have.property('blockNumber').to.exist;
-      expect(await tokenLock.getMaxLock()).to.eq((2).toString());
+      expect(await tokenLock.getMaxLock()).to.eq('2.000000000000000000');
     });
 
     it(`Sets min amount to lock`, async () => {
       expect(await tokenLock.setMinAmountToLock(1)).to.have.property('blockNumber').to.exist;
-      expect(await tokenLock.getMinLock()).to.eq((1).toString());
+      expect(await tokenLock.getMinLock()).to.eq('1.000000000000000000');
     });
 
     it(`locks tokens and fails unlock because endDate was not reached`, async () => {
@@ -53,15 +53,15 @@ describe(`ERC20TokenLock`, () => {
       await tokenLock.approveERC20Transfer();
 
       await hasTxBlockNumber(tokenLock.lock(1, endDate));
-      expect(await tokenLock.getLockedTokens(accountAddress), `get locked tokens`).to.eq((1).toString());
-      expect(await tokenLock.totalAmountStaked(), `get total locked`).to.eq((1).toString());
+      expect(await tokenLock.getLockedTokens(accountAddress), `get locked tokens`).to.eq('1.000000000000000000');
+      expect(await tokenLock.totalAmountStaked(), `get total locked`).to.eq('1.000000000000000000');
       await shouldBeRejected(tokenLock.release(), `release date`);
     });
 
     it(`Should unlock because time-travel`, async () => {
       await increaseTime(62, web3Connection.Web3);
       await hasTxBlockNumber(tokenLock.release());
-      expect(await tokenLock.getLockedTokens(accountAddress), `get locked tokens`).to.eq((0).toString());
+      expect(await tokenLock.getLockedTokens(accountAddress), `get locked tokens`).to.eq('0.000000000000000000');
     });
 
   });

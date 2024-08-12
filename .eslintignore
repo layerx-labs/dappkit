@@ -4,5 +4,5 @@
 **/coverage/*
 **/test/*
 **/tooling/*
-**/src/interfaces/methods/*
+**/src/interfaces/generated/*
 **/src/interfaces/events/*
