@@ -2,7 +2,9 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-const {CI_MNEMONIC} = process.env;
+const {
+  CI_MNEMONIC = "test test test test test test test test test test test junk"
+} = process.env;
 const ACCOUNT_BALANCE = "10000000000000000000000";
 
 module.exports = {
