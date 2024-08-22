@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
 
-const shiftByFixed = (value: string|number|BigNumber, shiftBy: number, rounding: number|null = null) =>
-  new BigNumber(value).shiftedBy(shiftBy).toFixed(rounding ? 0 : null as any, rounding as any)
+const shiftByFixed = (value: string|number|BigNumber, shiftBy: number,
+                      rounding: BigNumber.RoundingMode|undefined = undefined) =>
+  new BigNumber(value).shiftedBy(shiftBy).toFixed(rounding ? 0 : 5, rounding)
 
 /**
  * convert a simple number into a big number representation, usually used to convert
@@ -11,7 +12,8 @@ const shiftByFixed = (value: string|number|BigNumber, shiftBy: number, rounding:
  * @param {number} rounding
  * @return {string}
  */
-export function toSmartContractDecimals(value: string|number, decimals = 18, rounding:number|null = null) {
+export function toSmartContractDecimals(value: string|number, decimals = 18,
+                                        rounding:BigNumber.RoundingMode|undefined = undefined) {
   return shiftByFixed(value, +decimals, rounding);
 }
 
@@ -22,8 +24,10 @@ export function toSmartContractDecimals(value: string|number, decimals = 18, rou
  * @param {number} rounding
  * @return {string}
  */
-export function fromSmartContractDecimals(value: string|number|BigNumber, decimals = 18, rounding: number|null = null) {
-  return shiftByFixed(value, -(+decimals), rounding);
+export function fromSmartContractDecimals(value: string | number | BigNumber | bigint,
+                                          decimals = 18,
+                                          rounding: BigNumber.RoundingMode|undefined = undefined) {
+  return shiftByFixed(value.toString(), -(+decimals), rounding);
 }
 
 /**
@@ -32,7 +36,7 @@ export function fromSmartContractDecimals(value: string|number|BigNumber, decima
  * @param {number} decimals
  * @return {string}
  */
-export function fromDecimals(value: string|number, decimals = 18) {
+export function fromDecimals(value: string|number|bigint, decimals = 18) {
   return fromSmartContractDecimals(value, decimals);
 }
 
@@ -42,7 +46,7 @@ export function fromDecimals(value: string|number, decimals = 18) {
  * @return {number}
  */
 export function toSmartContractDate(date: number|Date) {
-  return parseInt(`${+new Date(date) / 1000}`, 10).toFixed() as any as number;
+  return parseInt(`${+new Date(date) / 1000}`, 10).toFixed() as unknown as number;
 }
 
 /**
@@ -51,5 +55,5 @@ export function toSmartContractDate(date: number|Date) {
  * @return {Date}
  */
 export function fromSmartContractDate(date: number) {
-  return +new Date(date*1000);
+  return +new Date(Number(date)*1000);
 }

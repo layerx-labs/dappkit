@@ -2,15 +2,15 @@ import {describe} from "mocha";
 import {
   defaultWeb3Connection,
   erc20Deployer,
-  getPrivateKeyFromFile,
   hasTxBlockNumber,
   modelExtensionDeployer,
 } from "../utils";
 import {ERC20, Web3Connection} from "../../src";
 
-import {ERC4626} from "../../src/models/erc4626";
+import {ERC4626} from "../../src/models/token/ERC4626/erc4626";
 import {expect} from "chai";
-import {Account} from "web3-core";
+import {type Web3Account} from "web3-eth-accounts/lib/types";
+import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
 
 
 describe(`ERC4626`, () => {
@@ -19,9 +19,9 @@ describe(`ERC4626`, () => {
   let erc20: ERC20;
 
   let erc4626Address: string;
-  let Owner: Account;
-  let Alice: Account;
-  let Bob: Account;
+  let Owner: Web3Account;
+  let Alice: Web3Account;
+  let Bob: Web3Account;
 
   //const cap = toSmartContractDecimals(AMOUNT_1M);
   const name =  `NAME`;
@@ -31,8 +31,8 @@ describe(`ERC4626`, () => {
     web3Connection = await defaultWeb3Connection(true, true);
 
     Owner = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile());
-    Alice = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(5));
-    Bob = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(6));
+    Alice = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(1));
+    Bob = web3Connection.eth.accounts.privateKeyToAccount(getPrivateKeyFromFile(2));
 
     const erc20Receipt = await erc20Deployer(name, symbol, '0', web3Connection);
 
@@ -59,7 +59,7 @@ describe(`ERC4626`, () => {
     });
 
     it(`Asserts underlying decimals`, async () => {
-      expect(await erc4626.decimals()).to.be.eq('18');
+      expect((await erc4626.decimals()).toString()).to.be.eq('18');
     });
 
     describe(`Simulates usage`, async () => {
