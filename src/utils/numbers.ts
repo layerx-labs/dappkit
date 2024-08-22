@@ -1,8 +1,13 @@
 import BigNumber from 'bignumber.js';
 
-const shiftByFixed = (value: string|number|BigNumber, shiftBy: number,
-                      rounding: BigNumber.RoundingMode|undefined = undefined) =>
-  new BigNumber(value).shiftedBy(shiftBy).toFixed(rounding ? 0 : 5, rounding)
+function shiftByFixed(value: string|number|BigNumber, 
+                      shiftBy: number, 
+                      rounding: BigNumber.RoundingMode|undefined = undefined) {
+  const shiftedValue = new BigNumber(value).shiftedBy(shiftBy);
+  if (rounding !== undefined)
+    return shiftedValue.toFixed(0, rounding);
+  return shiftedValue.toFixed();
+}
 
 /**
  * convert a simple number into a big number representation, usually used to convert
