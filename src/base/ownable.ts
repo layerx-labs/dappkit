@@ -1,18 +1,25 @@
-import {OwnableMethods} from '@methods/ownable';
-import {UseModel} from '@base/use-model';
-import {Errors} from '@interfaces/error-enum';
 
-export class Ownable extends UseModel<OwnableMethods> {
-  async setOwner(address: string) {
-    return this.model.sendTx(this.model.contract.methods.transferOwnership(address))
+import {Errors} from '@interfaces/error-enum';
+import artifact from "@interfaces/generated/abi/Ownable";
+import {Model} from "@base/model";
+import {Web3Connection} from "@base/web3-connection";
+import {Web3ConnectionOptions} from "@interfaces/web3-connection-options";
+
+export class Ownable extends Model<typeof artifact.abi> {
+  constructor(web3Connection: Web3Connection|Web3ConnectionOptions, contractAddress?: string) {
+    super(web3Connection, artifact.abi, contractAddress);
   }
 
-  async owner() {
-    return this.model.callTx(this.model.contract.methods.owner());
+  async setOwner(address: string) {
+    return this.sendTx(this.contract.methods.transferOwnership(address))
+  }
+
+  async owner(): Promise<string> {
+    return this.callTx(this.contract.methods.owner());
   }
 
   async onlyOwner() {
-    const isOwner = (await this.owner()) === (await this.model.connection.getAddress());
+    const isOwner = (await this.owner()) === (await this.connection.getAddress());
     if (!isOwner)
       throw new Error(Errors.OnlyAdminCanPerformThisOperation)
   }

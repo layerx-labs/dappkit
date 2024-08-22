@@ -74,7 +74,7 @@ describe(`Network_Registry`, () => {
 
     describe(`Green Path`, () => {
       it (`Parameters on contract should be the same of deployment`, async () => {
-        expect(await registry.erc20()).to.eq(erc20Address);
+        expect((await registry.erc20()).toLowerCase()).to.eq(erc20Address);
         expect(+(await registry.lockAmountForNetworkCreation())).to.eq(lockAmountForNetworkCreation);
         expect(+(await registry.networkCreationFeePercentage())).to.eq(lockFeePercentage / registry.divisor);
       });
@@ -82,7 +82,7 @@ describe(`Network_Registry`, () => {
       it(`Test MAX_LOCK_PERCENTAGE_FEE should be equal to 99%`, async () => {             
         const maxLockPercentageFee = await registry.getMAX_LOCK_PERCENTAGE_FEE();        
 
-        expect(maxLockPercentageFee).to.eq((99000000).toString());
+        expect(maxLockPercentageFee).to.eq((99000000));
       });
 
       it(`Changes amount needed for network creation`, async () => {

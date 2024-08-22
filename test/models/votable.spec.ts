@@ -2,6 +2,7 @@ import {Votable, Web3Connection} from '../../src';
 import {defaultWeb3Connection, erc20Deployer, hasTxBlockNumber, increaseTime} from '../utils/';
 import {toSmartContractDecimals} from '../../src/';
 import {expect} from 'chai';
+import {EventLog} from "web3-eth-contract/lib/commonjs/types";
 
 describe(`Votable`, () => {
   let accountAddress: string;
@@ -44,10 +45,10 @@ describe(`Votable`, () => {
       const events =
         await contract.contract.self
                       .getPastEvents(`pollCreated`,
-                                     {fromBlock: tx.blockNumber, address: accountAddress});
+                                     {fromBlock: tx.blockNumber}) as EventLog[];
 
       expect(events[0].returnValues["pollID"], `Event opener`).to.not.be.undefined;
-      pollId = events[0].returnValues["pollID"];
+      pollId = events[0].returnValues["pollID"] as number;
     });
 
     it(`Casts a vote`, async () => {

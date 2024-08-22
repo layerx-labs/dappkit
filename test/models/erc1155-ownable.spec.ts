@@ -1,18 +1,19 @@
 import {
   defaultWeb3Connection,
-  getPrivateKeyFromFile,
   shouldBeRejected,
 } from '../utils';
 import { ERC1155Ownable, Web3Connection } from '../../src';
 import { expect } from 'chai';
-import { Account } from 'web3-core';
+import {type Web3Account} from "web3-eth-accounts";
+import {getPrivateKeyFromFile} from "../utils/get-pvt-k-from-file";
+
 
 describe(`ERC1155 Ownable`, () => {
   let contract: ERC1155Ownable;
   let web3Connection: Web3Connection;
   let contractAddress: string;
-  let bob: Account;
-  let alice: Account;
+  let bob: Web3Account;
+  let alice: Web3Account;
 
   const initial = {
     uri: 'https://my.token.uri',
@@ -43,7 +44,7 @@ describe(`ERC1155 Ownable`, () => {
 
     it(`Set a new URI for all tokens`, async () => {
       const uriBeforeSetting = await contract.uri(0);
-      await contract.setURI('https://domain.tld/');
+      await contract.setURI('https://domain.tld/ownable');
       const uriAfterSetting = await contract.uri(0);
 
       expect(uriBeforeSetting).to.have.string(initial.uri);
@@ -78,7 +79,7 @@ describe(`ERC1155 Ownable`, () => {
       it(`'setURI' reverts the transaction: OR => OwnerRequired`, async () => {
         const uriBeforeSetting = await contract.uri(0);
         await shouldBeRejected(contract.setURI('https://bob.domain/'), 'OR');
-        expect(uriBeforeSetting).to.have.string(await contract.uri(0));
+        expect(uriBeforeSetting).to.have.string((await contract.uri(0)).toString());
       });
 
       it(`'mint' reverts the transaction: OR => OwnerRequired`, async () => {

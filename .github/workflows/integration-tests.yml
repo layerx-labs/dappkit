@@ -4,21 +4,24 @@ on:
   push:
     branches:
       - master
+      - develop
   pull_request:
     branches:
       - master
+      - develop
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.15.0]
+        node-version: [21.1.0]
         environment: [build]
+    environment: build
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Install Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -35,3 +38,4 @@ jobs:
         run: npm run test-ci
         env:
           CI: true
+          CI_MNEMONIC: test test test test test test test test test test test junk
